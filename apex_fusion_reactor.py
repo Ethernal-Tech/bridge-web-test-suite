@@ -47,6 +47,8 @@ class ApexFusionReactor:
             '//*[@id="app"]/div/div[2]/main/div/div[2]/div/div/form/div[2]/button'
         ).click()
 
+        print(f"'{datetime.now()}' Receiver Address '{receiver_address}' has been funded")
+
     @retry()
     def __open_reactor(self, source: str, destination: str) -> None:
         self.__driver.get(self.__reactor_url)
