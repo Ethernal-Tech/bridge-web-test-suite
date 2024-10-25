@@ -192,7 +192,7 @@ class ApexFusionReactor:
 
     @staticmethod
     def __not_possible_bridging(source: str, destination: str) -> None:
-        print(f"{datetime.now()} Error: For source '{source}' destination can't be '{destination}'")
+        print(f"'{datetime.now()}' Error: For source '{source}' destination can't be '{destination}'")
 
     def bridging(self, source: str, destination: str, amount: str) -> None:
         if source == ApexFusionChain.prime:
@@ -235,16 +235,16 @@ class ApexFusionReactor:
         self.__connect_wallet_and_move_funds()
 
         if not self.__eternl_granted_access and type(source_wallet) == Eternl:
-            print(f'{datetime.now()} Eternl Wallet is waiting for access to {self.__reactor_url} to be granted')
+            print(f"'{datetime.now()}' Eternl Wallet is waiting for access to '{self.__reactor_url}' to be granted")
             source_wallet.grant_access()
             self.__eternl_granted_access = True
-            print(f'{datetime.now()} Access granted successfully')
+            print(f"'{datetime.now()}' Access granted successfully")
 
         if not self.__metamask_granted_access and type(source_wallet) == MetaMask:
-            print(f'{datetime.now()} MetaMask Wallet is waiting for access to {self.__reactor_url} to be granted')
+            print(f"'{datetime.now()}' MetaMask Wallet is waiting for access to '{self.__reactor_url}' to be granted")
             source_wallet.grant_access()
             self.__metamask_granted_access = True
-            print(f'{datetime.now()} Access granted successfully')
+            print(f"'{datetime.now()}' Access granted successfully")
 
         self.__connect_wallet_and_move_funds()
 
@@ -261,19 +261,19 @@ class ApexFusionReactor:
         else:
             self.__confirm_transaction()
 
-        print(f"{datetime.now()} Starting bridging from '{source}' to '{destination}' {amount} token(s)")
+        print(f"'{datetime.now()}' Starting bridging from '{source}' to '{destination}' '{amount}' token(s)")
 
         is_source_succeeded = self.__progress_source()
-        print(f'{datetime.now()} Source succeeded: {is_source_succeeded}')
+        print(f"'{datetime.now()}' Source succeeded: '{is_source_succeeded}'")
 
         is_bridge_succeeded = self.__progress_bridge()
-        print(f'{datetime.now()} Bridge succeeded: {is_bridge_succeeded}')
+        print(f"'{datetime.now()}' Bridge succeeded: '{is_bridge_succeeded}'")
 
         is_destination_succeeded = self.__progress_destination()
-        print(f"{datetime.now()} Destination succeeded: {is_destination_succeeded}")
+        print(f"'{datetime.now()}' Destination succeeded: '{is_destination_succeeded}'")
 
         status = self.__get_status()
-        print(f"{datetime.now()} Bridging status: {status}")
+        print(f"'{datetime.now()}' Bridging status: '{status}'")
 
         self.__disconnect_wallet()
 

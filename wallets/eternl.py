@@ -149,9 +149,9 @@ class Eternl:
         self.__set_receive_address()
         self.__set_balance()
 
-        print(f"{datetime.now()} Eternl Wallet '{self.__name}' recovered successfully")
-        print(f'{datetime.now()} Receiver Address: {self.__receive_address}')
-        print(f'{datetime.now()} Current Balance: {self.__balance}')
+        print(f"'{datetime.now()}' Eternl Wallet '{self.__name}' recovered successfully")
+        print(f"'{datetime.now()}' Receiver Address: '{self.__receive_address}'")
+        print(f"'{datetime.now()}' Current Balance: '{self.__balance}'")
 
     @retry()
     def connect_or_disconnect_dapp(self) -> None:
