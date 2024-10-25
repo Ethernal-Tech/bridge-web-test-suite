@@ -244,7 +244,10 @@ class ApexFusionReactor:
 
         if not self.__metamask_granted_access and type(source_wallet) == MetaMask:
             print(f"'{datetime.now()}' MetaMask Wallet is waiting for access to '{self.__reactor_url}' to be granted")
-            source_wallet.grant_access()
+            try:
+                source_wallet.grant_access()
+            except IndexError:
+                pass
             self.__metamask_granted_access = True
             print(f"'{datetime.now()}' Access granted successfully")
 
