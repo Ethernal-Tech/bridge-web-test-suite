@@ -1,5 +1,5 @@
 ---
-name: Bridging transactions
+name: Apex Fusion Reactor - Bridging transactions
 on:
   workflow_dispatch:
 
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   bridging:
-    name: Apex Fusion React - Bridging transactions
+    name: Bridging transactions
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,15 +23,10 @@ jobs:
           cache: 'pip'
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Install Chrome
-        run: |
-          sudo apt update
-          sudo wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /opt/google-chrome.deb
-          sudo apt install /opt/google-chrome.deb
-          sudo apt --fix-broken install
       - name: Start bridging
         run: python main.py
         env:
+          PYTHONUNBUFFERED: 1
           SIGN_KEY: ${{ secrets.SIGN_KEY }}
           PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
           VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
