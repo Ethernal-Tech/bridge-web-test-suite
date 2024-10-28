@@ -4,52 +4,52 @@ on:
   workflow_call:
     inputs:
       tx_01_source_status:
-        type: string
+        type: boolean
         required: true
       tx_01_bridge_status:
-        type: string
+        type: boolean
         required: true
       tx_01_destination_status:
-        type: string
+        type: boolean
         required: true
       tx_01_status:
-        type: string
+        type: boolean
         required: true
       tx_02_source_status:
-        type: string
+        type: boolean
         required: true
       tx_02_bridge_status:
-        type: string
+        type: boolean
         required: true
       tx_02_destination_status:
-        type: string
+        type: boolean
         required: true
       tx_02_status:
-        type: string
+        type: boolean
         required: true
       tx_03_source_status:
-        type: string
+        type: boolean
         required: true
       tx_03_bridge_status:
-        type: string
+        type: boolean
         required: true
       tx_03_destination_status:
-        type: string
+        type: boolean
         required: true
       tx_03_status:
-        type: string
+        type: boolean
         required: true
       tx_04_source_status:
-        type: string
+        type: boolean
         required: true
       tx_04_bridge_status:
-        type: string
+        type: boolean
         required: true
       tx_04_destination_status:
-        type: string
+        type: boolean
         required: true
       tx_04_status:
-        type: string
+        type: boolean
         required: true
     secrets:
       SLACK_WEBHOOK_URL:
@@ -89,7 +89,7 @@ jobs:
                         "type": "plain_text",
                         "text": "Workflow Run"
                       },
-                      "style": "${{ inputs.tx_01_status == 'Success' && inputs.tx_02_status == 'Success' && inputs.tx_03_status == 'Success' && inputs.tx_04_status == 'Success' && env.succeed_bnt || env.failed_bnt }}",
+                      "style": "${{ inputs.tx_01_status == 'success' && inputs.tx_02_status == 'success' && inputs.tx_03_status == 'success' && inputs.tx_04_status == 'success' && env.succeed_bnt || env.failed_bnt }}",
                       "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                     }
                   ]
@@ -98,28 +98,28 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_01_source_status == 'True' && env.succeed_job || env.failed_job }} *Prime* :arrow_right: ${{ inputs.tx_01_bridge_status == 'True' && env.succeed_job || env.failed_job }} *Bridge* :arrow_right: ${{ inputs.tx_01_destination_status == 'True' && env.succeed_job || env.failed_job }} *Vector*"
+                    "text": "${{ inputs.tx_01_source_status == true && env.succeed_job || env.failed_job }} *Prime* :arrow_right: ${{ inputs.tx_01_bridge_status == true && env.succeed_job || env.failed_job }} *Bridge* :arrow_right: ${{ inputs.tx_01_destination_status == true && env.succeed_job || env.failed_job }} *Vector*"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_02_source_status == 'True' && env.succeed_job || env.failed_job }} *Prime* :arrow_right: ${{ inputs.tx_02_bridge_status == 'True' && env.succeed_job || env.failed_job }} *Bridge* :arrow_right: ${{ inputs.tx_02_destination_status == 'True' && env.succeed_job || env.failed_job }} *Nexus*"
+                    "text": "${{ inputs.tx_02_source_status == true && env.succeed_job || env.failed_job }} *Prime* :arrow_right: ${{ inputs.tx_02_bridge_status == true && env.succeed_job || env.failed_job }} *Bridge* :arrow_right: ${{ inputs.tx_02_destination_status == true && env.succeed_job || env.failed_job }} *Nexus*"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_03_source_status == 'True' && env.succeed_job || env.failed_job }} *Vector* :arrow_right: ${{ inputs.tx_03_bridge_status == 'True' && env.succeed_job || env.failed_job }} *Bridge* :arrow_right: ${{ inputs.tx_03_destination_status == 'True' && env.succeed_job || env.failed_job }} *Prime*"
+                    "text": "${{ inputs.tx_03_source_status == true && env.succeed_job || env.failed_job }} *Vector* :arrow_right: ${{ inputs.tx_03_bridge_status == true && env.succeed_job || env.failed_job }} *Bridge* :arrow_right: ${{ inputs.tx_03_destination_status == true && env.succeed_job || env.failed_job }} *Prime*"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_04_source_status == 'True' && env.succeed_job || env.failed_job }} *Nexus* :arrow_right: ${{ inputs.tx_04_bridge_status == 'True' && env.succeed_job || env.failed_job }} *Bridge* :arrow_right: ${{ inputs.tx_04_destination_status == 'True' && env.succeed_job || env.failed_job }} *Prime*"
+                    "text": "${{ inputs.tx_04_source_status == true && env.succeed_job || env.failed_job }} *Nexus* :arrow_right: ${{ inputs.tx_04_bridge_status == true && env.succeed_job || env.failed_job }} *Bridge* :arrow_right: ${{ inputs.tx_04_destination_status == true && env.succeed_job || env.failed_job }} *Prime*"
                   }
                 }
               ]

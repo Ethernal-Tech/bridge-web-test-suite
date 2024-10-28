@@ -1,4 +1,5 @@
 from os import path
+from json import dump
 from time import sleep
 from datetime import datetime
 from toolbox.chrome import Chrome
@@ -265,19 +266,30 @@ class ApexFusionReactor:
 
         print(f"{datetime.now()} Starting bridging from '{source}' to '{destination}' {amount} token(s)")
 
-        is_source_succeeded = self.__progress_source()
+        is_source_succeeded: bool = self.__progress_source()
         print(f'{datetime.now()} Source succeeded: {is_source_succeeded}')
 
-        is_bridge_succeeded = self.__progress_bridge()
+        is_bridge_succeeded: bool = self.__progress_bridge()
         print(f'{datetime.now()} Bridge succeeded: {is_bridge_succeeded}')
 
-        is_destination_succeeded = self.__progress_destination()
+        is_destination_succeeded: bool = self.__progress_destination()
         print(f'{datetime.now()} Destination succeeded: {is_destination_succeeded}')
 
-        status = self.__get_status()
+        status: str = self.__get_status()
         print(f'{datetime.now()} Bridging status: {status}')
 
         self.__disconnect_wallet()
 
         if type(source_wallet) == Eternl:
             source_wallet.connect_or_disconnect_dapp()
+
+        dump(
+            {
+                'source': is_source_succeeded,
+                'bridge': is_bridge_succeeded,
+                'destination': is_destination_succeeded,
+                'status': status.lower()
+            },
+            open(f'{source}_{destination}.json', 'w', encoding='utf-8'),
+            indent=4
+        )
