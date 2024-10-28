@@ -1,0 +1,110 @@
+---
+name: Reactor Test
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  bridging:
+    name: Bridging transactions
+    runs-on: macos-latest
+    outputs:
+      tx_01_source_status: ${{ steps.statuses.outputs.tx_01_source_status }}
+      tx_01_bridge_status: ${{ steps.statuses.outputs.tx_01_bridge_status }}
+      tx_01_destination_status: ${{ steps.statuses.outputs.tx_01_destination_status }}
+      tx_01_status: ${{ steps.statuses.outputs.tx_01_status }}
+      tx_02_source_status: ${{ steps.statuses.outputs.tx_02_source_status }}
+      tx_02_bridge_status: ${{ steps.statuses.outputs.tx_02_bridge_status }}
+      tx_02_destination_status: ${{ steps.statuses.outputs.tx_02_destination_status }}
+      tx_02_status: ${{ steps.statuses.outputs.tx_02_status }}
+      tx_03_source_status: ${{ steps.statuses.outputs.tx_03_source_status }}
+      tx_03_bridge_status: ${{ steps.statuses.outputs.tx_03_bridge_status }}
+      tx_03_destination_status: ${{ steps.statuses.outputs.tx_03_destination_status }}
+      tx_03_status: ${{ steps.statuses.outputs.tx_03_status }}
+      tx_04_source_status: ${{ steps.statuses.outputs.tx_04_source_status }}
+      tx_04_bridge_status: ${{ steps.statuses.outputs.tx_04_bridge_status }}
+      tx_04_destination_status: ${{ steps.statuses.outputs.tx_04_destination_status }}
+      tx_04_status: ${{ steps.statuses.outputs.tx_04_status }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.1
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          check-latest: true
+          cache: 'pip'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Start bridging
+        run: echo "logs=$(python main.py)" >> $GITHUB_OUTPUT
+        env:
+          PYTHONUNBUFFERED: 1
+          SIGN_KEY: ${{ secrets.SIGN_KEY }}
+          PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+          VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
+          NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
+          NEXUS_NETWORK_NAME: ${{ vars.NEXUS_NETWORK_NAME }}
+          NEXUS_NETWORK_RPC_URL: ${{ vars.NEXUS_NETWORK_RPC_URL }}
+          NEXUS_NETWORK_CHAIN_ID: ${{ vars.NEXUS_NETWORK_CHAIN_ID }}
+          NEXUS_NETWORK_CURRENCY_SYMBOL: ${{ vars.NEXUS_NETWORK_CURRENCY_SYMBOL }}
+          PRIME_TO_VECTOR_AMOUNT: ${{ vars.PRIME_TO_VECTOR_AMOUNT }}
+          PRIME_TO_NEXUS_AMOUNT: ${{ vars.PRIME_TO_NEXUS_AMOUNT }}
+          VECTOR_TO_PRIME_AMOUNT: ${{ vars.VECTOR_TO_PRIME_AMOUNT }}
+          NEXUS_TO_PRIME_AMOUNT: ${{ vars.NEXUS_TO_PRIME_AMOUNT }}
+          APEX_FUSION_REACTOR_URL: ${{ vars.APEX_FUSION_REACTOR_URL }}
+          APEX_FUSION_FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
+      - name: Check status
+        id: statuses
+        run: |
+          tx_01=$(echo $logs | grep "Starting bridging from 'prime' to 'vector'" -A 4 | tail -4)
+          echo "tx_01_source_status=`echo $tx_01 | grep 'Source' | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_01_bridge_status=`echo $tx_01 | grep 'Bridge' | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_01_destination_status=`echo $tx_01 | grep 'Destination' | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_01_status=`echo $tx_01 | grep "Bridging" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          
+          tx_02=$(echo $logs | grep "Starting bridging from 'prime' to 'nexus'" -A 4 | tail -4)
+          echo "tx_02_source_status=`echo $tx_02 | grep "Source" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_02_bridge_status=`echo $tx_02 | grep "Bridge" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_02_destination_status=`echo $tx_02 | grep "Destination" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_02_status=`echo $tx_02 | grep "Bridging" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          
+          tx_03=$(echo $logs | grep "Starting bridging from 'vector' to 'prime'" -A 4 | tail -4)
+          echo "tx_03_source_status=`echo $tx_03 | grep "Source" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_03_bridge_status=`echo $tx_03 | grep "Bridge" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_03_destination_status=`echo $tx_03 | grep "Destination" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_03_status=`echo $tx_03 | grep "Bridging" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          
+          tx_04=$(echo $logs | grep "Starting bridging from 'vector' to 'prime'" -A 4 | tail -4)
+          echo "tx_04_source_status=`echo $tx_04 | grep "Source" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_04_bridge_status=`echo $tx_04 | grep "Bridge" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_04_destination_status=`echo $tx_04 | grep "Destination" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+          echo "tx_04_status=`echo $tx_04 | grep "Bridging" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
+
+  notification:
+    name: Bridging notification
+    needs: bridging
+    uses: ./.github/workflows/notification.yml
+    with:
+      tx_01_source_status: ${{ needs.bridging.outputs.tx_01_source_status }}
+      tx_01_bridge_status: ${{ needs.bridging.outputs.tx_01_bridge_status }}
+      tx_01_destination_status: ${{ needs.bridging.outputs.tx_01_destination_status }}
+      tx_01_status: ${{ needs.bridging.outputs.tx_01_status }}
+      tx_02_source_status: ${{ needs.bridging.outputs.tx_02_source_status }}
+      tx_02_bridge_status: ${{ needs.bridging.outputs.tx_02_bridge_status }}
+      tx_02_destination_status: ${{ needs.bridging.outputs.tx_02_destination_status }}
+      tx_02_status: ${{ needs.bridging.outputs.tx_02_status }}
+      tx_03_source_status: ${{ needs.bridging.outputs.tx_03_source_status }}
+      tx_03_bridge_status: ${{ needs.bridging.outputs.tx_03_bridge_status }}
+      tx_03_destination_status: ${{ needs.bridging.outputs.tx_03_destination_status }}
+      tx_03_status: ${{ needs.bridging.outputs.tx_03_status }}
+      tx_04_source_status: ${{ needs.bridging.outputs.tx_04_source_status }}
+      tx_04_bridge_status: ${{ needs.bridging.outputs.tx_04_bridge_status }}
+      tx_04_destination_status: ${{ needs.bridging.outputs.tx_04_destination_status }}
+      tx_04_status: ${{ needs.bridging.outputs.tx_04_status }}
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -160,7 +160,7 @@ class MetaMask:
         self.__got_it()
         self.__finish()
 
-        print('MetaMask Wallet recovered successfully')
+        print(f'{datetime.now()} MetaMask Wallet recovered successfully')
 
     @retry()
     def add_network(self, name: str, rpc_url: str, chain_id: str, currency_symbol: str) -> None:
@@ -200,7 +200,7 @@ class MetaMask:
             '//*[@id="popover-content"]/div/div/section/div[2]/div/button[1]'
         ).click()
 
-        print(f"Successfully added '{name}' network")
+        print(f"{datetime.now()} Successfully added '{name}' network")
 
         sleep(1)
 
@@ -209,8 +209,8 @@ class MetaMask:
         self.__driver.get(self.__url)
         self.__set_balance()
 
-        print(f'Receiver Address: {self.__receive_address}')
-        print(f'Current Balance: {self.__balance}')
+        print(f'{datetime.now()} Receiver Address: {self.__receive_address}')
+        print(f'{datetime} Current Balance: {self.__balance}')
 
     @retry()
     def grant_access(self) -> None:

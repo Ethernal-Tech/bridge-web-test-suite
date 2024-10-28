@@ -7,8 +7,6 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 
 class Chrome(WebDriver):
     def __init__(self) -> None:
-        self.__logs: dict = dict()
-
         self.__extensions_dir_path: str = path.join(path.dirname(path.abspath(__file__)), 'extensions')
 
         self.__options = [
@@ -37,9 +35,3 @@ class Chrome(WebDriver):
 
     def get_init_tab(self) -> str:
         return self.__init_tab
-
-    def add_to_log(self, key, value) -> None:
-        self.__logs[key] = value
-
-    def get_logs(self) -> dict:
-        return self.__logs
