@@ -210,7 +210,6 @@ class MetaMask:
         self.__set_balance()
 
         print(f'{datetime.now()} Receiver Address: {self.__receive_address}')
-        print(f'{datetime.now()} Current Balance: {self.__balance}')
 
     @retry()
     def grant_access(self) -> None:
