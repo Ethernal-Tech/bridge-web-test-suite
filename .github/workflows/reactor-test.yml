@@ -41,6 +41,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Start bridging
+        id: bridging
         run: |
           LOG_OUTPUT=""
           while IFS= read -r line || [ -n "$line" ]; do
@@ -67,25 +68,25 @@ jobs:
       - name: Check status
         id: statuses
         run: |
-          tx_01=$(echo $logs | grep "Starting bridging from 'prime' to 'vector'" -A 4 | tail -4)
+          tx_01=$(echo ${{ steps.bridging.outputs.logs }} | grep "Starting bridging from 'prime' to 'vector'" -A 4 | tail -4)
           echo "tx_01_source_status=`echo $tx_01 | grep 'Source' | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           echo "tx_01_bridge_status=`echo $tx_01 | grep 'Bridge' | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           echo "tx_01_destination_status=`echo $tx_01 | grep 'Destination' | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           echo "tx_01_status=`echo $tx_01 | grep "Bridging" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           
-          tx_02=$(echo $logs | grep "Starting bridging from 'prime' to 'nexus'" -A 4 | tail -4)
+          tx_02=$(echo ${{ steps.bridging.outputs.logs }} | grep "Starting bridging from 'prime' to 'nexus'" -A 4 | tail -4)
           echo "tx_02_source_status=`echo $tx_02 | grep "Source" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           echo "tx_02_bridge_status=`echo $tx_02 | grep "Bridge" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           echo "tx_02_destination_status=`echo $tx_02 | grep "Destination" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           echo "tx_02_status=`echo $tx_02 | grep "Bridging" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           
-          tx_03=$(echo $logs | grep "Starting bridging from 'vector' to 'prime'" -A 4 | tail -4)
+          tx_03=$(echo ${{ steps.bridging.outputs.logs }} | grep "Starting bridging from 'vector' to 'prime'" -A 4 | tail -4)
           echo "tx_03_source_status=`echo $tx_03 | grep "Source" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           echo "tx_03_bridge_status=`echo $tx_03 | grep "Bridge" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           echo "tx_03_destination_status=`echo $tx_03 | grep "Destination" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           echo "tx_03_status=`echo $tx_03 | grep "Bridging" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           
-          tx_04=$(echo $logs | grep "Starting bridging from 'vector' to 'prime'" -A 4 | tail -4)
+          tx_04=$(echo ${{ steps.bridging.outputs.logs }} | grep "Starting bridging from 'vector' to 'prime'" -A 4 | tail -4)
           echo "tx_04_source_status=`echo $tx_04 | grep "Source" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           echo "tx_04_bridge_status=`echo $tx_04 | grep "Bridge" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
           echo "tx_04_destination_status=`echo $tx_04 | grep "Destination" | cut -d ' ' -f 5` >> $GITHUB_OUTPUT
@@ -95,7 +96,7 @@ jobs:
     name: Bridging notification
     needs: bridging
     uses: ./.github/workflows/notification.yml
-    if: success()
+    if: success() || failure()
     with:
       tx_01_source_status: ${{ needs.bridging.outputs.tx_01_source_status }}
       tx_01_bridge_status: ${{ needs.bridging.outputs.tx_01_bridge_status }}
