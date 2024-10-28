@@ -160,7 +160,7 @@ class MetaMask:
         self.__got_it()
         self.__finish()
 
-        print(f'{datetime.now()} MetaMask Wallet recovered successfully')
+        print('MetaMask Wallet recovered successfully')
 
     @retry()
     def add_network(self, name: str, rpc_url: str, chain_id: str, currency_symbol: str) -> None:
@@ -200,7 +200,7 @@ class MetaMask:
             '//*[@id="popover-content"]/div/div/section/div[2]/div/button[1]'
         ).click()
 
-        print(f"{datetime.now()} Successfully added '{name}' network")
+        print(f"Successfully added '{name}' network")
 
         sleep(1)
 
@@ -209,15 +209,19 @@ class MetaMask:
         self.__driver.get(self.__url)
         self.__set_balance()
 
-        print(f'{datetime.now()} Receiver Address: {self.__receive_address}')
-        print(f'{datetime.now()} Current Balance: {self.__balance}')
+        print(f'Receiver Address: {self.__receive_address}')
+        print(f'Current Balance: {self.__balance}')
 
     @retry()
     def grant_access(self) -> None:
+        tries = 20
         tabs = self.__driver.window_handles
-        popup = list(set(tabs) - set(self.__opened_tabs))[0]
 
-        self.__driver.switch_to.window(popup)
+        while tries > 0 and self.__driver.window_handles == tabs:
+            tries -= 1
+            sleep(3)
+
+        self.__driver.switch_to.window(list(set(self.__driver.window_handles) - set(tabs))[0])
 
         for i in range(2):
 
