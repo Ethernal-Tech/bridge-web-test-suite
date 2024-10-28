@@ -41,7 +41,13 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Start bridging
-        run: echo "logs=$(python main.py)" >> $GITHUB_OUTPUT
+        run: |
+          LOG_OUTPUT=""
+          while IFS= read -r line || [ -n "$line" ]; do
+            echo "$line"
+            LOG_OUTPUT+="$line\n"
+          done < <(python main.py)
+          echo "logs=$LOG_OUTPUT" >> $GITHUB_OUTPUT
         env:
           PYTHONUNBUFFERED: 1
           SIGN_KEY: ${{ secrets.SIGN_KEY }}
@@ -89,6 +95,7 @@ jobs:
     name: Bridging notification
     needs: bridging
     uses: ./.github/workflows/notification.yml
+    if: success()
     with:
       tx_01_source_status: ${{ needs.bridging.outputs.tx_01_source_status }}
       tx_01_bridge_status: ${{ needs.bridging.outputs.tx_01_bridge_status }}
