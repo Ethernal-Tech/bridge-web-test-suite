@@ -48,7 +48,6 @@ class ApexFusionReactor:
         ).click()
 
         print(f'{datetime.now()} Receiver Address {receiver_address} has been funded')
-        print(f'{datetime.now()} Receiver Address {receiver_address} has been funded')
 
     @retry()
     def __open_reactor(self, source: str, destination: str) -> None:
