@@ -4,52 +4,52 @@ on:
   workflow_call:
     inputs:
       tx_01_source_status:
-        type: boolean
+        type: string
         required: true
       tx_01_bridge_status:
-        type: boolean
+        type: string
         required: true
       tx_01_destination_status:
-        type: boolean
+        type: string
         required: true
       tx_01_status:
-        type: boolean
+        type: string
         required: true
       tx_02_source_status:
-        type: boolean
+        type: string
         required: true
       tx_02_bridge_status:
-        type: boolean
+        type: string
         required: true
       tx_02_destination_status:
-        type: boolean
+        type: string
         required: true
       tx_02_status:
-        type: boolean
+        type: string
         required: true
       tx_03_source_status:
-        type: boolean
+        type: string
         required: true
       tx_03_bridge_status:
-        type: boolean
+        type: string
         required: true
       tx_03_destination_status:
-        type: boolean
+        type: string
         required: true
       tx_03_status:
-        type: boolean
+        type: string
         required: true
       tx_04_source_status:
-        type: boolean
+        type: string
         required: true
       tx_04_bridge_status:
-        type: boolean
+        type: string
         required: true
       tx_04_destination_status:
-        type: boolean
+        type: string
         required: true
       tx_04_status:
-        type: boolean
+        type: string
         required: true
     secrets:
       SLACK_WEBHOOK_URL:
@@ -98,28 +98,28 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_01_source_status == true && env.succeed_job || env.failed_job }} *Prime* ${{ inputs.tx_01_bridge_status == true && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_01_destination_status == true && env.succeed_job || env.failed_job }} *Vector*"
+                    "text": "${{ inputs.tx_01_source_status == 'true' && env.succeed_job || env.failed_job }} *Prime* ${{ inputs.tx_01_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_01_destination_status == 'true' && env.succeed_job || env.failed_job }} *Vector*"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_02_source_status == true && env.succeed_job || env.failed_job }} *Prime* ${{ inputs.tx_02_bridge_status == true && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_02_destination_status == true && env.succeed_job || env.failed_job }} *Nexus*"
+                    "text": "${{ inputs.tx_02_source_status == 'true' && env.succeed_job || env.failed_job }} *Prime* ${{ inputs.tx_02_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_02_destination_status == 'true' && env.succeed_job || env.failed_job }} *Nexus*"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_03_source_status == true && env.succeed_job || env.failed_job }} *Vector* ${{ inputs.tx_03_bridge_status == true && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_03_destination_status == true && env.succeed_job || env.failed_job }} *Prime*"
+                    "text": "${{ inputs.tx_03_source_status == 'true' && env.succeed_job || env.failed_job }} *Vector* ${{ inputs.tx_03_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_03_destination_status == 'true' && env.succeed_job || env.failed_job }} *Prime*"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_04_source_status == true && env.succeed_job || env.failed_job }} *Nexus* ${{ inputs.tx_04_bridge_status == true && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_04_destination_status == true && env.succeed_job || env.failed_job }} *Prime*"
+                    "text": "${{ inputs.tx_04_source_status == 'true' && env.succeed_job || env.failed_job }} *Nexus* ${{ inputs.tx_04_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_04_destination_status == 'true' && env.succeed_job || env.failed_job }} *Prime*"
                   }
                 }
               ]
