@@ -201,7 +201,7 @@ class ApexFusionReactor:
 
         self.__connect_wallet_and_move_funds()
 
-        print(f'{datetime.now()} Eternl Wallet is waiting for access to {self.__reactor_url} to be granted')
+        print(f'{datetime.now()} {type(self.__source_wallet)} Wallet is waiting for access to {self.__reactor_url} to be granted')
         self.__source_wallet.grant_access()
         print(f'{datetime.now()} Access granted successfully')
 
