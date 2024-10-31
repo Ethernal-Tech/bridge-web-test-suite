@@ -186,10 +186,18 @@ class ApexFusionReactor:
         # wait the bridging history to be loaded
         sleep(15)
 
-        return find_element_by_xpath(
+        status = find_element_by_xpath(
             self.__driver,
             '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[7]/div/p'
         ).text
+
+        if status != 'Success':
+            sleep(10)
+
+            # try again
+            raise Exception
+
+        return status
 
     @staticmethod
     def __not_possible_bridging(source: str, destination: str) -> None:
