@@ -13,8 +13,8 @@ jobs:
     name: Prime to Vector
     uses: ./.github/workflows/bridging.yml
     with:
-      source: prime
-      destination: vector
+      source: Prime
+      destination: Vector
       amount: 5
       notification: false
     secrets:
@@ -25,8 +25,8 @@ jobs:
     name: Prime to Nexus
     uses: ./.github/workflows/bridging.yml
     with:
-      source: prime
-      destination: nexus
+      source: Prime
+      destination: Nexus
       amount: 5
       notification: false
     secrets:
@@ -37,8 +37,8 @@ jobs:
     name: Vector to Prime
     uses: ./.github/workflows/bridging.yml
     with:
-      source: vector
-      destination: prime
+      source: Vector
+      destination: Prime
       amount: 2
       notification: false
     secrets:
@@ -49,8 +49,8 @@ jobs:
     name: Nexus to Prime
     uses: ./.github/workflows/bridging.yml
     with:
-      source: nexus
-      destination: prime
+      source: Nexus
+      destination: Prime
       amount: 2
       notification: false
     secrets:

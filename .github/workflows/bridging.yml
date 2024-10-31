@@ -8,17 +8,17 @@ on:
         description: Source chain
         type: choice
         options:
-          - prime
-          - vector
-          - nexus
+          - Prime
+          - Vector
+          - Nexus
       destination:
         required: true
         description: Destination chain
         type: choice
         options:
-          - prime
-          - vector
-          - nexus
+          - Prime
+          - Vector
+          - Nexus
       amount:
         required: true
         description: Amount to send from Source to Destination
