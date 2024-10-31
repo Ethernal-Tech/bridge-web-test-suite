@@ -1,6 +1,7 @@
 from os import path
 from json import dump
 from time import sleep
+from typing import Union
 from datetime import datetime
 from toolbox.chrome import Chrome
 from toolbox.utils import ApexFusionChain, retry, find_element_by_xpath
@@ -14,25 +15,21 @@ class ApexFusionReactor:
             driver: Chrome,
             reactor_url: str,
             faucet_url: str,
-            prime_wallet: Eternl,
-            vector_wallet: Eternl,
-            nexus_wallet: MetaMask,
+            source_wallet: Union[Eternl, MetaMask],
+            destination_wallet: Union[Eternl, MetaMask]
     ) -> None:
 
         self.__reactor_url: str = reactor_url
         self.__faucet_url: str = faucet_url
         self.__transactions_url: str = path.join(self.__reactor_url, 'transactions')
-        self.__eternl_granted_access: bool = False
-        self.__metamask_granted_access: bool = False
         self.__driver: Chrome = driver
-        self.__prime_wallet: Eternl = prime_wallet
-        self.__vector_wallet: Eternl = vector_wallet
-        self.__nexus_wallet: MetaMask = nexus_wallet
+        self.__source_wallet:  Union[Eternl, MetaMask] = source_wallet
+        self.__destination_wallet: Union[Eternl, MetaMask] = destination_wallet
         self.__status_done: str = 'M10.1042 16.9856L5.47772 12.3802L7.02501 10.8123L10.1042 13.8964L17.0119 ' \
                                   '7.00977L18.559 8.55185L10.1042 16.9856Z'
 
-        if datetime.today().strftime('%A') == 'Monday' or self.__prime_wallet.get_balance() < 10:
-            self.__fund(self.__prime_wallet.get_receive_address())
+        self.__fund(self.__source_wallet.get_receive_address())
+        self.__fund(self.__destination_wallet.get_receive_address())
 
     @retry()
     def __fund(self, receiver_address: str) -> None:
@@ -197,74 +194,34 @@ class ApexFusionReactor:
     def __not_possible_bridging(source: str, destination: str) -> None:
         print(f"{datetime.now()} Error: For source '{source}' destination can't be '{destination}'")
 
-    def bridging(self, source: str, destination: str, amount: str) -> None:
-        if source == ApexFusionChain.prime:
-            source_wallet = self.__prime_wallet
-            source_wallet.connect_or_disconnect_dapp()
+    def bridging(self, amount: str) -> None:
+        self.__source_wallet.toggle()
 
-            if destination == ApexFusionChain.vector:
-                destination_wallet = self.__vector_wallet
-
-            elif destination == ApexFusionChain.nexus:
-                destination_wallet = self.__nexus_wallet
-
-            else:
-                return self.__not_possible_bridging(source, destination)
-
-        elif source == ApexFusionChain.vector:
-            source_wallet = self.__vector_wallet
-            source_wallet.connect_or_disconnect_dapp()
-
-            if destination == ApexFusionChain.prime:
-                destination_wallet = self.__prime_wallet
-
-            else:
-                return self.__not_possible_bridging(source, destination)
-
-        elif source == ApexFusionChain.nexus:
-            source_wallet = self.__nexus_wallet
-
-            if destination == ApexFusionChain.prime:
-                destination_wallet = self.__prime_wallet
-
-            else:
-                return self.__not_possible_bridging(source, destination)
-
-        else:
-            return self.__not_possible_bridging(source, destination)
-
-        self.__open_reactor(source, destination)
+        self.__open_reactor(self.__source_wallet.get_name(), self.__destination_wallet.get_name())
 
         self.__connect_wallet_and_move_funds()
 
-        if not self.__eternl_granted_access and type(source_wallet) == Eternl:
-            print(f'{datetime.now()} Eternl Wallet is waiting for access to {self.__reactor_url} to be granted')
-            source_wallet.grant_access()
-            self.__eternl_granted_access = True
-            print(f'{datetime.now()} Access granted successfully')
-
-        if not self.__metamask_granted_access and type(source_wallet) == MetaMask:
-            print(f'{datetime.now()} MetaMask Wallet is waiting for access to {self.__reactor_url} to be granted')
-            source_wallet.grant_access()
-            self.__metamask_granted_access = True
-            print(f'{datetime.now()} Access granted successfully')
+        print(f'{datetime.now()} Eternl Wallet is waiting for access to {self.__reactor_url} to be granted')
+        self.__source_wallet.grant_access()
+        print(f'{datetime.now()} Access granted successfully')
 
         self.__connect_wallet_and_move_funds()
 
-        self.__destination_address(destination_wallet.get_receive_address())
+        self.__destination_address(self.__destination_wallet.get_receive_address())
         self.__amount_to_send(amount)
         self.__set_balance()
         self.__send_tx()
 
         self.__open_popup_for_signing_tx()
 
-        if type(source_wallet) == Eternl:
-            self.__sign_transaction(source_wallet.get_sign_key())
+        if type(self.__source_wallet) == Eternl:
+            self.__sign_transaction(self.__source_wallet.get_sign_key())
 
-        else:
+        elif type(self.__source_wallet) == MetaMask:
             self.__confirm_transaction()
 
-        print(f"{datetime.now()} Starting bridging from '{source}' to '{destination}' {amount} token(s)")
+        print(f"{datetime.now()} Starting bridging from '{self.__source_wallet.get_name()}' to "
+              f"'{self.__destination_wallet.get_name()}' {amount} token(s)")
 
         is_source_succeeded: bool = self.__progress_source()
         print(f'{datetime.now()} Source succeeded: {is_source_succeeded}')
@@ -280,16 +237,19 @@ class ApexFusionReactor:
 
         self.__disconnect_wallet()
 
-        if type(source_wallet) == Eternl:
-            source_wallet.connect_or_disconnect_dapp()
+        self.__source_wallet.toggle()
 
         dump(
-            {
+            obj={
                 'source': is_source_succeeded,
                 'bridge': is_bridge_succeeded,
                 'destination': is_destination_succeeded,
                 'status': status.lower()
             },
-            open(f'{source}_{destination}.json', 'w', encoding='utf-8'),
+            fp=open(
+                file=f'/tmp/{self.__source_wallet.get_name()}_{self.__destination_wallet.get_name()}.json',
+                mode='w',
+                encoding='utf-8'
+            ),
             indent=4
         )
