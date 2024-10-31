@@ -8,13 +8,15 @@ class MetaMask:
     def __init__(
             self,
             driver: Chrome,
-            sign_key: str
+            sign_key: str,
+            name: str
     ) -> None:
 
         self.__url: str = 'chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html'
         self.__add_network_url: str = f'{self.__url}#settings/networks/add-network'
         self.__driver: Chrome = driver
         self.__sign_key: str = sign_key
+        self.__name: str = name
         self.__receive_address: str = ""
         self.__balance: float = 0.0
         self.__opened_tabs: list[str] = self.__driver.window_handles
@@ -147,6 +149,9 @@ class MetaMask:
     def get_receive_address(self) -> str:
         return self.__receive_address
 
+    def get_name(self) -> str:
+        return self.__name
+
     def recover(self, recovery_phrase: str) -> None:
         self.__driver.get(self.__url)
         self.__agree_terms()
@@ -161,6 +166,9 @@ class MetaMask:
         self.__finish()
 
         print(f'{datetime.now()} MetaMask Wallet recovered successfully')
+
+    def toggle(self) -> None:
+        pass
 
     @retry()
     def add_network(self, name: str, rpc_url: str, chain_id: str, currency_symbol: str) -> None:
@@ -207,7 +215,6 @@ class MetaMask:
         self.__driver.get(self.__url)
         self.__set_receive_address()
         self.__driver.get(self.__url)
-        self.__set_balance()
 
         print(f'{datetime.now()} Receiver Address: {self.__receive_address}')
 

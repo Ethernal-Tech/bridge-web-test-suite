@@ -11,7 +11,7 @@ class Eternl:
             driver: Chrome,
             network: str,
             sign_key: str,
-            name: str = 'My Wallet'
+            name: str
     ) -> None:
 
         self.__url: str = 'chrome-extension://kmhcihpebfmpgmihbkipmjlmmioameka/index.html#/app/%s/welcome' % network
@@ -134,8 +134,8 @@ class Eternl:
     def get_receive_address(self) -> str:
         return self.__receive_address
 
-    def get_balance(self) -> float:
-        return self.__balance
+    def get_name(self) -> str:
+        return self.__name
 
     def recover(self, recovery_phrase: str) -> None:
         self.__driver.get(self.__url)
@@ -147,13 +147,12 @@ class Eternl:
         self.__number_of_accounts()
         self.__open_wallet()
         self.__set_receive_address()
-        self.__set_balance()
 
         print(f"{datetime.now()} Eternl Wallet '{self.__name}' recovered successfully")
         print(f'{datetime.now()} Receiver Address: {self.__receive_address}')
 
     @retry()
-    def connect_or_disconnect_dapp(self) -> None:
+    def toggle(self) -> None:
         self.__driver.get(self.__url)
 
         find_element_by_xpath(

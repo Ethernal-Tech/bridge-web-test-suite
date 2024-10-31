@@ -9,100 +9,70 @@ permissions:
   security-events: write
 
 jobs:
-  bridging:
-    name: Bridging transactions
-    runs-on: macos-latest
-    outputs:
-      tx_01_source_status: ${{ steps.statuses.outputs.tx_01_source_status }}
-      tx_01_bridge_status: ${{ steps.statuses.outputs.tx_01_bridge_status }}
-      tx_01_destination_status: ${{ steps.statuses.outputs.tx_01_destination_status }}
-      tx_01_status: ${{ steps.statuses.outputs.tx_01_status }}
-      tx_02_source_status: ${{ steps.statuses.outputs.tx_02_source_status }}
-      tx_02_bridge_status: ${{ steps.statuses.outputs.tx_02_bridge_status }}
-      tx_02_destination_status: ${{ steps.statuses.outputs.tx_02_destination_status }}
-      tx_02_status: ${{ steps.statuses.outputs.tx_02_status }}
-      tx_03_source_status: ${{ steps.statuses.outputs.tx_03_source_status }}
-      tx_03_bridge_status: ${{ steps.statuses.outputs.tx_03_bridge_status }}
-      tx_03_destination_status: ${{ steps.statuses.outputs.tx_03_destination_status }}
-      tx_03_status: ${{ steps.statuses.outputs.tx_03_status }}
-      tx_04_source_status: ${{ steps.statuses.outputs.tx_04_source_status }}
-      tx_04_bridge_status: ${{ steps.statuses.outputs.tx_04_bridge_status }}
-      tx_04_destination_status: ${{ steps.statuses.outputs.tx_04_destination_status }}
-      tx_04_status: ${{ steps.statuses.outputs.tx_04_status }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.1
-      - name: Setup Python 3.9
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.9'
-          check-latest: true
-          cache: 'pip'
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Start bridging
-        id: bridging
-        run: python main.py
-        env:
-          PYTHONUNBUFFERED: 1
-          SIGN_KEY: ${{ secrets.SIGN_KEY }}
-          PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
-          VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
-          NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
-          NEXUS_NETWORK_NAME: ${{ vars.NEXUS_NETWORK_NAME }}
-          NEXUS_NETWORK_RPC_URL: ${{ vars.NEXUS_NETWORK_RPC_URL }}
-          NEXUS_NETWORK_CHAIN_ID: ${{ vars.NEXUS_NETWORK_CHAIN_ID }}
-          NEXUS_NETWORK_CURRENCY_SYMBOL: ${{ vars.NEXUS_NETWORK_CURRENCY_SYMBOL }}
-          PRIME_TO_VECTOR_AMOUNT: ${{ vars.PRIME_TO_VECTOR_AMOUNT }}
-          PRIME_TO_NEXUS_AMOUNT: ${{ vars.PRIME_TO_NEXUS_AMOUNT }}
-          VECTOR_TO_PRIME_AMOUNT: ${{ vars.VECTOR_TO_PRIME_AMOUNT }}
-          NEXUS_TO_PRIME_AMOUNT: ${{ vars.NEXUS_TO_PRIME_AMOUNT }}
-          APEX_FUSION_REACTOR_URL: ${{ vars.APEX_FUSION_REACTOR_URL }}
-          APEX_FUSION_FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
-      - name: Check status
-        id: statuses
-        run: |
-          echo "tx_01_source_status=$(cat prime_vector.json | jq -r '.source')" >> $GITHUB_OUTPUT
-          echo "tx_01_bridge_status=$(cat prime_vector.json | jq -r '.bridge')" >> $GITHUB_OUTPUT
-          echo "tx_01_destination_status=$(cat prime_vector.json | jq -r '.destination')" >> $GITHUB_OUTPUT
-          echo "tx_01_status=$(cat prime_vector.json | jq -r '.status')" >> $GITHUB_OUTPUT
-          
-          echo "tx_02_source_status=$(cat prime_nexus.json | jq -r '.source')" >> $GITHUB_OUTPUT
-          echo "tx_02_bridge_status=$(cat prime_nexus.json | jq -r '.bridge')" >> $GITHUB_OUTPUT
-          echo "tx_02_destination_status=$(cat prime_nexus.json | jq -r '.destination')" >> $GITHUB_OUTPUT
-          echo "tx_02_status=$(cat prime_nexus.json | jq -r '.status')" >> $GITHUB_OUTPUT
-          
-          echo "tx_03_source_status=$(cat vector_prime.json | jq -r '.source')" >> $GITHUB_OUTPUT
-          echo "tx_03_bridge_status=$(cat vector_prime.json | jq -r '.bridge')" >> $GITHUB_OUTPUT
-          echo "tx_03_destination_status=$(cat vector_prime.json | jq -r '.destination')" >> $GITHUB_OUTPUT
-          echo "tx_03_status=$(cat vector_prime.json | jq -r '.status')" >> $GITHUB_OUTPUT
-          
-          echo "tx_04_source_status=$(cat nexus_prime.json | jq -r '.source')" >> $GITHUB_OUTPUT
-          echo "tx_04_bridge_status=$(cat nexus_prime.json | jq -r '.bridge')" >> $GITHUB_OUTPUT
-          echo "tx_04_destination_status=$(cat nexus_prime.json | jq -r '.destination')" >> $GITHUB_OUTPUT
-          echo "tx_04_status=$(cat nexus_prime.json | jq -r '.status')" >> $GITHUB_OUTPUT
-
-  notification:
-    name: Bridging notification
-    needs: bridging
-    uses: ./.github/workflows/notification.yml
-    if: success() || failure()
+  prime_to_vector:
+    name: Prime to Vector
+    uses: ./.github/workflows/bridging.yml
     with:
-      tx_01_source_status: ${{ needs.bridging.outputs.tx_01_source_status }}
-      tx_01_bridge_status: ${{ needs.bridging.outputs.tx_01_bridge_status }}
-      tx_01_destination_status: ${{ needs.bridging.outputs.tx_01_destination_status }}
-      tx_01_status: ${{ needs.bridging.outputs.tx_01_status }}
-      tx_02_source_status: ${{ needs.bridging.outputs.tx_02_source_status }}
-      tx_02_bridge_status: ${{ needs.bridging.outputs.tx_02_bridge_status }}
-      tx_02_destination_status: ${{ needs.bridging.outputs.tx_02_destination_status }}
-      tx_02_status: ${{ needs.bridging.outputs.tx_02_status }}
-      tx_03_source_status: ${{ needs.bridging.outputs.tx_03_source_status }}
-      tx_03_bridge_status: ${{ needs.bridging.outputs.tx_03_bridge_status }}
-      tx_03_destination_status: ${{ needs.bridging.outputs.tx_03_destination_status }}
-      tx_03_status: ${{ needs.bridging.outputs.tx_03_status }}
-      tx_04_source_status: ${{ needs.bridging.outputs.tx_04_source_status }}
-      tx_04_bridge_status: ${{ needs.bridging.outputs.tx_04_bridge_status }}
-      tx_04_destination_status: ${{ needs.bridging.outputs.tx_04_destination_status }}
-      tx_04_status: ${{ needs.bridging.outputs.tx_04_status }}
+      source: prime
+      destination: vector
+      amount: 5
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+      VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
+  prime_to_nexus:
+    name: Prime to Nexus
+    uses: ./.github/workflows/bridging.yml
+    with:
+      source: prime
+      destination: nexus
+      amount: 5
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+      NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
+  vector_to_prime:
+    name: Vector to Prime
+    uses: ./.github/workflows/bridging.yml
+    with:
+      source: vector
+      destination: prime
+      amount: 2
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+  nexus_to_prime:
+    name: Nexus to Prime
+    uses: ./.github/workflows/bridging.yml
+    with:
+      source: nexus
+      destination: prime
+      amount: 2
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+  notification:
+    name: Send notification
+    uses: ./.github/workflows/notification-reactor-test.yml
+    needs: [prime_to_vector, prime_to_nexus, vector_to_prime, nexus_to_prime]
+    with:
+      tx_01_source_status: ${{ needs.prime_to_vector.outputs.source_status }}
+      tx_01_bridge_status: ${{ needs.prime_to_vector.outputs.bridge_status }}
+      tx_01_destination_status: ${{ needs.prime_to_vector.outputs.destination_status }}
+      tx_01_status: ${{ needs.prime_to_vector.outputs.bridging_status }}
+      tx_02_source_status: ${{ needs.prime_to_nexus.outputs.source_status }}
+      tx_02_bridge_status: ${{ needs.prime_to_nexus.outputs.bridge_status }}
+      tx_02_destination_status: ${{ needs.prime_to_nexus.outputs.destination_status }}
+      tx_02_status: ${{ needs.prime_to_nexus.outputs.bridging_status }}
+      tx_03_source_status: ${{ needs.vector_to_prime.outputs.source_status }}
+      tx_03_bridge_status: ${{ needs.vector_to_prime.outputs.bridge_status }}
+      tx_03_destination_status: ${{ needs.vector_to_prime.outputs.destination_status }}
+      tx_03_status: ${{ needs.vector_to_prime.outputs.bridging_status }}
+      tx_04_source_status: ${{ needs.nexus_to_prime.outputs.source_status }}
+      tx_04_bridge_status: ${{ needs.nexus_to_prime.outputs.bridge_status }}
+      tx_04_destination_status: ${{ needs.nexus_to_prime.outputs.destination_status }}
+      tx_04_status: ${{ needs.nexus_to_prime.outputs.bridging_status }}
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
