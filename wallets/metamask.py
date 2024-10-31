@@ -220,14 +220,9 @@ class MetaMask:
 
     @retry()
     def grant_access(self) -> None:
-        tries = 20
-        tabs = self.__driver.window_handles
+        popup = list(set(self.__driver.window_handles) - set(self.__opened_tabs))[0]
 
-        while tries > 0 and self.__driver.window_handles == tabs:
-            tries -= 1
-            sleep(3)
-
-        self.__driver.switch_to.window(list(set(self.__driver.window_handles) - set(tabs))[0])
+        self.__driver.switch_to.window(popup)
 
         for i in range(2):
 

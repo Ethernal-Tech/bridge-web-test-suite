@@ -167,8 +167,7 @@ class Eternl:
 
     @retry()
     def grant_access(self) -> None:
-        tabs = self.__driver.window_handles
-        popup = list(set(tabs) - set(self.__opened_tabs))[0]
+        popup = list(set(self.__driver.window_handles) - set(self.__opened_tabs))[0]
 
         self.__driver.switch_to.window(popup)
 

@@ -4,7 +4,7 @@ from time import sleep
 from typing import Union
 from datetime import datetime
 from toolbox.chrome import Chrome
-from toolbox.utils import ApexFusionChain, retry, find_element_by_xpath
+from toolbox.utils import retry, find_element_by_xpath
 from wallets.eternl import Eternl
 from wallets.metamask import MetaMask
 
@@ -28,8 +28,9 @@ class ApexFusionReactor:
         self.__status_done: str = 'M10.1042 16.9856L5.47772 12.3802L7.02501 10.8123L10.1042 13.8964L17.0119 ' \
                                   '7.00977L18.559 8.55185L10.1042 16.9856Z'
 
-        self.__fund(self.__source_wallet.get_receive_address())
-        self.__fund(self.__destination_wallet.get_receive_address())
+        if datetime.today().strftime('%A') == 'Monday':
+            self.__fund(self.__source_wallet.get_receive_address())
+            self.__fund(self.__destination_wallet.get_receive_address())
 
     @retry()
     def __fund(self, receiver_address: str) -> None:
@@ -201,7 +202,7 @@ class ApexFusionReactor:
 
         self.__connect_wallet_and_move_funds()
 
-        print(f'{datetime.now()} {type(self.__source_wallet)} Wallet is waiting for access to {self.__reactor_url} to be granted')
+        print(f'{datetime.now()} {type(self.__source_wallet).__name__} Wallet is waiting for access to {self.__reactor_url} to be granted')
         self.__source_wallet.grant_access()
         print(f'{datetime.now()} Access granted successfully')
 
