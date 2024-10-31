@@ -23,6 +23,11 @@ on:
         required: true
         description: Amount to send from Source to Destination
         type: string
+      notification:
+        required: false
+        description: Notification
+        type: boolean
+        default: true
   workflow_call:
     inputs:
       source:
@@ -37,6 +42,10 @@ on:
         required: true
         description: Amount to send from Source to Destination
         type: string
+      notification:
+        required: true
+        description: Notification
+        type: boolean
     outputs:
       bridging_status:
         value: ${{ jobs.bridging.outputs.bridging_status }}
@@ -106,6 +115,7 @@ jobs:
     name: Send notification
     uses: ./.github/workflows/notification-bridging.yml
     needs: bridging
+    if: ((success() || failure()) && inputs.notification)
     with:
       source: ${{ inputs.source }}
       destination: ${{ inputs.destination }}

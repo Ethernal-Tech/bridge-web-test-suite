@@ -16,6 +16,7 @@ jobs:
       source: prime
       destination: vector
       amount: 5
+      notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
       PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
@@ -27,6 +28,7 @@ jobs:
       source: prime
       destination: nexus
       amount: 5
+      notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
       PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
@@ -38,6 +40,7 @@ jobs:
       source: vector
       destination: prime
       amount: 2
+      notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
       VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
@@ -49,6 +52,7 @@ jobs:
       source: nexus
       destination: prime
       amount: 2
+      notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
       NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
@@ -57,6 +61,7 @@ jobs:
     name: Send notification
     uses: ./.github/workflows/notification-reactor-test.yml
     needs: [prime_to_vector, prime_to_nexus, vector_to_prime, nexus_to_prime]
+    if: (success() || failure())
     with:
       tx_01_source_status: ${{ needs.prime_to_vector.outputs.source_status }}
       tx_01_bridge_status: ${{ needs.prime_to_vector.outputs.bridge_status }}
