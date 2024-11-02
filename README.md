@@ -1,6 +1,6 @@
-# Apex Fusion Reactor - Test Suit
+<h1 align="center">Apex Fusion Reactor - Test Suit</h1>
 
-![Apex Fusion Reactor](images/reactor.svg)
+<p align="center"><img src="./images/reactor.svg" alt="Apex Fusion Reactor" /></p>
 
 ![Coverage](https://img.shields.io/badge/Coverage-100%25-4ccf50?logo=github&logoColor=white)
 ![Python Version](https://img.shields.io/badge/Python-3.9.x-4285f4?logo=python&logoColor=white)
@@ -71,23 +71,23 @@ By addressing **all possible scenarios**, this tool provides a strong foundation
 1. **Prime to Vector**
 
    ```bash
-   python main.py Prime Vector 5
+   dotenv -f environment.env run -- python main.py Prime Vector 5
    ```
 
 2. **Prime to Nexus**
 
    ```bash
-   python main.py Prime Nexus 5
+   dotenv -f environment.env run -- python main.py Prime Nexus 5
    ```
 
 3. **Vector to Prime**
 
    ```bash
-   python main.py Vector Prime 2
+   dotenv -f environment.env run -- python main.py Vector Prime 2
    ```
   
 4. **Nexus to Prime**
 
    ```bash
-   python main.py Nexus Prime 2
+   dotenv -f environment.env run -- python main.py Nexus Prime 2
    ```
