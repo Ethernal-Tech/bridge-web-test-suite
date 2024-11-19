@@ -241,8 +241,12 @@ class ApexFusionReactor:
         is_destination_succeeded: bool = self.__progress_destination()
         print(f'{datetime.now()} Destination succeeded: {is_destination_succeeded}')
 
-        status: str = self.__get_status()
-        print(f'{datetime.now()} Bridging status: {status}')
+        try:
+            status: str = self.__get_status()
+        except Exception:
+            status: str = "Unknown"
+        finally:
+            print(f'{datetime.now()} Bridging status: {status}')
 
         self.__disconnect_wallet()
 
