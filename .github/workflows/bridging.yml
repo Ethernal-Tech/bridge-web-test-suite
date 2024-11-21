@@ -73,7 +73,7 @@ permissions:
 jobs:
   bridging:
     name: "Bridging from ${{ inputs.source }} to ${{ inputs.destination }}"
-    runs-on: macos-latest
+    runs-on: macos-13
     outputs:
       bridging_status: ${{ steps.bridging_status.outputs.bridging_status }}
       source_status: ${{ steps.bridging_status.outputs.source_status }}
