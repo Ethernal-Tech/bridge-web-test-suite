@@ -83,7 +83,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup Google Chrome
-        run: brew install --cask google-chrome@130.0.6723.59
+        run: brew install --cask google-chrome@130
       - name: Check Google Chrome version
         run: google-chrome --version
       - name: Setup Python 3.9
