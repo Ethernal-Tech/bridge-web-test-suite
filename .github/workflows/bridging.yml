@@ -73,7 +73,7 @@ permissions:
 jobs:
   bridging:
     name: "Bridging from ${{ inputs.source }} to ${{ inputs.destination }}"
-    runs-on: macos-latest
+    runs-on: macos-13
     outputs:
       bridging_status: ${{ steps.bridging_status.outputs.bridging_status }}
       source_status: ${{ steps.bridging_status.outputs.source_status }}
@@ -82,10 +82,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup Google Chrome
-        run: brew install --cask google-chrome@130
-      - name: Check Google Chrome version
-        run: google-chrome --version
       - name: Setup Python 3.9
         uses: actions/setup-python@v5
         with:
