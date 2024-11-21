@@ -82,6 +82,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Setup Google Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 130.0.6723.59
+          install-dependencies: true
+          install-chromedriver: true
       - name: Setup Python 3.9
         uses: actions/setup-python@v5
         with:
