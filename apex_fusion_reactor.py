@@ -52,8 +52,14 @@ class ApexFusionReactor:
     @retry()
     def __open_reactor(self, source: str, destination: str) -> None:
         self.__driver.get(self.__reactor_url)
+
+        sleep(5)
+
         self.__driver.execute_script(f"window.localStorage.setItem('selected_chain', '{source}');")
         self.__driver.execute_script(f"window.localStorage.setItem('destination_chain', '{destination}');")
+
+        sleep(5)
+
         self.__driver.refresh()
 
     @retry()
