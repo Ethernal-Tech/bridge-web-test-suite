@@ -151,6 +151,8 @@ class ApexFusionReactor:
 
     @retry()
     def __progress(self, xpath: str) -> bool:
+        sleep(10)
+
         tries = 200
 
         while tries > 0:
