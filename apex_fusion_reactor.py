@@ -189,6 +189,36 @@ class ApexFusionReactor:
         # wait the bridging history to be loaded
         sleep(15)
 
+        # filter by Destination
+        find_element_by_xpath(
+            self.__driver,
+            '//*[@id="root"]/div[1]/div[2]/div/div[1]/div/div/button'
+        ).click()
+
+        sleep(1)
+
+        find_element_by_xpath(
+            self.__driver,
+            '//*[@id="destination-chain"]'
+        ).click()
+
+        sleep(1)
+
+        find_element_by_xpath(
+            self.__driver,
+            f'//*[starts-with(@id, ":r")]//*[contains(text(), "{self.__destination_wallet.get_name().capitalize()}")]'
+        ).click()
+
+        sleep(1)
+
+        find_element_by_xpath(
+            self.__driver,
+            '/html/body/div[2]/div[3]/div[2]/button[2]'
+        ).click()
+
+        # wait the bridging history to be loaded
+        sleep(15)
+
         status = find_element_by_xpath(
             self.__driver,
             '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[7]/div/p'
