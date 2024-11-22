@@ -2,12 +2,13 @@ from sys import argv
 from os import getenv
 from typing import Union
 from toolbox.chrome import Chrome
-from toolbox.utils import EternlApexFusionNetwork, ApexFusionChain
+from toolbox.utils import EternlApexFusionNetwork, ApexFusionChain, retry
 from wallets.eternl import Eternl
 from wallets.metamask import MetaMask
 from apex_fusion_reactor import ApexFusionReactor
 
 
+@retry()
 def recover_wallet(
         driver: Chrome,
         target: str
