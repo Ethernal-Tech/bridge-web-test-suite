@@ -71,7 +71,9 @@ def main(
         amount: str
 ) -> None:
 
-    chrome = Chrome()
+    chrome = Chrome(
+        driver_version=getenv('CHROMEDRIVER_VERSION')
+    )
 
     apex_fusion_reactor = ApexFusionReactor(
         driver=chrome,

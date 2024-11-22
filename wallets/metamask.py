@@ -153,6 +153,8 @@ class MetaMask:
         return self.__name
 
     def recover(self, recovery_phrase: str) -> None:
+        print(f"{datetime.now()} MetaMask Wallet start recovering")
+
         self.__driver.get(self.__url)
         self.__agree_terms()
         self.__import_wallet()

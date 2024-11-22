@@ -138,6 +138,8 @@ class Eternl:
         return self.__name
 
     def recover(self, recovery_phrase: str) -> None:
+        print(f"{datetime.now()} Eternl Wallet '{self.__name}' start recovering")
+
         self.__driver.get(self.__url)
         self.__add_wallet()
         self.__restore_wallet()

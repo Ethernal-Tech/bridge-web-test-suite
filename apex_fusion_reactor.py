@@ -27,6 +27,7 @@ class ApexFusionReactor:
         self.__destination_wallet: Union[Eternl, MetaMask] = destination_wallet
         self.__status_done: str = 'M10.1042 16.9856L5.47772 12.3802L7.02501 10.8123L10.1042 13.8964L17.0119 ' \
                                   '7.00977L18.559 8.55185L10.1042 16.9856Z'
+        self.__final_status: str = 'Unknown'
 
         if datetime.today().strftime('%A') == 'Monday':
             self.__fund(self.__source_wallet.get_receive_address())
@@ -51,8 +52,14 @@ class ApexFusionReactor:
     @retry()
     def __open_reactor(self, source: str, destination: str) -> None:
         self.__driver.get(self.__reactor_url)
+
+        sleep(5)
+
         self.__driver.execute_script(f"window.localStorage.setItem('selected_chain', '{source}');")
         self.__driver.execute_script(f"window.localStorage.setItem('destination_chain', '{destination}');")
+
+        sleep(5)
+
         self.__driver.refresh()
 
     @retry()
@@ -150,6 +157,8 @@ class ApexFusionReactor:
 
     @retry()
     def __progress(self, xpath: str) -> bool:
+        sleep(10)
+
         tries = 200
 
         while tries > 0:
@@ -182,6 +191,36 @@ class ApexFusionReactor:
     @retry()
     def __get_status(self) -> str:
         self.__driver.get(self.__transactions_url)
+
+        # wait the bridging history to be loaded
+        sleep(15)
+
+        # filter by Destination
+        find_element_by_xpath(
+            self.__driver,
+            '//*[@id="root"]/div[1]/div[2]/div/div[1]/div/div/button'
+        ).click()
+
+        sleep(1)
+
+        find_element_by_xpath(
+            self.__driver,
+            '//*[@id="destination-chain"]'
+        ).click()
+
+        sleep(1)
+
+        find_element_by_xpath(
+            self.__driver,
+            f'//*[starts-with(@id, ":r")]//*[contains(text(), "{self.__destination_wallet.get_name().capitalize()}")]'
+        ).click()
+
+        sleep(1)
+
+        find_element_by_xpath(
+            self.__driver,
+            '/html/body/div[2]/div[3]/div[2]/button[2]'
+        ).click()
 
         # wait the bridging history to be loaded
         sleep(15)
@@ -242,19 +281,22 @@ class ApexFusionReactor:
         print(f'{datetime.now()} Destination succeeded: {is_destination_succeeded}')
 
         try:
-            status: str = self.__get_status()
+            self.__final_status = self.__get_status()
         except Exception:
-            status: str = "Unknown"
+            pass
         finally:
-            print(f'{datetime.now()} Bridging status: {status}')
+            print(f'{datetime.now()} Bridging status: {self.__final_status}')
 
-        self.__disconnect_wallet()
-
-        self.__source_wallet.toggle()
+        try:
+            self.__disconnect_wallet()
+            self.__source_wallet.toggle()
+        except Exception:
+            # If this fails, it won't make a difference anyway
+            pass
 
         dump(
             obj={
-                'status': status.lower(),
+                'status': self.__final_status.lower(),
                 'source': is_source_succeeded,
                 'bridge': is_bridge_succeeded,
                 'destination': is_destination_succeeded
