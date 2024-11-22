@@ -73,7 +73,7 @@ permissions:
 jobs:
   bridging:
     name: "Bridging from ${{ inputs.source }} to ${{ inputs.destination }}"
-    runs-on: macos-13
+    runs-on: macos-latest
     outputs:
       bridging_status: ${{ steps.bridging_status.outputs.bridging_status }}
       source_status: ${{ steps.bridging_status.outputs.source_status }}
@@ -104,6 +104,7 @@ jobs:
           NEXUS_NETWORK_CURRENCY_SYMBOL: ${{ vars.NEXUS_NETWORK_CURRENCY_SYMBOL }}
           APEX_FUSION_REACTOR_URL: ${{ vars.APEX_FUSION_REACTOR_URL }}
           APEX_FUSION_FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
+          CHROMEDRIVER_VERSION: ${{ vars.CHROMEDRIVER_VERSION }}
       - name: Get status of the bridging
         id: bridging_status
         run: |
