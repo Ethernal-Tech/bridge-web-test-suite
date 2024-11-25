@@ -104,16 +104,14 @@ def main(
 if __name__ == '__main__':
     try:
 
-        source = argv[1].lower()
-        destination = argv[2].lower()
-        amount = argv[3]
+        src, dst, amt = argv[1].lower(), argv[2].lower(), argv[3]
 
-        print(f"{datetime.now()} Setup bridging from '{source}' to '{destination}'")
+        print(f"{datetime.now()} Setup bridging from '{src}' to '{dst}'")
 
         main(
-            source=source,
-            destination=destination,
-            amount=amount
+            source=src,
+            destination=dst,
+            amount=amt
         )
 
         print(f"{datetime.now()} Bridging successfully completed")
