@@ -1,7 +1,7 @@
 from os import path
 from json import dump
 from time import sleep
-from typing import Union
+from typing import Union, Tuple
 from datetime import datetime
 from toolbox.chrome import Chrome
 from toolbox.utils import retry, find_element_by_xpath
@@ -27,6 +27,9 @@ class ApexFusionReactor:
         self.__destination_wallet: Union[Eternl, MetaMask] = destination_wallet
         self.__status_done: str = 'M10.1042 16.9856L5.47772 12.3802L7.02501 10.8123L10.1042 13.8964L17.0119 ' \
                                   '7.00977L18.559 8.55185L10.1042 16.9856Z'
+        self.__is_source_succeeded: bool = False
+        self.__is_bridge_succeeded: bool = False
+        self.__is_destination_succeeded: bool = False
         self.__final_status: str = 'Unknown'
 
         if datetime.today().strftime('%A') == 'Monday':
@@ -242,7 +245,7 @@ class ApexFusionReactor:
     def __not_possible_bridging(source: str, destination: str) -> None:
         print(f"{datetime.now()} Error: For source '{source}' destination can't be '{destination}'")
 
-    def bridging(self, amount: str) -> None:
+    def bridging(self, amount: str) -> Tuple[bool, bool, bool]:
         self.__source_wallet.toggle()
 
         self.__open_reactor(self.__source_wallet.get_name(), self.__destination_wallet.get_name())
@@ -271,25 +274,30 @@ class ApexFusionReactor:
         print(f"{datetime.now()} Starting bridging from '{self.__source_wallet.get_name()}' to "
               f"'{self.__destination_wallet.get_name()}' {amount} token(s)")
 
-        is_source_succeeded: bool = self.__progress_source()
-        print(f'{datetime.now()} Source succeeded: {is_source_succeeded}')
-
-        is_bridge_succeeded: bool = self.__progress_bridge()
-        print(f'{datetime.now()} Bridge succeeded: {is_bridge_succeeded}')
-
-        is_destination_succeeded: bool = self.__progress_destination()
-        print(f'{datetime.now()} Destination succeeded: {is_destination_succeeded}')
-
         try:
+
+            self.__is_source_succeeded = self.__progress_source()
+            print(f'{datetime.now()} Source succeeded: {self.__is_source_succeeded}')
+
+            self.__is_bridge_succeeded = self.__progress_bridge()
+            print(f'{datetime.now()} Bridge succeeded: {self.__is_bridge_succeeded}')
+
+            self.__is_destination_succeeded: bool = self.__progress_destination()
+            print(f'{datetime.now()} Destination succeeded: {self.__is_destination_succeeded}')
+
             self.__final_status = self.__get_status()
-        except Exception:
-            pass
-        finally:
             print(f'{datetime.now()} Bridging status: {self.__final_status}')
 
+        except Exception:
+            # the progress status may occasionally fail to be detected,
+            # but the implementation makes refreshing the page to retry checking the status impossible
+            pass
+
         try:
+
             self.__disconnect_wallet()
             self.__source_wallet.toggle()
+
         except Exception:
             # If this fails, it won't make a difference anyway
             pass
@@ -297,9 +305,9 @@ class ApexFusionReactor:
         dump(
             obj={
                 'status': self.__final_status.lower(),
-                'source': is_source_succeeded,
-                'bridge': is_bridge_succeeded,
-                'destination': is_destination_succeeded
+                'source': self.__is_source_succeeded,
+                'bridge': self.__is_bridge_succeeded,
+                'destination': self.__is_destination_succeeded
             },
             fp=open(
                 file=f'/tmp/{self.__source_wallet.get_name()}_to_{self.__destination_wallet.get_name()}.json',
@@ -308,3 +316,5 @@ class ApexFusionReactor:
             ),
             indent=4
         )
+
+        return self.__is_source_succeeded, self.__is_bridge_succeeded, self.__is_destination_succeeded

@@ -1,6 +1,7 @@
 from sys import argv
 from os import getenv
 from typing import Union
+from datetime import datetime
 from toolbox.chrome import Chrome
 from toolbox.utils import EternlApexFusionNetwork, ApexFusionChain, retry
 from wallets.eternl import Eternl
@@ -8,7 +9,6 @@ from wallets.metamask import MetaMask
 from apex_fusion_reactor import ApexFusionReactor
 
 
-@retry()
 def recover_wallet(
         driver: Chrome,
         target: str
@@ -65,6 +65,7 @@ def recover_wallet(
     return wallet
 
 
+@retry(tries=5)
 def main(
         source: str,
         destination: str,
@@ -89,16 +90,34 @@ def main(
         )
     )
 
-    apex_fusion_reactor.bridging(
+    source_status, bridge_status, destination_status = apex_fusion_reactor.bridging(
         amount=amount
     )
 
     chrome.quit()
 
+    if not source_status and not bridge_status and not destination_status:
+        print(f"{datetime.now()} Something went wrong")
+        raise Exception
+
 
 if __name__ == '__main__':
-    main(
-        source=argv[1].lower(),
-        destination=argv[2].lower(),
-        amount=argv[3]
-    )
+    try:
+
+        source = argv[1].lower()
+        destination = argv[2].lower()
+        amount = argv[3]
+
+        print(f"{datetime.now()} Setup bridging from '{source}' to '{destination}'")
+
+        main(
+            source=source,
+            destination=destination,
+            amount=amount
+        )
+
+        print(f"{datetime.now()} Bridging successfully completed")
+
+    except Exception:
+        # if recovery from the error is not possible
+        print(f"{datetime.now()} Bridging failed")
