@@ -4,7 +4,7 @@ from time import sleep
 from typing import Union, Tuple
 from datetime import datetime
 from toolbox.chrome import Chrome
-from toolbox.utils import retry, find_element_by_xpath
+from toolbox.utils import retry
 from wallets.eternl import Eternl
 from wallets.metamask import MetaMask
 
@@ -40,13 +40,11 @@ class ApexFusionReactor:
     def __fund(self, receiver_address: str) -> None:
         self.__driver.get(self.__faucet_url)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="address"]'
         ).send_keys(receiver_address)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app"]/div/div[2]/main/div/div[2]/div/div/form/div[2]/button'
         ).click()
 
@@ -70,43 +68,37 @@ class ApexFusionReactor:
         # wait for the button to be available
         sleep(10)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="root"]/div[1]/div[2]/div/button'
         ).click()
 
     @retry()
     def __disconnect_wallet(self):
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="basic-button"]',
         ).click()
 
         sleep(1)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="basic-menu"]/div[3]/ul/li'
         ).click()
 
     @retry()
     def __destination_address(self, destination_address: str) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[2]/div/div/input'
         ).send_keys(destination_address)
 
     @retry()
     def __amount_to_send(self, amount: str) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id=":rb:"]'
         ).send_keys(amount)
 
     @retry()
     def __set_balance(self) -> None:
-        balance = find_element_by_xpath(
-            self.__driver,
+        balance = self.__driver.find_element_by_xpath(
             '//*[@id="root"]/div[1]/div[2]/div/div/div[3]/div[1]/p'
         ).text
 
@@ -114,8 +106,7 @@ class ApexFusionReactor:
 
     @retry()
     def __send_tx(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[3]/button[2]'
         ).click()
 
@@ -132,12 +123,11 @@ class ApexFusionReactor:
 
     @retry()
     def __sign_transaction(self, password: str) -> None:
-        find_element_by_xpath(
-            self.__driver, '//*[@id="password"]'
+        self.__driver.find_element_by_xpath(
+            '//*[@id="password"]'
         ).send_keys(password)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="GridFormSignWithPassword"]/button[3]'
         ).click()
 
@@ -148,8 +138,7 @@ class ApexFusionReactor:
 
     @retry()
     def __confirm_transaction(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div/div/div/div[3]/button[2]'
         ).click()
 
@@ -165,10 +154,7 @@ class ApexFusionReactor:
         tries = 200
 
         while tries > 0:
-            status = find_element_by_xpath(
-                self.__driver,
-                xpath
-            ).get_attribute('d')
+            status = self.__driver.find_element_by_xpath(xpath).get_attribute('d')
 
             if status == self.__status_done:
                 return True
@@ -199,37 +185,32 @@ class ApexFusionReactor:
         sleep(15)
 
         # filter by Destination
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="root"]/div[1]/div[2]/div/div[1]/div/div/button'
         ).click()
 
         sleep(1)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="destination-chain"]'
         ).click()
 
         sleep(1)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             f'//*[starts-with(@id, ":r")]//*[contains(text(), "{self.__destination_wallet.get_name().capitalize()}")]'
         ).click()
 
         sleep(1)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '/html/body/div[2]/div[3]/div[2]/button[2]'
         ).click()
 
         # wait the bridging history to be loaded
         sleep(15)
 
-        status = find_element_by_xpath(
-            self.__driver,
+        status = self.__driver.find_element_by_xpath(
             '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[7]/div/p'
         ).text
 

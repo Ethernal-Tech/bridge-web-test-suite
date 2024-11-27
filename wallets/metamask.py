@@ -1,7 +1,7 @@
 from time import sleep
 from datetime import datetime
 from toolbox.chrome import Chrome
-from toolbox.utils import retry, find_element_by_xpath
+from toolbox.utils import retry
 
 
 class MetaMask:
@@ -25,22 +25,19 @@ class MetaMask:
 
     @retry()
     def __agree_terms(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="onboarding__terms-checkbox"]'
         ).click()
 
     @retry()
     def __import_wallet(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div/div/ul/li[3]/button'
         ).click()
 
     @retry()
     def __no_improve(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/button[1]'
         ).click()
 
@@ -50,63 +47,53 @@ class MetaMask:
 
         for i in range(len(phrase)):
 
-            find_element_by_xpath(
-                self.__driver,
+            self.__driver.find_element_by_xpath(
                 f'//*[@id="import-srp__srp-word-{i}"]'
             ).send_keys(phrase[i])
 
     @retry()
     def __confirm_phrase(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div/div/div[4]/div/button'
         ).click()
 
     @retry()
     def __set_sign_key(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/div[1]/label/input'
         ).send_keys(self.__sign_key)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/div[2]/label/input'
         ).send_keys(self.__sign_key)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/div[3]/label/span[1]/input'
         ).click()
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/button'
         ).click()
 
     @retry()
     def __unlock(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="password"]'
         ).send_keys(self.__sign_key)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[3]/div/div/div/div/button'
         ).click()
 
     @retry()
     def __got_it(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/button'
         ).click()
 
     @retry()
     def __finish(self) -> None:
-        bnt = find_element_by_xpath(
-            self.__driver,
+        bnt = self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/button'
         )
 
@@ -117,13 +104,11 @@ class MetaMask:
 
     @retry()
     def __set_balance(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[3]/div/div/div/div[2]/div/div/div/div[1]/a'
         ).click()
 
-        balance = find_element_by_xpath(
-            self.__driver,
+        balance = self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[3]/div/div/div[3]/div[1]/div/div[2]/div[1]/div[2]/p[2]',
         ).text
 
@@ -131,18 +116,15 @@ class MetaMask:
 
     @retry()
     def __set_receive_address(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div[3]/div/div/button'
         ).click()
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div[3]/div[2]/button[2]'
         ).click()
 
-        self.__receive_address = find_element_by_xpath(
-            self.__driver,
+        self.__receive_address = self.__driver.find_element_by_xpath(
             '/html/body/div[3]/div[3]/div/section/div/div/div[2]/p'
         ).text
 
@@ -178,35 +160,29 @@ class MetaMask:
 
         sleep(5)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[3]/div/div[2]/div[2]/div/div[2]/div/div[1]/div[2]/div[1]/div/input'
         ).send_keys(name)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[3]/div/div[2]/div[2]/div/div[2]/div/div[1]/div[2]/div[2]/label/input'
         ).send_keys(rpc_url)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[3]/div/div[2]/div[2]/div/div[2]/div/div[1]/div[2]/div[3]/div/input'
         ).send_keys(chain_id)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[3]/div/div[2]/div[2]/div/div[2]/div/div[1]/div[2]/div[4]/div/input'
         ).send_keys(currency_symbol)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[3]/div/div[2]/div[2]/div/div[2]/div/div[2]/button[2]'
         ).click()
 
         sleep(1)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="popover-content"]/div/div/section/div[2]/div/button[1]'
         ).click()
 
@@ -228,8 +204,7 @@ class MetaMask:
 
         for i in range(2):
 
-            find_element_by_xpath(
-                self.__driver,
+            self.__driver.find_element_by_xpath(
                 '//*[@id="app-content"]/div/div/div/div[3]/div[2]/footer/button[2]'
             ).click()
 

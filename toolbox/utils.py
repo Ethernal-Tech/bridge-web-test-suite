@@ -1,9 +1,6 @@
 from time import sleep
 from functools import wraps
 from dataclasses import dataclass
-from toolbox.chrome import Chrome
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebElement
 
 
 @dataclass(frozen=True)
@@ -34,7 +31,3 @@ def retry(tries: int = 10, delay: int = 1, back_off: float = 1.5):
             return f(*args, **kwargs)
         return f_retry
     return deco_retry
-
-
-def find_element_by_xpath(driver: Chrome, xpath: str) -> WebElement:
-    return driver.find_element(By.XPATH, xpath)

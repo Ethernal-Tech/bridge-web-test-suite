@@ -1,7 +1,7 @@
 from time import sleep
 from datetime import datetime
 from toolbox.chrome import Chrome
-from toolbox.utils import retry, find_element_by_xpath
+from toolbox.utils import retry
 from selenium.common.exceptions import NoSuchElementException
 
 
@@ -26,75 +26,63 @@ class Eternl:
 
     @retry()
     def __add_wallet(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="cc-main-container"]/div/div[3]/div[1]/button'
         ).click()
 
     @retry()
     def __restore_wallet(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="cc-main-container"]/div/div[1]/div/main/div[2]/div[2]/div/div/div[1]/div[2]/button'
         ).click()
 
     @retry()
     def __recover_phrase(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="cc-main-container"]/div/div[1]/div/main/div[2]/div[2]/div/div/div[1]/div/div/div[4]/button[1]'
         ).click()
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="cc-main-container"]/div/div[1]/div/main/div[2]/div[2]/div/div/div[1]/div/div/button'
         ).click()
 
     @retry()
     def __insert_recover_phrase(self, recover_phrase: str) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="wordInput"]'
         ).send_keys(recover_phrase)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="cc-main-container"]/div/div[1]/div/main/div[2]/div[2]/div/div/div[1]/div/div/div/button[2]'
         ).click()
 
     @retry()
     def __set_wallet_name_and_sign_key(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="inputWalletName"]'
         ).send_keys(self.__name)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="password"]'
         ).send_keys(self.__sign_key)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="repeatPassword"]'
         ).send_keys(self.__sign_key)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="GridFormWalletNamePassword"]/button[3]'
         ).click()
 
     @retry()
     def __number_of_accounts(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="accountSelection"]/button[3]'
         ).click()
 
     @retry()
     def __open_wallet(self) -> None:
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="cc-main-container"]/div/div[3]/div[2]/nav/div/div[2]/div/div'
         ).click()
 
@@ -102,13 +90,11 @@ class Eternl:
     def __set_receive_address(self) -> None:
         try:
 
-            find_element_by_xpath(
-                self.__driver,
+            self.__driver.find_element_by_xpath(
                 '//*[@id="cc-main-container"]/div/div[1]/div/main/div[1]/div/div[2]/nav/button[4]'
             ).click()
 
-            receive_address = find_element_by_xpath(
-                self.__driver,
+            receive_address = self.__driver.find_element_by_xpath(
                 '//*[@id="cc-main-container"]/div/div[1]/div/main/div[2]/div[2]/div/div/div[1]/div[4]/div[1]/div/div'
             )
 
@@ -121,8 +107,7 @@ class Eternl:
 
     @retry()
     def __set_balance(self) -> None:
-        balance = find_element_by_xpath(
-            self.__driver,
+        balance = self.__driver.find_element_by_xpath(
             '//*[@id="cc-main-container"]/div/div[1]/div/main/div[1]/div/div[1]/div/div[1]/div[2]/div[2]'
         ).text
 
@@ -157,13 +142,11 @@ class Eternl:
     def toggle(self) -> None:
         self.__driver.get(self.__url)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="cc-main-container"]/div/div[3]/div[2]/nav/div/div[2]/div'
         ).click()
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="cc-main-container"]/div/div[1]/div/main/div[1]/div/div[1]/div/div[3]'
         ).click()
 
@@ -173,8 +156,7 @@ class Eternl:
 
         self.__driver.switch_to.window(popup)
 
-        find_element_by_xpath(
-            self.__driver,
+        self.__driver.find_element_by_xpath(
             '//*[@id="cc-main-container"]/div/div/div/main/div/div[2]/button[2]'
         ).click()
 
