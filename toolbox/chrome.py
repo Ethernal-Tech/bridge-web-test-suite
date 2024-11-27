@@ -1,6 +1,8 @@
 from os import path
 from glob import glob
 from time import sleep
+from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webdriver import WebElement
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -47,3 +49,6 @@ class Chrome(WebDriver):
 
     def get_init_tab(self) -> str:
         return self.__init_tab
+
+    def find_element_by_xpath(self, xpath: str) -> WebElement:
+        return self.find_element(By.XPATH, xpath)
