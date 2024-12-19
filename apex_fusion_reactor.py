@@ -273,6 +273,21 @@ class ApexFusionReactor:
             self.__confirm_transaction()
 
         if self.__transaction_signed_error != "":
+            dump(
+                obj={
+                    'status': 'failed',
+                    'source': False,
+                    'bridge': False,
+                    'destination': False
+                },
+                fp=open(
+                    file=f'/tmp/{self.__source_wallet.get_name()}_to_{self.__destination_wallet.get_name()}.json',
+                    mode='w',
+                    encoding='utf-8'
+                ),
+                indent=4
+            )
+
             return self.__transaction_signed_error
 
         print(f"{datetime.now()} Starting bridging from '{self.__source_wallet.get_name()}' to "
