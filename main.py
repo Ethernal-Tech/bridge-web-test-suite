@@ -93,14 +93,13 @@ def main(
         )
     )
 
-    source_status, bridge_status, destination_status = apex_fusion_reactor.bridging(
+    transaction_signed_error = apex_fusion_reactor.bridging(
         amount=amount
     )
 
     chrome.quit()
 
-    if not source_status and not bridge_status and not destination_status:
-        print(f"{datetime.now()} Something went wrong")
+    if transaction_signed_error != "":
         raise Exception
 
 

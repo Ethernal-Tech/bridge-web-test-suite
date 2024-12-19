@@ -28,8 +28,8 @@ on:
         description: Eternl Wallet Extension
         type: choice
         options:
-          - Beta
           - Production
+          - Beta
       notification:
         required: false
         description: Notification
@@ -48,6 +48,10 @@ on:
       amount:
         required: true
         description: Amount to send from Source to Destination
+        type: string
+      eternl_wallet_extension:
+        required: true
+        description: Eternl Wallet Extension
         type: string
       notification:
         required: true
