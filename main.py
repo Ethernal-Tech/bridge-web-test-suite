@@ -20,7 +20,8 @@ def recover_wallet(
             driver=driver,
             network=EternlApexFusionNetwork.prime_testnet,
             sign_key=getenv('SIGN_KEY'),
-            name=ApexFusionChain.prime
+            name=ApexFusionChain.prime,
+            extension=getenv('ETERNL_WALLET_EXTENSION')
         )
 
         wallet.recover(
@@ -33,7 +34,8 @@ def recover_wallet(
             driver=driver,
             network=EternlApexFusionNetwork.vector_testnet,
             sign_key=getenv('SIGN_KEY'),
-            name=ApexFusionChain.vector
+            name=ApexFusionChain.vector,
+            extension=getenv('ETERNL_WALLET_EXTENSION')
         )
 
         wallet.recover(
@@ -73,7 +75,8 @@ def main(
 ) -> None:
 
     chrome = Chrome(
-        driver_version=getenv('CHROMEDRIVER_VERSION')
+        driver_version=getenv('CHROMEDRIVER_VERSION'),
+        eternl_wallet_extension=getenv('ETERNL_WALLET_EXTENSION')
     )
 
     apex_fusion_reactor = ApexFusionReactor(

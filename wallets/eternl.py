@@ -11,10 +11,12 @@ class Eternl:
             driver: Chrome,
             network: str,
             sign_key: str,
-            name: str
+            name: str,
+            extension: str
     ) -> None:
 
-        self.__url: str = 'chrome-extension://kmhcihpebfmpgmihbkipmjlmmioameka/index.html#/app/%s/welcome' % network
+        self.__extension: str = 'aafgiaaomjbkmgainbdgjpcndnodkajp' if extension.lower() == 'beta' else 'kmhcihpebfmpgmihbkipmjlmmioameka'
+        self.__url: str = 'chrome-extension://%s/index.html#/app/%s/welcome' % (self.__extension, network)
         self.__driver: Chrome = driver
         self.__sign_key: str = sign_key
         self.__name: str = name

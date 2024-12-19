@@ -23,6 +23,13 @@ on:
         required: true
         description: Amount to send from Source to Destination
         type: string
+      eternl_wallet_extension:
+        required: true
+        description: Eternl Wallet Extension
+        type: choice
+        options:
+          - Beta
+          - Production
       notification:
         required: false
         description: Notification
@@ -105,6 +112,7 @@ jobs:
           APEX_FUSION_REACTOR_URL: ${{ vars.APEX_FUSION_REACTOR_URL }}
           APEX_FUSION_FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
           CHROMEDRIVER_VERSION: ${{ vars.CHROMEDRIVER_VERSION }}
+          ETERNL_WALLET_EXTENSION: ${{ inputs.eternl_wallet_extension }}
       - name: Get status of the bridging
         id: bridging_status
         run: |
