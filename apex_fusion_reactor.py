@@ -27,6 +27,7 @@ class ApexFusionReactor:
         self.__destination_wallet: Union[Eternl, MetaMask] = destination_wallet
         self.__status_done: str = 'M10.1042 16.9856L5.47772 12.3802L7.02501 10.8123L10.1042 13.8964L17.0119 ' \
                                   '7.00977L18.559 8.55185L10.1042 16.9856Z'
+        self.__transaction_signed_error: str = ""
         self.__is_source_succeeded: bool = False
         self.__is_bridge_succeeded: bool = False
         self.__is_destination_succeeded: bool = False
@@ -122,7 +123,7 @@ class ApexFusionReactor:
         self.__driver.switch_to.window(list(set(self.__driver.window_handles) - set(tabs))[0])
 
     @retry()
-    def __sign_transaction(self, password: str) -> None:
+    def __sign_transaction(self, password: str) -> str:
         self.__driver.find_element_by_xpath(
             '//*[@id="password"]'
         ).send_keys(password)
@@ -134,7 +135,25 @@ class ApexFusionReactor:
         # wait for the transaction to be signed
         sleep(15)
 
+        # check if the transaction successfully signed
+        try:
+
+            error = self.__driver.find_element_by_xpath(
+                '//*[@id="eternl-sign"]/div/div/div/div[2]/div[2]/div/div[5]/div[2]/div'
+            ).text
+
+            print(f"{datetime.now()} Sign transaction error: {error}")
+
+            return error
+
+        except Exception:
+
+            print(f"{datetime.now()} Transaction successfully signed")
+            pass
+
         self.__driver.switch_to.window(self.__driver.get_init_tab())
+
+        return ""
 
     @retry()
     def __confirm_transaction(self) -> None:
@@ -226,7 +245,7 @@ class ApexFusionReactor:
     def __not_possible_bridging(source: str, destination: str) -> None:
         print(f"{datetime.now()} Error: For source '{source}' destination can't be '{destination}'")
 
-    def bridging(self, amount: str) -> Tuple[bool, bool, bool]:
+    def bridging(self, amount: str) -> str:
         self.__source_wallet.toggle()
 
         self.__open_reactor(self.__source_wallet.get_name(), self.__destination_wallet.get_name())
@@ -248,10 +267,13 @@ class ApexFusionReactor:
         self.__open_popup_for_signing_tx()
 
         if type(self.__source_wallet) == Eternl:
-            self.__sign_transaction(self.__source_wallet.get_sign_key())
+            self.__transaction_signed_error = self.__sign_transaction(self.__source_wallet.get_sign_key())
 
         elif type(self.__source_wallet) == MetaMask:
             self.__confirm_transaction()
+
+        if self.__transaction_signed_error != "":
+            return self.__transaction_signed_error
 
         print(f"{datetime.now()} Starting bridging from '{self.__source_wallet.get_name()}' to "
               f"'{self.__destination_wallet.get_name()}' {amount} token(s)")
@@ -299,4 +321,4 @@ class ApexFusionReactor:
             indent=4
         )
 
-        return self.__is_source_succeeded, self.__is_bridge_succeeded, self.__is_destination_succeeded
+        return ""
