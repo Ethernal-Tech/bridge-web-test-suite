@@ -18,6 +18,7 @@ jobs:
       source: Prime
       destination: Vector
       amount: 5
+      eternl_wallet_extension: Production
       notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
@@ -30,6 +31,7 @@ jobs:
       source: Prime
       destination: Nexus
       amount: 5
+      eternl_wallet_extension: Production
       notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
@@ -42,6 +44,7 @@ jobs:
       source: Vector
       destination: Prime
       amount: 2
+      eternl_wallet_extension: Production
       notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
@@ -54,6 +57,7 @@ jobs:
       source: Nexus
       destination: Prime
       amount: 2
+      eternl_wallet_extension: Production
       notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}

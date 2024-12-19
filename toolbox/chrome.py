@@ -1,5 +1,4 @@
 from os import path
-from glob import glob
 from time import sleep
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebElement
@@ -12,7 +11,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 class Chrome(WebDriver):
     def __init__(
         self, 
-        driver_version: str
+        driver_version: str,
+        eternl_wallet_extension: str
     ) -> None:
 
         self.__extensions_dir_path: str = path.join(path.dirname(path.abspath(__file__)), 'extensions')
@@ -30,8 +30,12 @@ class Chrome(WebDriver):
         for arg in self.__options:
             self.__chrome_options.add_argument(arg)
 
-        for ext in glob(f'{self.__extensions_dir_path}/*.crx'):
-            self.__chrome_options.add_extension(ext)
+        self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/MetaMask.crx')
+
+        if eternl_wallet_extension.lower() == 'beta':
+            self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/EternlBeta.crx')
+        else:
+            self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/Eternl.crx')
 
         self.__chrome_services = Service()
         self.__chrome_services.path = ChromeDriverManager(driver_version=driver_version).install()
