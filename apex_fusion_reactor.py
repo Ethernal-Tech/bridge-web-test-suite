@@ -1,7 +1,7 @@
 from os import path
 from json import dump
 from time import sleep
-from typing import Union, Tuple
+from typing import Union
 from datetime import datetime
 from toolbox.chrome import Chrome
 from toolbox.utils import retry
@@ -173,14 +173,18 @@ class ApexFusionReactor:
         tries = 200
 
         while tries > 0:
-            status = self.__driver.find_element_by_xpath(xpath).get_attribute('d')
+            try:
 
-            if status == self.__status_done:
-                return True
+                status = self.__driver.find_element_by_xpath(xpath).get_attribute('d')
 
-            else:
-                tries -= 1
-                sleep(3)
+                if status == self.__status_done:
+                    return True
+
+            except Exception:
+                pass
+
+            tries -= 1
+            sleep(3)
 
         return False
 
