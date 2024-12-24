@@ -166,7 +166,6 @@ class ApexFusionReactor:
 
         self.__driver.switch_to.window(self.__driver.get_init_tab())
 
-    @retry()
     def __progress(self, xpath: str) -> bool:
         sleep(10)
 
@@ -285,7 +284,7 @@ class ApexFusionReactor:
                     'destination': False
                 },
                 fp=open(
-                    file=f'/tmp/{self.__source_wallet.get_name()}_to_{self.__destination_wallet.get_name()}.json',
+                    file=f'/tmp/statuses.json',
                     mode='w',
                     encoding='utf-8'
                 ),
@@ -333,7 +332,7 @@ class ApexFusionReactor:
                 'destination': self.__is_destination_succeeded
             },
             fp=open(
-                file=f'/tmp/{self.__source_wallet.get_name()}_to_{self.__destination_wallet.get_name()}.json',
+                file=f'/tmp/statuses.json',
                 mode='w',
                 encoding='utf-8'
             ),

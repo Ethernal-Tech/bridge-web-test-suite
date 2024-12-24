@@ -2,17 +2,17 @@
 
 <p align="center"><img src="./images/reactor.svg" alt="Apex Fusion Reactor" /></p>
 
-![Coverage](https://img.shields.io/badge/Coverage-100%25-4ccf50?logo=github&logoColor=white)
 ![Python Version](https://img.shields.io/badge/Python-3.9.x-4285f4?logo=python&logoColor=white)
 ![Google Chrome Version](https://img.shields.io/badge/Google%20Chrome-%3E%3D%20129.0.0-4285f4?logo=GoogleChrome&logoColor=white)
 ![Selenium](https://img.shields.io/badge/Selenium-4.25.0-4285f4?logo=selenium&logoColor=white)
-![Metamask Wallet_Supported](https://img.shields.io/badge/MetaMask%20Wallet-12.4.2-4285f4?logo=Ethereum&logoColor=white)
-![Eternl Wallet_Supported](https://img.shields.io/badge/Eternl%20Wallet-1.12.16-4285f4?logo=Cardano&logoColor=white)
+![Metamask Wallet Supported](https://img.shields.io/badge/MetaMask%20Wallet-12.4.2-4285f4?logo=Ethereum&logoColor=white)
+![Eternl Wallet Supported](https://img.shields.io/badge/Eternl%20Wallet-1.12.20-4285f4?logo=Cardano&logoColor=white)
+![Eternl Beta Wallet Supported](https://img.shields.io/badge/Eternl%20Beta%20Wallet-1.12.19-4285f4?logo=Cardano&logoColor=white)
 ![macOS Support](https://img.shields.io/badge/macOS-tested-4ccf50?logo=macos&logoColor=white)
 ![Ubuntu Support](https://img.shields.io/badge/Ubuntu-not%20tested-ee0000?logo=ubuntu&logoColor=white)
 ![Windows Support](https://img.shields.io/badge/Windows-not%20tested-ee0000?logo=windows&logoColor=white)
-![Build Status](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/reactor-test.yml/badge.svg)
-![Build Status](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/bridging.yml/badge.svg)
+![Reactor Test Status](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/reactor-test.yml/badge.svg)
+![Bridging Status](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/bridging.yml/badge.svg)
 
 An automated testing suite for the **Apex Fusion Reactor** website, 
 developed with **Selenium** and utilizing Chrome, 
