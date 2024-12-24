@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: '0 6,13 * * *'
   workflow_dispatch:
+    inputs:
+      notification:
+        required: false
+        description: Notification
+        type: boolean
+        default: true
 
 permissions:
   id-token: write
@@ -67,7 +73,7 @@ jobs:
     name: Send notification
     uses: ./.github/workflows/notification-reactor-test.yml
     needs: [prime_to_vector, prime_to_nexus, vector_to_prime, nexus_to_prime]
-    if: (success() || failure())
+    if: ((success() || failure()) && inputs.notification)
     with:
       tx_01_source_status: ${{ needs.prime_to_vector.outputs.source_status }}
       tx_01_bridge_status: ${{ needs.prime_to_vector.outputs.bridge_status }}
