@@ -33,9 +33,7 @@ class ApexFusionReactor:
         self.__is_destination_succeeded: bool = False
         self.__final_status: str = 'Unknown'
 
-        if datetime.today().strftime('%A') == 'Monday':
-            self.__fund(self.__source_wallet.get_receive_address())
-            self.__fund(self.__destination_wallet.get_receive_address())
+        self.__fund(self.__source_wallet.get_receive_address())
 
     @retry()
     def __fund(self, receiver_address: str) -> None:
