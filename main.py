@@ -118,6 +118,6 @@ if __name__ == '__main__':
 
         print(f"{datetime.now()} Bridging successfully completed")
 
-    except Exception:
+    except Exception as error:
         # if recovery from the error is not possible
-        print(f"{datetime.now()} Bridging failed")
+        print(f"{datetime.now()} Bridging failed: {error}")
