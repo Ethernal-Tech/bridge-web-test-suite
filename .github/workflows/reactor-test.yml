@@ -89,7 +89,7 @@ jobs:
     name: Send notification
     uses: ./.github/workflows/notification-reactor-test.yml
     needs: [prime_to_vector, prime_to_nexus, vector_to_prime, nexus_to_prime, inputs_check]
-    if: ((success() || failure()) && needs.inputs_check.outputs.notification)
+    if: ((success() || failure()) && (needs.inputs_check.outputs.notification == 'true'))
     with:
       tx_01_source_status: ${{ needs.prime_to_vector.outputs.source_status }}
       tx_01_bridge_status: ${{ needs.prime_to_vector.outputs.bridge_status }}
