@@ -99,6 +99,12 @@ jobs:
           python-version: '3.9'
           check-latest: true
           cache: 'pip'
+      - name: Change Google Chrome For Testing version
+        run: |
+          sudo rm -rf /Applications/Google\ Chrome\ for\ Testing.app
+          wget -q -O chrome.zip "${{ vars.CHROME_FOR_TESTING_URL }}"
+          unzip -q chrome.zip -d chrome
+          sudo mv chrome/Google\ Chrome\ for\ Testing.app /Applications
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Start bridging
