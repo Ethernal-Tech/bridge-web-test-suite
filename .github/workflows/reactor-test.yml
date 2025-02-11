@@ -34,7 +34,7 @@ jobs:
     name: Prime to Nexus
     uses: ./.github/workflows/bridging.yml
     needs: prime_to_vector
-    if: always()
+    if: success() || failure()
     with:
       source: Prime
       destination: Nexus
