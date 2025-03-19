@@ -1,0 +1,50 @@
+---
+name: Cardano Faucet
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    inputs:
+      chain:
+        required: true
+        description: Cardano Chain
+        type: choice
+        options:
+          - preview-testnet
+          - preprod-testnet
+      addresses:
+        required: true
+        description: Cardano Addresses
+        type: string
+        default: '["addr11","addr12","addr13"]'
+
+jobs:
+  faucet:
+    name: "Get ADA from ${{ inputs.chain }} faucet"
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          check-latest: true
+          cache: 'pip'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Set Chain Value
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "CHAIN=preview-testnet" >> $GITHUB_ENV
+          else
+            echo "CHAIN=${{ inputs.chain }}" >> $GITHUB_ENV
+          fi
+      - name: Start bridging
+        run: python ./toolbox/cardano-faucet.py $CHAIN
+        env:
+          BRD_PROXY_USERNAME: ${{ secrets.BRD_PROXY_USERNAME }}
+          BRD_PROXY_PASSWORD: ${{ secrets.BRD_PROXY_PASSWORD }}
+          PREVIEW_FAUCET_API_KEY: ${{ secrets.PREVIEW_FAUCET_API_KEY }}
+          PREPROD_FAUCET_API_KEY: ${{ secrets.PREPROD_FAUCET_API_KEY }}
+          CARDANO_TESTNET_WALLETS: ${{ inputs.addresses || secrets.CARDANO_TESTNET_WALLETS }}
