@@ -4,9 +4,9 @@ from time import sleep
 from typing import Union
 from datetime import datetime
 from toolbox.chrome import Chrome
-from toolbox.utils import retry
 from wallets.eternl import Eternl
 from wallets.metamask import MetaMask
+from toolbox.utils import retry, ApexFusionChain
 
 
 class ApexFusionReactor:
@@ -165,10 +165,10 @@ class ApexFusionReactor:
 
         self.__driver.switch_to.window(self.__driver.get_init_tab())
 
-    def __progress(self, xpath: str) -> bool:
+    def __progress(self, xpath: str, timeout: int = 600) -> bool:
         sleep(10)
 
-        tries = 200
+        tries = int(timeout / 3)
 
         while tries > 0:
             try:
@@ -192,7 +192,8 @@ class ApexFusionReactor:
 
     def __progress_bridge(self) -> bool:
         return self.__progress('//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[2]/div/div[2]'
-                               '//*[local-name()="svg"]//*[local-name()="path"]')
+                               '//*[local-name()="svg"]//*[local-name()="path"]',
+                               1800 if self.__destination_wallet.get_name() == ApexFusionChain.prime else 600)
 
     def __progress_destination(self) -> bool:
         return self.__progress('//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[3]/div/div[2]'
