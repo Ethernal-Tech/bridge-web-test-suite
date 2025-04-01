@@ -21,6 +21,7 @@ jobs:
     name: Prime to Vector
     uses: ./.github/workflows/bridging.yml
     with:
+      reactor_version: Partner
       source: Prime
       destination: Vector
       amount: 5
@@ -36,6 +37,7 @@ jobs:
     needs: prime_to_vector
     if: success() || failure()
     with:
+      reactor_version: Partner
       source: Prime
       destination: Nexus
       amount: 5
@@ -49,6 +51,7 @@ jobs:
     name: Vector to Prime
     uses: ./.github/workflows/bridging.yml
     with:
+      reactor_version: Partner
       source: Vector
       destination: Prime
       amount: 2
@@ -62,6 +65,7 @@ jobs:
     name: Nexus to Prime
     uses: ./.github/workflows/bridging.yml
     with:
+      reactor_version: Partner
       source: Nexus
       destination: Prime
       amount: 2
