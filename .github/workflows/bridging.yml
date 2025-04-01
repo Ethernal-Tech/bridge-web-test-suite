@@ -118,15 +118,8 @@ jobs:
           sudo mv chrome-mac-arm64/Google\ Chrome\ for\ Testing.app /Applications
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Set Reactor URL
-        run: |
-          if [[ "${{ inputs.reactor_version }}" == "Internal" ]]; then
-            echo "REACTOR_URL=${{ vars.APEX_FUSION_INTERNAL_REACTOR_URL }}" >> $GITHUB_ENV
-          else
-            echo "REACTOR_URL=${{ vars.APEX_FUSION_PARTNER_REACTOR_URL }}" >> $GITHUB_ENV
-          fi
       - name: Start bridging
-        run: python main.py ${{ inputs.source }} ${{ inputs.destination }} ${{ inputs.amount }}
+        run: python main.py ${{ inputs.reactor_version }} ${{ inputs.source }} ${{ inputs.destination }} ${{ inputs.amount }}
         env:
           PYTHONUNBUFFERED: 1
           SIGN_KEY: ${{ secrets.SIGN_KEY }}
@@ -137,7 +130,8 @@ jobs:
           NEXUS_NETWORK_RPC_URL: ${{ vars.NEXUS_NETWORK_RPC_URL }}
           NEXUS_NETWORK_CHAIN_ID: ${{ vars.NEXUS_NETWORK_CHAIN_ID }}
           NEXUS_NETWORK_CURRENCY_SYMBOL: ${{ vars.NEXUS_NETWORK_CURRENCY_SYMBOL }}
-          APEX_FUSION_REACTOR_URL: $REACTOR_URL
+          APEX_FUSION_PARTNER_REACTOR_URL: ${{ vars.APEX_FUSION_PARTNER_REACTOR_URL }}
+          APEX_FUSION_INTERNAL_REACTOR_URL: ${{ vars.APEX_FUSION_INTERNAL_REACTOR_URL }}
           APEX_FUSION_FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
           CHROMEDRIVER_VERSION: ${{ vars.CHROMEDRIVER_VERSION }}
           ETERNL_WALLET_EXTENSION: ${{ inputs.eternl_wallet_extension }}
