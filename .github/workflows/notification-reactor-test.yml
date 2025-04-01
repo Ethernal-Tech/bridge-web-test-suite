@@ -3,6 +3,10 @@ name: Notification
 on:
   workflow_call:
     inputs:
+      reactor_version:
+        required: true
+        description: Reactor Version
+        type: string
       tx_01_source_status:
         type: string
         required: true
@@ -77,7 +81,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "Apex Fusion Reactor"
+                    "text": "Apex Fusion ${{ inputs.reactor_version }} Reactor"
                   }
                 },
                 {

@@ -155,6 +155,7 @@ jobs:
     needs: bridging
     if: ((success() || failure()) && inputs.notification)
     with:
+      reactor_version: ${{ inputs.reactor_version }}
       source: ${{ inputs.source }}
       destination: ${{ inputs.destination }}
       bridging_status: ${{ needs.bridging.outputs.bridging_status }}

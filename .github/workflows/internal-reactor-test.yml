@@ -1,5 +1,5 @@
 ---
-name: Partner Reactor Test
+name: Internal Reactor Test
 on:
   schedule:
     - cron: '0 6,13 * * *'
@@ -21,7 +21,7 @@ jobs:
     name: Prime to Vector
     uses: ./.github/workflows/bridging.yml
     with:
-      reactor_version: Partner
+      reactor_version: Internal
       source: Prime
       destination: Vector
       amount: 5
@@ -37,7 +37,7 @@ jobs:
     needs: prime_to_vector
     if: success() || failure()
     with:
-      reactor_version: Partner
+      reactor_version: Internal
       source: Prime
       destination: Nexus
       amount: 5
@@ -51,7 +51,7 @@ jobs:
     name: Vector to Prime
     uses: ./.github/workflows/bridging.yml
     with:
-      reactor_version: Partner
+      reactor_version: Internal
       source: Vector
       destination: Prime
       amount: 2
@@ -65,7 +65,7 @@ jobs:
     name: Nexus to Prime
     uses: ./.github/workflows/bridging.yml
     with:
-      reactor_version: Partner
+      reactor_version: Internal
       source: Nexus
       destination: Prime
       amount: 2
@@ -95,7 +95,7 @@ jobs:
     needs: [prime_to_vector, prime_to_nexus, vector_to_prime, nexus_to_prime, inputs_check]
     if: ((success() || failure()) && (needs.inputs_check.outputs.notification == 'true'))
     with:
-      reactor_version: Partner
+      reactor_version: Internal
       tx_01_source_status: ${{ needs.prime_to_vector.outputs.source_status }}
       tx_01_bridge_status: ${{ needs.prime_to_vector.outputs.bridge_status }}
       tx_01_destination_status: ${{ needs.prime_to_vector.outputs.destination_status }}

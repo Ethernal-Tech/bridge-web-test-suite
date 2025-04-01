@@ -3,6 +3,9 @@ name: Bridging Notification
 on:
   workflow_call:
     inputs:
+      reactor_version:
+        required: true
+        type: string
       source:
         type: string
         required: true
@@ -47,7 +50,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "Apex Fusion Reactor"
+                    "text": "Apex Fusion ${{ inputs.reactor_version }} Reactor"
                   }
                 },
                 {
