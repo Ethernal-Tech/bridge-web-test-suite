@@ -69,6 +69,7 @@ def recover_wallet(
 
 @retry(tries=5)
 def main(
+        reactor_version: str,
         source: str,
         destination: str,
         amount: str
@@ -81,7 +82,7 @@ def main(
 
     apex_fusion_reactor = ApexFusionReactor(
         driver=chrome,
-        reactor_url=getenv('APEX_FUSION_REACTOR_URL'),
+        reactor_url=getenv('APEX_FUSION_INTERNAL_REACTOR_URL') if reactor_version == "internal" else getenv('APEX_FUSION_PARTNER_REACTOR_URL'),
         faucet_url=getenv('APEX_FUSION_FAUCET_URL'),
         source_wallet=recover_wallet(
             driver=chrome,
@@ -106,17 +107,18 @@ def main(
 if __name__ == '__main__':
     try:
 
-        src, dst, amt = argv[1].lower(), argv[2].lower(), argv[3]
+        rv, src, dst, amt = argv[1].lower(), argv[2].lower(), argv[3].lower(), argv[4]
 
-        print(f"{datetime.now()} Setup bridging from '{src}' to '{dst}'")
+        print(f"{datetime.now()} '{rv}' | Setup bridging from '{src}' to '{dst}'")
 
         main(
+            reactor_version=rv,
             source=src,
             destination=dst,
             amount=amt
         )
 
-        print(f"{datetime.now()} Bridging successfully completed")
+        print(f"{datetime.now()} '{rv}' | Bridging successfully completed")
 
     except Exception as error:
         # if recovery from the error is not possible
