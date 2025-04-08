@@ -204,7 +204,7 @@ class ApexFusionReactor:
         self.__driver.get(self.__transactions_url)
 
         # wait the bridging history to be loaded
-        sleep(15)
+        sleep(30)
 
         # filter by Destination
         self.__driver.find_element_by_xpath(
@@ -230,7 +230,7 @@ class ApexFusionReactor:
         ).click()
 
         # wait the bridging history to be loaded
-        sleep(15)
+        sleep(30)
 
         status = self.__driver.find_element_by_xpath(
             '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[7]/div/p'
