@@ -45,7 +45,7 @@ class ApexFusionReactor:
         ).send_keys(receiver_address)
 
         self.__driver.find_element_by_xpath(
-            '//*[@id="app"]/div/div[2]/main/div/div[2]/div/div/form/div[2]/button'
+            '//*[@id="app"]/div/div/div[2]/main/div/div[2]/div/div/form/div[2]/button'
         ).click()
 
         print(f'{datetime.now()} Receiver Address {receiver_address} has been funded')
