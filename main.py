@@ -3,24 +3,29 @@ from os import getenv
 from typing import Union
 from datetime import datetime
 from toolbox.chrome import Chrome
-from toolbox.utils import EternlApexFusionNetwork, ApexFusionChain, retry
+from toolbox.utils import Network, retry
+from toolbox.utils import EternlApexFusionIdentifier, ApexFusionSubnetwork
+from toolbox.utils import EternlCardanoIdentifier, CardanoSubnetwork
 from wallets.eternl import Eternl
 from wallets.metamask import MetaMask
-from apex_fusion_reactor import ApexFusionReactor
+from apex_fusion import ApexFusion
 
 
 def recover_wallet(
         driver: Chrome,
-        target: str
+        token_name: str,
+        subnetwork: str
 ) -> Union[Eternl, MetaMask, None]:
 
-    if target == ApexFusionChain.prime:
+    if subnetwork == ApexFusionSubnetwork.prime:
 
         wallet = Eternl(
             driver=driver,
-            network=EternlApexFusionNetwork.prime_testnet,
+            network=Network.apex,
+            subnetwork=ApexFusionSubnetwork.prime,
+            token_name=token_name,
+            connect=EternlApexFusionIdentifier.prime_testnet,
             sign_key=getenv('SIGN_KEY'),
-            name=ApexFusionChain.prime,
             extension=getenv('ETERNL_WALLET_EXTENSION')
         )
 
@@ -28,13 +33,15 @@ def recover_wallet(
             recovery_phrase=getenv('PRIME_WALLET_RECOVERY_PHRASE')
         )
 
-    elif target == ApexFusionChain.vector:
+    elif subnetwork == ApexFusionSubnetwork.vector:
 
         wallet = Eternl(
             driver=driver,
-            network=EternlApexFusionNetwork.vector_testnet,
+            network=Network.apex,
+            subnetwork=ApexFusionSubnetwork.vector,
+            token_name=token_name,
+            connect=EternlApexFusionIdentifier.vector_testnet,
             sign_key=getenv('SIGN_KEY'),
-            name=ApexFusionChain.vector,
             extension=getenv('ETERNL_WALLET_EXTENSION')
         )
 
@@ -42,12 +49,13 @@ def recover_wallet(
             recovery_phrase=getenv('VECTOR_WALLET_RECOVERY_PHRASE')
         )
 
-    elif target == ApexFusionChain.nexus:
+    elif subnetwork == ApexFusionSubnetwork.nexus:
 
         wallet = MetaMask(
             driver=driver,
             sign_key=getenv('SIGN_KEY'),
-            name=ApexFusionChain.nexus
+            subnetwork=ApexFusionSubnetwork.nexus,
+            token_name=token_name
         )
 
         wallet.recover(
@@ -61,6 +69,22 @@ def recover_wallet(
             currency_symbol=getenv('NEXUS_NETWORK_CURRENCY_SYMBOL')
         )
 
+    elif subnetwork == CardanoSubnetwork.preview:
+
+        wallet = Eternl(
+            driver=driver,
+            network=Network.cardano,
+            subnetwork=CardanoSubnetwork.preview,
+            token_name=token_name,
+            connect=EternlCardanoIdentifier.preview,
+            sign_key=getenv('SIGN_KEY'),
+            extension=getenv('ETERNL_WALLET_EXTENSION')
+        )
+
+        wallet.recover(
+            recovery_phrase=getenv('PREVIEW_WALLET_RECOVERY_PHRASE')
+        )
+
     else:
         return None
 
@@ -69,9 +93,12 @@ def recover_wallet(
 
 @retry(tries=5)
 def main(
-        reactor_version: str,
-        source: str,
-        destination: str,
+        bridge: str,
+        deployment: str,
+        source_subnetwork: str,
+        source_token: str,
+        destination_subnetwork: str,
+        destination_token: str,
         amount: str
 ) -> None:
 
@@ -80,21 +107,43 @@ def main(
         eternl_wallet_extension=getenv('ETERNL_WALLET_EXTENSION')
     )
 
-    apex_fusion_reactor = ApexFusionReactor(
+    if bridge == 'reactor':
+
+        if deployment == 'internal':
+            web_app_url = getenv('APEX_FUSION_INTERNAL_REACTOR_URL')
+        elif deployment == 'partner':
+            web_app_url = getenv('APEX_FUSION_PARTNER_REACTOR_URL')
+        else:
+            raise Exception
+
+    elif bridge == 'skyline':
+
+        if deployment == 'internal':
+            web_app_url = getenv('APEX_FUSION_INTERNAL_SKYLINE_URL')
+        else:
+            raise Exception
+
+    else:
+        raise Exception
+
+    apex_fusion = ApexFusion(
         driver=chrome,
-        reactor_url=getenv('APEX_FUSION_INTERNAL_REACTOR_URL') if reactor_version == "internal" else getenv('APEX_FUSION_PARTNER_REACTOR_URL'),
-        faucet_url=getenv('APEX_FUSION_FAUCET_URL'),
+        bridge=bridge,
+        bridge_url=web_app_url,
+        apex_faucet_url=getenv('APEX_FUSION_FAUCET_URL'),
         source_wallet=recover_wallet(
             driver=chrome,
-            target=source
+            subnetwork=source_subnetwork,
+            token_name=source_token
         ),
         destination_wallet=recover_wallet(
             driver=chrome,
-            target=destination
+            subnetwork=destination_subnetwork,
+            token_name=destination_token
         )
     )
 
-    transaction_signed_error = apex_fusion_reactor.bridging(
+    transaction_signed_error = apex_fusion.bridging(
         amount=amount
     )
 
@@ -107,18 +156,30 @@ def main(
 if __name__ == '__main__':
     try:
 
-        rv, src, dst, amt = argv[1].lower(), argv[2].lower(), argv[3].lower(), argv[4]
+        bdg = argv[1]
+        depl = argv[2]
 
-        print(f"{datetime.now()} '{rv}' | Setup bridging from '{src}' to '{dst}'")
+        ss = argv[3]
+        amt = argv[4]
+        st = argv[5]
+
+        ds = argv[6]
+        dt = argv[7]
+
+        print(f"{datetime.now()} Bridge: {bdg} {depl}")
+        print(f"{datetime.now()} Transaction: {ss} {amt}({st}) to {ds} ?({dt})")
 
         main(
-            reactor_version=rv,
-            source=src,
-            destination=dst,
+            bridge=bdg.lower(),
+            deployment=depl.lower(),
+            source_subnetwork=ss.lower(),
+            source_token=st.lower(),
+            destination_subnetwork=ds.lower(),
+            destination_token=dt.lower(),
             amount=amt
         )
 
-        print(f"{datetime.now()} '{rv}' | Bridging successfully completed")
+        print(f"{datetime.now()} Bridging completed")
 
     except Exception as error:
         # if recovery from the error is not possible

@@ -1,0 +1,202 @@
+---
+name: Multiple Transactions Notification
+on:
+  workflow_call:
+    inputs:
+      bridge:
+        required: true
+        type: string
+      deployment:
+        required: true
+        type: string
+      eternl_wallet_extension:
+        required: true
+        type: string
+      tx_01_source_chain:
+        required: true
+        type: string
+      tx_01_source_token:
+        required: true
+        type: string
+      tx_01_destination_chain:
+        required: true
+        type: string
+      tx_01_destination_token:
+        required: true
+        type: string
+      tx_01_source_status:
+        required: true
+        type: string
+      tx_01_bridge_status:
+        required: true
+        type: string
+      tx_01_destination_status:
+        required: true
+        type: string
+      tx_01_status:
+        required: true
+        type: string
+      tx_02_source_chain:
+        required: true
+        type: string
+      tx_02_source_token:
+        required: true
+        type: string
+      tx_02_destination_chain:
+        required: true
+        type: string
+      tx_02_destination_token:
+        required: true
+        type: string
+      tx_02_source_status:
+        required: true
+        type: string
+      tx_02_bridge_status:
+        required: true
+        type: string
+      tx_02_destination_status:
+        required: true
+        type: string
+      tx_02_status:
+        required: true
+        type: string
+      tx_03_source_chain:
+        required: true
+        type: string
+      tx_03_source_token:
+        required: true
+        type: string
+      tx_03_destination_chain:
+        required: true
+        type: string
+      tx_03_destination_token:
+        required: true
+        type: string
+      tx_03_source_status:
+        required: true
+        type: string
+      tx_03_bridge_status:
+        required: true
+        type: string
+      tx_03_destination_status:
+        required: true
+        type: string
+      tx_03_status:
+        required: true
+        type: string
+      tx_04_source_chain:
+        required: true
+        type: string
+      tx_04_source_token:
+        required: true
+        type: string
+      tx_04_destination_chain:
+        required: true
+        type: string
+      tx_04_destination_token:
+        required: true
+        type: string
+      tx_04_source_status:
+        required: true
+        type: string
+      tx_04_bridge_status:
+        required: true
+        type: string
+      tx_04_destination_status:
+        required: true
+        type: string
+      tx_04_status:
+        required: true
+        type: string
+    secrets:
+      SLACK_WEBHOOK_URL:
+        required: true
+
+jobs:
+  notification:
+    name: Notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Short SHA
+        id: short_sha
+        run: echo "value=`echo ${{ github.sha }} | cut -c1-7`" >> $GITHUB_OUTPUT
+      - name: Notify Slack
+        uses: slackapi/slack-github-action@v1.27.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          succeed_bnt: 'primary'
+          failed_bnt: 'danger'
+          succeed_job: ':green:'
+          failed_job: ':red:'
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${{ inputs.bridge }} ${{ inputs.deployment }} Tests"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Workflow Run"
+                      },
+                      "style": "${{ inputs.tx_01_status == 'success' && inputs.tx_02_status == 'success' && inputs.tx_03_status == 'success' && inputs.tx_04_status == 'success' && env.succeed_bnt || env.failed_bnt }}",
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "Commit: *<https://github.com/${{ github.repository }}/tree/${{ github.sha }}|${{ steps.short_sha.outputs.value }}>*"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "Ethernal Wallet: *${{ inputs.eternl_wallet_extension }}*"
+                    }
+                  ]
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.tx_01_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_01_source_chain }}(${{ inputs.tx_01_source_token }})* ${{ inputs.tx_01_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_01_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_01_destination_chain }}(${{ inputs.tx_01_destination_token }})*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.tx_02_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_02_source_chain }}(${{ inputs.tx_02_source_token }})* ${{ inputs.tx_02_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_02_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_02_destination_chain }}(${{ inputs.tx_02_destination_token }})*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.tx_03_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_03_source_chain }}(${{ inputs.tx_03_source_token }})* ${{ inputs.tx_03_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_03_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_03_destination_chain }}(${{ inputs.tx_03_destination_token }})*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.tx_04_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_03_source_chain }}(${{ inputs.tx_03_source_token }})* ${{ inputs.tx_04_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_04_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_03_destination_chain }}(${{ inputs.tx_03_destination_token }})*"
+                  }
+                }
+              ]
+            }

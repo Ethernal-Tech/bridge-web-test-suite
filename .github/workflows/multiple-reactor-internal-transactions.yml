@@ -1,0 +1,146 @@
+---
+name: Multiple Reactor Internal Transactions
+on:
+  schedule:
+    - cron: '30 6,13 * * *'
+  workflow_dispatch:
+    inputs:
+      notification:
+        required: false
+        description: Notification
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  prime_to_vector:
+    name: Prime to Vector
+    uses: ./.github/workflows/single-transaction.yml
+    with:
+      bridge: Reactor
+      deployment: Internal
+      source_chain: Prime
+      source_token: APEX
+      destination_chain: Vector
+      destination_token: APEX
+      amount: 5
+      eternl_wallet_extension: Stable
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+      VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
+  prime_to_nexus:
+    name: Prime to Nexus
+    uses: ./.github/workflows/single-transaction.yml
+    needs: prime_to_vector
+    if: success() || failure()
+    with:
+      bridge: Reactor
+      deployment: Internal
+      source_chain: Prime
+      source_token: APEX
+      destination_chain: Nexus
+      destination_token: APEX
+      amount: 5
+      eternl_wallet_extension: Stable
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+      NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
+  vector_to_prime:
+    name: Vector to Prime
+    uses: ./.github/workflows/single-transaction.yml
+    with:
+      bridge: Reactor
+      deployment: Internal
+      source_chain: Vector
+      source_token: APEX
+      destination_chain: Prime
+      destination_token: APEX
+      amount: 2
+      eternl_wallet_extension: Stable
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+  nexus_to_prime:
+    name: Nexus to Prime
+    uses: ./.github/workflows/single-transaction.yml
+    with:
+      bridge: Reactor
+      deployment: Internal
+      source_chain: Nexus
+      source_token: APEX
+      destination_chain: Prime
+      destination_token: APEX
+      amount: 2
+      eternl_wallet_extension: Stable
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+  inputs_check:
+    name: Inputs Check
+    runs-on: ubuntu-latest
+    outputs:
+      notification: ${{ steps.notification_input_check.outputs.notification }}
+    steps:
+      - name: Notification Input Check
+        id: notification_input_check
+        run: |
+          if [[ "${{ inputs.notification }}" != "false" ]]; then
+            echo "notification=true" >> $GITHUB_OUTPUT
+          else
+            echo "notification=false" >> $GITHUB_OUTPUT
+          fi
+  notification:
+    name: Send notification
+    uses: ./.github/workflows/multiple-transactions-notification.yml
+    needs: [prime_to_vector, prime_to_nexus, vector_to_prime, nexus_to_prime, inputs_check]
+    if: ((success() || failure()) && (needs.inputs_check.outputs.notification == 'true'))
+    with:
+      bridge: Reactor
+      deployment: Internal
+      eternl_wallet_extension: Stable
+      tx_01_source_chain: Prime
+      tx_01_source_token: APEX
+      tx_01_destination_chain: Vector
+      tx_01_destination_token: APEX
+      tx_01_source_status: ${{ needs.prime_to_vector.outputs.source_status }}
+      tx_01_bridge_status: ${{ needs.prime_to_vector.outputs.bridge_status }}
+      tx_01_destination_status: ${{ needs.prime_to_vector.outputs.destination_status }}
+      tx_01_status: ${{ needs.prime_to_vector.outputs.bridging_status }}
+      tx_02_source_chain: Prime
+      tx_02_source_token: APEX
+      tx_02_destination_chain: Nexus
+      tx_02_destination_token: APEX
+      tx_02_source_status: ${{ needs.prime_to_nexus.outputs.source_status }}
+      tx_02_bridge_status: ${{ needs.prime_to_nexus.outputs.bridge_status }}
+      tx_02_destination_status: ${{ needs.prime_to_nexus.outputs.destination_status }}
+      tx_02_status: ${{ needs.prime_to_nexus.outputs.bridging_status }}
+      tx_03_source_chain: Vector
+      tx_03_source_token: APEX
+      tx_03_destination_chain: Prime
+      tx_03_destination_token: APEX
+      tx_03_source_status: ${{ needs.vector_to_prime.outputs.source_status }}
+      tx_03_bridge_status: ${{ needs.vector_to_prime.outputs.bridge_status }}
+      tx_03_destination_status: ${{ needs.vector_to_prime.outputs.destination_status }}
+      tx_03_status: ${{ needs.vector_to_prime.outputs.bridging_status }}
+      tx_04_source_chain: Nexus
+      tx_04_source_token: APEX
+      tx_04_destination_chain: Prime
+      tx_04_destination_token: APEX
+      tx_04_source_status: ${{ needs.nexus_to_prime.outputs.source_status }}
+      tx_04_bridge_status: ${{ needs.nexus_to_prime.outputs.bridge_status }}
+      tx_04_destination_status: ${{ needs.nexus_to_prime.outputs.destination_status }}
+      tx_04_status: ${{ needs.nexus_to_prime.outputs.bridging_status }}
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

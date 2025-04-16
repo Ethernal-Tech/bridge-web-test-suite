@@ -1,0 +1,109 @@
+---
+name: Single Notification
+on:
+  workflow_call:
+    inputs:
+      bridge:
+        type: string
+        required: true
+      deployment:
+        type: string
+        required: true
+      source_chain:
+        type: string
+        required: true
+      source_token:
+        type: string
+        required: true
+      destination_chain:
+        type: string
+        required: true
+      destination_token:
+        type: string
+        required: true
+      eternl_wallet_extension:
+        type: string
+        required: true
+      bridging_status:
+        type: string
+        required: true
+      source_status:
+        type: string
+        required: true
+      bridge_status:
+        type: string
+        required: true
+      destination_status:
+        type: string
+        required: true
+    secrets:
+      SLACK_WEBHOOK_URL:
+        required: true
+
+jobs:
+  notification:
+    name: Notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Short SHA
+        id: short_sha
+        run: echo "value=`echo ${{ github.sha }} | cut -c1-7`" >> $GITHUB_OUTPUT
+      - name: Notify Slack
+        uses: slackapi/slack-github-action@v1
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          succeed_bnt: 'primary'
+          failed_bnt: 'danger'
+          succeed_job: ':green:'
+          failed_job: ':red:'
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${{ inputs.bridge }} ${{ inputs.deployment }} Test"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Workflow Run"
+                      },
+                      "style": "${{ inputs.bridging_status == 'success' && env.succeed_bnt || env.failed_bnt }}",
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "Commit: *<https://github.com/${{ github.repository }}/tree/${{ github.sha }}|${{ steps.short_sha.outputs.value }}>*"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "Ethernal Wallet: *${{ inputs.eternl_wallet_extension }}*"
+                    }
+                  ]
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.source_chain }}(${{ inputs.source_token }})* ${{ inputs.bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.destination_chain }}(${{ inputs.destination_token }})*"
+                  }
+                }
+              ]
+            }
