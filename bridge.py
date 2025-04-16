@@ -120,6 +120,9 @@ class Bridge:
 
     @retry()
     def __send_tx(self) -> None:
+        # Scroll to the bottom of the page
+        self.__driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
         if self.__bridge_name == 'reactor':
 
             self.__driver.find_element_by_xpath(

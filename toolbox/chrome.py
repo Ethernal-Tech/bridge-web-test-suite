@@ -18,7 +18,7 @@ class Chrome(WebDriver):
         self.__extensions_dir_path: str = path.join(path.dirname(path.abspath(__file__)), 'extensions')
 
         self.__options = [
-            # "--headless",
+            "--headless",
             "--no-sandbox",
             "--disable-gpu",
             "--window-size=1920,1080",
