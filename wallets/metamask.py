@@ -144,7 +144,7 @@ class MetaMask:
         self.__got_it()
         self.__finish()
 
-        print(f'{datetime.now()} {self.__subnetwork} wallet recovered successfully"')
+        print(f'{datetime.now()} {self.__subnetwork.capitalize()} wallet recovered successfully"')
 
     def toggle(self) -> None:
         pass
@@ -189,7 +189,7 @@ class MetaMask:
         self.__set_receive_address()
         self.__driver.get(self.__url)
 
-        print(f'{datetime.now()} {self.__subnetwork} address: {self.__receive_address}')
+        print(f'{datetime.now()} {self.__subnetwork.capitalize()} address: {self.__receive_address}')
 
     @retry()
     def grant_access(self) -> None:

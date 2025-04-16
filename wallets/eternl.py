@@ -225,8 +225,8 @@ class Eternl:
         self.__set_wallet_name_and_sign_key()
         self.__set_receive_address()
 
-        print(f"{datetime.now()} {self.__subnetwork} wallet recovered successfully")
-        print(f'{datetime.now()} {self.__subnetwork} address: {self.__receive_address}')
+        print(f"{datetime.now()} {self.__subnetwork.capitalize()} wallet recovered successfully")
+        print(f'{datetime.now()} {self.__subnetwork.capitalize()} address: {self.__receive_address}')
 
     @retry()
     def toggle(self) -> None:

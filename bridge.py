@@ -10,18 +10,18 @@ from toolbox.utils import Network, retry
 from toolbox.utils import ApexFusionSubnetwork, CardanoSubnetwork
 
 
-class ApexFusion:
+class Bridge:
     def __init__(
             self,
             driver: Chrome,
-            bridge: str,
+            bridge_name: str,
             bridge_url: str,
             apex_faucet_url: str,
             source_wallet: Union[Eternl, MetaMask],
             destination_wallet: Union[Eternl, MetaMask]
     ) -> None:
 
-        self.__bridge: str = bridge
+        self.__bridge_name: str = bridge_name
         self.__bridge_url: str = bridge_url
         self.__apex_faucet_url: str = apex_faucet_url
         self.__transactions_url: str = path.join(self.__bridge_url, 'transactions')
@@ -57,7 +57,7 @@ class ApexFusion:
         print(f'{datetime.now()} {receiver_address} has been funded')
 
     @retry()
-    def __open_web_app(self, source: str, destination: str) -> None:
+    def __open_bridge_app(self, source: str, destination: str) -> None:
         self.__driver.get(self.__bridge_url)
 
         sleep(5)
@@ -85,7 +85,7 @@ class ApexFusion:
         ).send_keys(destination_address)
 
     def __select_token(self) -> None:
-        if self.__bridge == 'skyline':
+        if self.__bridge_name == 'skyline':
 
             self.__driver.find_element_by_xpath(
                 '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[3]/div'
@@ -120,9 +120,20 @@ class ApexFusion:
 
     @retry()
     def __send_tx(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[3]/button[2]'
-        ).click()
+        if self.__bridge_name == 'reactor':
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[3]/button[2]'
+            ).click()
+
+        elif self.__bridge_name == 'skyline':
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[4]/button[2]'
+            ).click()
+
+        else:
+            raise Exception
 
     @retry()
     def __open_popup_for_signing_tx(self) -> None:
@@ -264,15 +275,14 @@ class ApexFusion:
     def bridging(self, amount: str) -> str:
         self.__source_wallet.toggle()
 
-        self.__open_web_app(
+        self.__open_bridge_app(
             self.__source_wallet.get_web_app_identifier(),
             self.__destination_wallet.get_web_app_identifier()
         )
 
         self.__connect_wallet_and_move_funds()
 
-        print(f'{datetime.now()} {type(self.__source_wallet).__name__} Waiting for access '
-              f'to {self.__bridge_url} to be granted')
+        print(f'{datetime.now()} Waiting for access to {self.__bridge_url} to be granted')
         self.__source_wallet.grant_access()
         print(f'{datetime.now()} Access granted successfully')
 
@@ -309,7 +319,7 @@ class ApexFusion:
 
             return self.__transaction_signed_error
 
-        print(f"{datetime.now()} Starting bridging")
+        print(f"{datetime.now()} Start bridging")
 
         try:
 
