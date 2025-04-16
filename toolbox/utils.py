@@ -4,16 +4,32 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class EternlApexFusionNetwork:
+class Network:
+    apex: str = 'apex'
+    cardano: str = 'cardano'
+
+
+@dataclass(frozen=True)
+class EternlApexFusionIdentifier:
     prime_testnet: str = 'afpt'
     vector_testnet: str = 'afvt'
 
 
 @dataclass(frozen=True)
-class ApexFusionChain:
+class ApexFusionSubnetwork:
     prime: str = 'prime'
     vector: str = 'vector'
     nexus: str = 'nexus'
+
+
+@dataclass(frozen=True)
+class EternlCardanoIdentifier:
+    preview: str = 'preview'
+
+
+@dataclass(frozen=True)
+class CardanoSubnetwork:
+    preview: str = 'preview'
 
 
 def retry(tries: int = 10, delay: int = 1, back_off: float = 1.5):

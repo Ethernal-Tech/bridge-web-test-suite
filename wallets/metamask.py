@@ -9,16 +9,17 @@ class MetaMask:
             self,
             driver: Chrome,
             sign_key: str,
-            name: str
+            subnetwork: str,
+            token_name: str
     ) -> None:
 
         self.__url: str = 'chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html'
         self.__add_network_url: str = f'{self.__url}#settings/networks/add-network'
         self.__driver: Chrome = driver
         self.__sign_key: str = sign_key
-        self.__name: str = name
+        self.__subnetwork: str = subnetwork
+        self.__token_name: str = token_name
         self.__receive_address: str = ""
-        self.__balance: float = 0.0
         self.__opened_tabs: list[str] = self.__driver.window_handles
 
         self.__driver.switch_to.window(self.__driver.get_init_tab())
@@ -103,18 +104,6 @@ class MetaMask:
             sleep(1)
 
     @retry()
-    def __set_balance(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[3]/div/div/div/div[2]/div/div/div/div[1]/a'
-        ).click()
-
-        balance = self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[3]/div/div/div[3]/div[1]/div/div[2]/div[1]/div[2]/p[2]',
-        ).text
-
-        self.__balance = float(balance.split()[0])
-
-    @retry()
     def __set_receive_address(self) -> None:
         self.__driver.find_element_by_xpath(
             '//*[@id="app-content"]/div/div[2]/div/div[3]/div/div/button'
@@ -131,11 +120,17 @@ class MetaMask:
     def get_receive_address(self) -> str:
         return self.__receive_address
 
-    def get_name(self) -> str:
-        return self.__name
+    def get_subnetwork(self) -> str:
+        return self.__subnetwork
+
+    def get_web_app_identifier(self) -> str:
+        return self.__subnetwork
+
+    def get_token_name(self) -> str:
+        return self.__token_name
 
     def recover(self, recovery_phrase: str) -> None:
-        print(f"{datetime.now()} MetaMask Wallet start recovering")
+        print(f"{datetime.now()} Start recovering {self.__subnetwork} wallet")
 
         self.__driver.get(self.__url)
         self.__agree_terms()
@@ -149,7 +144,7 @@ class MetaMask:
         self.__got_it()
         self.__finish()
 
-        print(f'{datetime.now()} MetaMask Wallet recovered successfully')
+        print(f'{datetime.now()} {self.__subnetwork} wallet recovered successfully"')
 
     def toggle(self) -> None:
         pass
@@ -186,7 +181,7 @@ class MetaMask:
             '//*[@id="popover-content"]/div/div/section/div[2]/div/button[1]'
         ).click()
 
-        print(f"{datetime.now()} Successfully added '{name}' network")
+        print(f"{datetime.now()} {name} network successfully added")
 
         sleep(1)
 
@@ -194,7 +189,7 @@ class MetaMask:
         self.__set_receive_address()
         self.__driver.get(self.__url)
 
-        print(f'{datetime.now()} Receiver Address: {self.__receive_address}')
+        print(f'{datetime.now()} {self.__subnetwork} address: {self.__receive_address}')
 
     @retry()
     def grant_access(self) -> None:

@@ -40,7 +40,7 @@ jobs:
           else
             echo "CHAIN=${{ inputs.chain }}" >> $GITHUB_ENV
           fi
-      - name: Start bridging
+      - name: Get Funds
         run: python ./toolbox/cardano-faucet.py $CHAIN
         env:
           BRD_PROXY_USERNAME: ${{ secrets.BRD_PROXY_USERNAME }}

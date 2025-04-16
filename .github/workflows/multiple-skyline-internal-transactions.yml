@@ -1,0 +1,147 @@
+---
+name: Multiple Skyline Internal Transactions
+on:
+  schedule:
+    - cron: '30 6,13 * * *'
+  workflow_dispatch:
+    inputs:
+      notification:
+        required: false
+        description: Notification
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  prime_apex_to_preview_wapex:
+    name: Prime(APEX) to Preview(WAPEX)
+    uses: ./.github/workflows/single-transaction.yml
+    with:
+      bridge: Skyline
+      deployment: Internal
+      source_chain: Prime
+      source_token: APEX
+      destination_chain: Preview
+      destination_token: WAPEX
+      amount: 5
+      eternl_wallet_extension: Stable
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+      VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
+  prime_wada_to_preview_ada:
+    name: Prime(WAda) to Preview(Ada)
+    uses: ./.github/workflows/single-transaction.yml
+    needs: prime_apex_to_preview_wapex
+    if: success() || failure()
+    with:
+      bridge: Skyline
+      deployment: Internal
+      source_chain: Prime
+      source_token: WADA
+      destination_chain: Preview
+      destination_token: ADA
+      amount: 5
+      eternl_wallet_extension: Stable
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+      NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
+  preview_ada_to_prime_wada:
+    name: Preview(ADA) to Prime(WAda)
+    uses: ./.github/workflows/single-transaction.yml
+    with:
+      bridge: Skyline
+      deployment: Internal
+      source_chain: Preview
+      source_token: Ada
+      destination_chain: Prime
+      destination_token: WAda
+      amount: 2
+      eternl_wallet_extension: Stable
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+  preview_wapex_to_prime_apex:
+    name: Preview(WAPEX) to Prime(APEX)
+    uses: ./.github/workflows/single-transaction.yml
+    needs: preview_ada_to_prime_wada
+    with:
+      bridge: Skyline
+      deployment: Internal
+      source_chain: Preview
+      source_token: WAPEX
+      destination_chain: Prime
+      destination_token: APEX
+      amount: 2
+      eternl_wallet_extension: Stable
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
+      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+  inputs_check:
+    name: Inputs Check
+    runs-on: ubuntu-latest
+    outputs:
+      notification: ${{ steps.notification_input_check.outputs.notification }}
+    steps:
+      - name: Notification Input Check
+        id: notification_input_check
+        run: |
+          if [[ "${{ inputs.notification }}" != "false" ]]; then
+            echo "notification=true" >> $GITHUB_OUTPUT
+          else
+            echo "notification=false" >> $GITHUB_OUTPUT
+          fi
+  notification:
+    name: Send notification
+    uses: ./.github/workflows/multiple-transactions-notification.yml
+    needs: [prime_apex_to_preview_wapex, prime_wada_to_preview_ada, preview_ada_to_prime_wada, preview_wapex_to_prime_apex, inputs_check]
+    if: ((success() || failure()) && (needs.inputs_check.outputs.notification == 'true'))
+    with:
+      bridge: Skyline
+      deployment: Internal
+      eternl_wallet_extension: Stable
+      tx_01_source_chain: Prime
+      tx_01_source_token: APEX
+      tx_01_destination_chain: Preview
+      tx_01_destination_token: WAPEX
+      tx_01_source_status: ${{ needs.prime_apex_to_preview_wapex.outputs.source_status }}
+      tx_01_bridge_status: ${{ needs.prime_apex_to_preview_wapex.outputs.bridge_status }}
+      tx_01_destination_status: ${{ needs.prime_apex_to_preview_wapex.outputs.destination_status }}
+      tx_01_status: ${{ needs.prime_apex_to_preview_wapex.outputs.bridging_status }}
+      tx_02_source_chain: Prime
+      tx_02_source_token: WAda
+      tx_02_destination_chain: Preview
+      tx_02_destination_token: Ada
+      tx_02_source_status: ${{ needs.prime_wada_to_preview_ada.outputs.source_status }}
+      tx_02_bridge_status: ${{ needs.prime_wada_to_preview_ada.outputs.bridge_status }}
+      tx_02_destination_status: ${{ needs.prime_wada_to_preview_ada.outputs.destination_status }}
+      tx_02_status: ${{ needs.prime_wada_to_preview_ada.outputs.bridging_status }}
+      tx_03_source_chain: Preview
+      tx_03_source_token: Ada
+      tx_03_destination_chain: Prime
+      tx_03_destination_token: WAda
+      tx_03_source_status: ${{ needs.preview_ada_to_prime_wada.outputs.source_status }}
+      tx_03_bridge_status: ${{ needs.preview_ada_to_prime_wada.outputs.bridge_status }}
+      tx_03_destination_status: ${{ needs.preview_ada_to_prime_wada.outputs.destination_status }}
+      tx_03_status: ${{ needs.preview_ada_to_prime_wada.outputs.bridging_status }}
+      tx_04_source_chain: Preview
+      tx_04_source_token: WAPEX
+      tx_04_destination_chain: Prime
+      tx_04_destination_token: APEX
+      tx_04_source_status: ${{ needs.preview_wapex_to_prime_apex.outputs.source_status }}
+      tx_04_bridge_status: ${{ needs.preview_wapex_to_prime_apex.outputs.bridge_status }}
+      tx_04_destination_status: ${{ needs.preview_wapex_to_prime_apex.outputs.destination_status }}
+      tx_04_status: ${{ needs.preview_wapex_to_prime_apex.outputs.bridging_status }}
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
