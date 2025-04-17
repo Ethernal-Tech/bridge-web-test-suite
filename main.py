@@ -2,13 +2,13 @@ from sys import argv
 from os import getenv
 from typing import Union
 from datetime import datetime
+from bridge import Bridge
 from toolbox.chrome import Chrome
 from toolbox.utils import Network, retry
 from toolbox.utils import EternlApexFusionIdentifier, ApexFusionSubnetwork
 from toolbox.utils import EternlCardanoIdentifier, CardanoSubnetwork
 from wallets.eternl import Eternl
 from wallets.metamask import MetaMask
-from apex_fusion import ApexFusion
 
 
 def recover_wallet(
@@ -93,7 +93,7 @@ def recover_wallet(
 
 @retry(tries=5)
 def main(
-        bridge: str,
+        bridge_name: str,
         deployment: str,
         source_subnetwork: str,
         source_token: str,
@@ -107,28 +107,28 @@ def main(
         eternl_wallet_extension=getenv('ETERNL_WALLET_EXTENSION')
     )
 
-    if bridge == 'reactor':
+    if bridge_name == 'reactor':
 
         if deployment == 'internal':
-            web_app_url = getenv('APEX_FUSION_INTERNAL_REACTOR_URL')
+            web_app_url = getenv('INTERNAL_REACTOR_URL')
         elif deployment == 'partner':
-            web_app_url = getenv('APEX_FUSION_PARTNER_REACTOR_URL')
+            web_app_url = getenv('PARTNER_REACTOR_URL')
         else:
             raise Exception
 
-    elif bridge == 'skyline':
+    elif bridge_name == 'skyline':
 
         if deployment == 'internal':
-            web_app_url = getenv('APEX_FUSION_INTERNAL_SKYLINE_URL')
+            web_app_url = getenv('INTERNAL_SKYLINE_URL')
         else:
             raise Exception
 
     else:
         raise Exception
 
-    apex_fusion = ApexFusion(
+    bridge = Bridge(
         driver=chrome,
-        bridge=bridge,
+        bridge_name=bridge_name,
         bridge_url=web_app_url,
         apex_faucet_url=getenv('APEX_FUSION_FAUCET_URL'),
         source_wallet=recover_wallet(
@@ -143,7 +143,7 @@ def main(
         )
     )
 
-    transaction_signed_error = apex_fusion.bridging(
+    transaction_signed_error = bridge.bridging(
         amount=amount
     )
 
@@ -167,10 +167,10 @@ if __name__ == '__main__':
         dt = argv[7]
 
         print(f"{datetime.now()} Bridge: {bdg} {depl}")
-        print(f"{datetime.now()} Transaction: {ss} {amt}({st}) to {ds} ?({dt})")
+        print(f"{datetime.now()} Transaction: {ss} {amt}{st} to {ds} {amt}{dt}")
 
         main(
-            bridge=bdg.lower(),
+            bridge_name=bdg.lower(),
             deployment=depl.lower(),
             source_subnetwork=ss.lower(),
             source_token=st.lower(),

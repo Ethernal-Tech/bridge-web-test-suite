@@ -1,12 +1,11 @@
-<h1 align="center">Bridge Test Suit</h1>
+<h1 align="center">Ethernal Bridges - Web Test Suite</h1>
 
 <p align="center">
-   <img src="./images/reactor.svg" alt="Reactor" style="max-height: 300px; vertical-align: middle"/>
-   <img src="./images/skyline.svg" alt="Skyline" style="max-height: 350px; vertical-align: middle"/>
+   <img src="./images/bridges.png" alt="Ethernal Bridges"/>
 </p>
 
 ![Python Version](https://img.shields.io/badge/Python-3.9.x-4285f4?logo=python&logoColor=white)
-![Google Chrome For_Testnet_Version](https://img.shields.io/badge/Google%20Chrome%20For%20Testing-130.0.6723.59-4285f4?logo=GoogleChrome&logoColor=white)
+![Google Chrome For Testnet Version](https://img.shields.io/badge/Google%20Chrome%20For%20Testing-130.0.6723.59-4285f4?logo=GoogleChrome&logoColor=white)
 ![Selenium](https://img.shields.io/badge/Selenium-4.25.0-4285f4?logo=selenium&logoColor=white)
 ![Metamask Wallet Supported](https://img.shields.io/badge/MetaMask%20Wallet-12.4.2-4285f4?logo=Ethereum&logoColor=white)
 ![Eternl Wallet Supported](https://img.shields.io/badge/Eternl%20Wallet-2.0.5.6-4285f4?logo=Cardano&logoColor=white)
@@ -15,11 +14,12 @@
 ![Ubuntu Support](https://img.shields.io/badge/Ubuntu-not%20tested-ee0000?logo=ubuntu&logoColor=white)
 ![Windows Support](https://img.shields.io/badge/Windows-not%20tested-ee0000?logo=windows&logoColor=white)
 ![Cardano Privew Facut](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/cardano-faucet.yml/badge.svg)
-![Internal Reactor Test Status](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/internal-reactor-test.yml/badge.svg)
-![Partner Reactor Test Status](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/reactor-test.yml/badge.svg)
-![Bridging Status](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/bridging.yml/badge.svg)
+![Multiple Reactor Internal Transactions](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/multiple-reactor-internal-transactions.yml/badge.svg)
+![Multiple Reactor Partner Transactions](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/multiple-reactor-partner-transactions.yml/badge.svg)
+![Multiple Skyline Internal Transactions](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/multiple-skyline-internal-transactions.yml/badge.svg)
+![Single Transaction](https://github.com/bane/apex-fusion-reactor-test-suite/actions/workflows/single-transaction.yml/badge.svg)
 
-An automated testing suite for the **Apex Fusion Reactor** and **Apex Fusion Skyline** websites, 
+An automated testing suite for the **Reactor** and **Skyline** websites, 
 developed with **Selenium** and utilizing Chrome, 
 is designed to thoroughly test every interaction and feature, 
 including support for **MetaMask** and **Eternl** wallets. 
@@ -68,9 +68,9 @@ By addressing **all possible scenarios**, this tool provides a strong foundation
     NEXUS_NETWORK_RPC_URL=
     NEXUS_NETWORK_CHAIN_ID=
     NEXUS_NETWORK_CURRENCY_SYMBOL=
-    APEX_FUSION_PARTNER_REACTOR_URL=
-    APEX_FUSION_INTERNAL_REACTOR_URL=
-    APEX_FUSION_INTERNAL_SKYLINE_URL=
+    PARTNER_REACTOR_URL=
+    INTERNAL_REACTOR_URL=
+    INTERNAL_SKYLINE_URL=
     APEX_FUSION_FAUCET_URL=
    ```
 
@@ -110,16 +110,16 @@ By addressing **all possible scenarios**, this tool provides a strong foundation
    dotenv -f environment.env run -- python main.py Skyline Internal Prime 5 APEX Preview WAPEX
    ```
 
-2. **Preview (ADA) to Prime (WADA)**
+2. **Preview (Ada) to Prime (WAda)**
 
    ```bash
-   dotenv -f environment.env run -- python main.py Skyline Internal Preview 5 ADA Prime WADA
+   dotenv -f environment.env run -- python main.py Skyline Internal Preview 5 Ada Prime WAda
    ```
 
-3. **Prime (WADA) to Preview (ADA)**
+3. **Prime (WAda) to Preview (Ada)**
 
    ```bash
-   dotenv -f environment.env run -- python main.py Skyline Internal Prime 5 WADA Preview ADA
+   dotenv -f environment.env run -- python main.py Skyline Internal Prime 5 WAda Preview Ada
    ```
 
 4. **Preview (WAPEX) to Prime (APEX)**

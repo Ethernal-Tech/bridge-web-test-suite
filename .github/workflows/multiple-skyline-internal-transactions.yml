@@ -2,7 +2,7 @@
 name: Multiple Skyline Internal Transactions
 on:
   schedule:
-    - cron: '30 6,13 * * *'
+    - cron: '0 5,12 * * *'
   workflow_dispatch:
     inputs:
       notification:
@@ -33,7 +33,7 @@ jobs:
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
       PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
-      VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
+      PREVIEW_WALLET_RECOVERY_PHRASE: ${{ secrets.PREVIEW_WALLET_RECOVERY_PHRASE }}
   prime_wada_to_preview_ada:
     name: Prime(WAda) to Preview(Ada)
     uses: ./.github/workflows/single-transaction.yml
@@ -52,7 +52,7 @@ jobs:
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
       PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
-      NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
+      PREVIEW_WALLET_RECOVERY_PHRASE: ${{ secrets.PREVIEW_WALLET_RECOVERY_PHRASE }}
   preview_ada_to_prime_wada:
     name: Preview(ADA) to Prime(WAda)
     uses: ./.github/workflows/single-transaction.yml
@@ -68,7 +68,7 @@ jobs:
       notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
+      PREVIEW_WALLET_RECOVERY_PHRASE: ${{ secrets.PREVIEW_WALLET_RECOVERY_PHRASE }}
       PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
   preview_wapex_to_prime_apex:
     name: Preview(WAPEX) to Prime(APEX)
@@ -86,7 +86,7 @@ jobs:
       notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
+      PREVIEW_WALLET_RECOVERY_PHRASE: ${{ secrets.PREVIEW_WALLET_RECOVERY_PHRASE }}
       PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
   inputs_check:
     name: Inputs Check

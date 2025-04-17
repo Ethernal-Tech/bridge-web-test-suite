@@ -135,7 +135,7 @@ permissions:
 
 jobs:
   bridging:
-    name: "${{ inputs.source_chain }}(${{ inputs.source_token }}) to ${{ inputs.destination_chain }}(${{ inputs.destination_token }})"
+    name: "${{ inputs.source_chain }} ${{ inputs.source_token }} to ${{ inputs.destination_chain }} ${{ inputs.destination_token }}"
     runs-on: macos-latest
     outputs:
       bridging_status: ${{ steps.bridging_status.outputs.bridging_status }}
@@ -172,10 +172,10 @@ jobs:
           NEXUS_NETWORK_RPC_URL: ${{ vars.NEXUS_NETWORK_RPC_URL }}
           NEXUS_NETWORK_CHAIN_ID: ${{ vars.NEXUS_NETWORK_CHAIN_ID }}
           NEXUS_NETWORK_CURRENCY_SYMBOL: ${{ vars.NEXUS_NETWORK_CURRENCY_SYMBOL }}
-          APEX_FUSION_PARTNER_REACTOR_URL: ${{ vars.APEX_FUSION_PARTNER_REACTOR_URL }}
-          APEX_FUSION_INTERNAL_REACTOR_URL: ${{ vars.APEX_FUSION_INTERNAL_REACTOR_URL }}
-          APEX_FUSION_INTERNAL_SKYLINE_URL: ${{ vars.APEX_FUSION_INTERNAL_SKYLINE_URL }}
-          APEX_FUSION_FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
+          PARTNER_REACTOR_URL: ${{ vars.PARTNER_REACTOR_URL }}
+          INTERNAL_REACTOR_URL: ${{ vars.INTERNAL_REACTOR_URL }}
+          INTERNAL_SKYLINE_URL: ${{ vars.INTERNAL_SKYLINE_URL }}
+          FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
           CHROMEDRIVER_VERSION: ${{ vars.CHROMEDRIVER_VERSION }}
           ETERNL_WALLET_EXTENSION: ${{ inputs.eternl_wallet_extension }}
       - name: Get status of the bridging

@@ -10,21 +10,21 @@ from toolbox.utils import Network, retry
 from toolbox.utils import ApexFusionSubnetwork, CardanoSubnetwork
 
 
-class ApexFusion:
+class Bridge:
     def __init__(
             self,
             driver: Chrome,
-            bridge: str,
+            bridge_name: str,
             bridge_url: str,
             apex_faucet_url: str,
             source_wallet: Union[Eternl, MetaMask],
             destination_wallet: Union[Eternl, MetaMask]
     ) -> None:
 
-        self.__bridge: str = bridge
-        self.__bridge_url: str = bridge_url
+        self.__bridge_name: str = bridge_name
+        self.__bridge_url: str = path.join(bridge_url, 'dashboard') if self.__bridge_name == 'skyline' else bridge_url
         self.__apex_faucet_url: str = apex_faucet_url
-        self.__transactions_url: str = path.join(self.__bridge_url, 'transactions')
+        self.__transactions_url: str = path.join(bridge_url, 'transactions')
         self.__driver: Chrome = driver
         self.__source_wallet: Union[Eternl, MetaMask] = source_wallet
         self.__destination_wallet: Union[Eternl, MetaMask] = destination_wallet
@@ -57,7 +57,7 @@ class ApexFusion:
         print(f'{datetime.now()} {receiver_address} has been funded')
 
     @retry()
-    def __open_web_app(self, source: str, destination: str) -> None:
+    def __open_bridge_app(self, source: str, destination: str) -> None:
         self.__driver.get(self.__bridge_url)
 
         sleep(5)
@@ -85,7 +85,7 @@ class ApexFusion:
         ).send_keys(destination_address)
 
     def __select_token(self) -> None:
-        if self.__bridge == 'skyline':
+        if self.__bridge_name == 'skyline':
 
             self.__driver.find_element_by_xpath(
                 '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[3]/div'
@@ -120,9 +120,26 @@ class ApexFusion:
 
     @retry()
     def __send_tx(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[3]/button[2]'
-        ).click()
+        # Scroll to the bottom of the page
+        self.__driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+        # Wait 15sec before submit transaction
+        sleep(15)
+
+        if self.__bridge_name == 'reactor':
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[3]/button[2]'
+            ).click()
+
+        elif self.__bridge_name == 'skyline':
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[4]/button[2]'
+            ).click()
+
+        else:
+            raise Exception
 
     @retry()
     def __open_popup_for_signing_tx(self) -> None:
@@ -203,18 +220,39 @@ class ApexFusion:
         return False
 
     def __progress_source(self) -> bool:
-        return self.__progress('//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[1]/div/div[2]'
-                               '//*[local-name()="svg"]//*[local-name()="path"]')
+        if self.__bridge_name == 'skyline':
+            timeout = 1800
+        else:
+            timeout = 600
+
+        return self.__progress(
+            '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[1]/div/div[2]'
+            '//*[local-name()="svg"]//*[local-name()="path"]',
+            timeout
+        )
 
     def __progress_bridge(self) -> bool:
+        if self.__bridge_name == 'skyline' or self.__destination_wallet.get_subnetwork() == ApexFusionSubnetwork.prime:
+            timeout = 1800
+        else:
+            timeout = 600
+
         return self.__progress(
             '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[2]/div/div[2]'
             '//*[local-name()="svg"]//*[local-name()="path"]',
-            1800 if self.__destination_wallet.get_subnetwork() == ApexFusionSubnetwork.prime else 600)
+            timeout)
 
     def __progress_destination(self) -> bool:
-        return self.__progress('//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[3]/div/div[2]'
-                               '//*[local-name()="svg"]//*[local-name()="path"]')
+        if self.__bridge_name == 'skyline':
+            timeout = 1800
+        else:
+            timeout = 600
+
+        return self.__progress(
+            '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[3]/div/div[2]'
+            '//*[local-name()="svg"]//*[local-name()="path"]',
+            timeout
+        )
 
     @retry()
     def __get_status(self) -> str:
@@ -234,10 +272,13 @@ class ApexFusion:
             '//*[@id="destination-chain"]'
         ).click()
 
-        sleep(1)
+        sleep(3)
 
         self.__driver.find_element_by_xpath(
-            f'//*[starts-with(@id, ":r")]//*[contains(text(), "{self.__destination_wallet.get_subnetwork().capitalize()}")]'
+            f'//*[starts-with(@id, ":r")]'
+            f'//*[translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", '
+            f'"abcdefghijklmnopqrstuvwxyz") = '
+            f'"{self.__destination_wallet.get_web_app_identifier()}"]'
         ).click()
 
         sleep(1)
@@ -249,9 +290,20 @@ class ApexFusion:
         # wait the bridging history to be loaded
         sleep(30)
 
-        status = self.__driver.find_element_by_xpath(
-            '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[7]/div/p'
-        ).text
+        if self.__bridge_name == 'reactor':
+
+            status = self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[7]/div/p'
+            ).text
+
+        elif self.__bridge_name == 'skyline':
+
+            status = self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[8]/div/p'
+            ).text
+
+        else:
+            raise Exception
 
         if status != 'Success':
             sleep(10)
@@ -264,15 +316,14 @@ class ApexFusion:
     def bridging(self, amount: str) -> str:
         self.__source_wallet.toggle()
 
-        self.__open_web_app(
+        self.__open_bridge_app(
             self.__source_wallet.get_web_app_identifier(),
             self.__destination_wallet.get_web_app_identifier()
         )
 
         self.__connect_wallet_and_move_funds()
 
-        print(f'{datetime.now()} {type(self.__source_wallet).__name__} Waiting for access '
-              f'to {self.__bridge_url} to be granted')
+        print(f'{datetime.now()} Waiting for access to {self.__bridge_url} to be granted')
         self.__source_wallet.grant_access()
         print(f'{datetime.now()} Access granted successfully')
 
@@ -282,15 +333,15 @@ class ApexFusion:
         self.__select_token()
         self.__amount_to_send(amount)
         self.__send_tx()
-
+        
         self.__open_popup_for_signing_tx()
-
+        
         if type(self.__source_wallet) == Eternl:
             self.__transaction_signed_error = self.__sign_transaction(self.__source_wallet.get_sign_key())
-
+        
         elif type(self.__source_wallet) == MetaMask:
             self.__confirm_transaction()
-
+        
         if self.__transaction_signed_error != "":
             dump(
                 obj={
@@ -309,16 +360,16 @@ class ApexFusion:
 
             return self.__transaction_signed_error
 
-        print(f"{datetime.now()} Starting bridging")
+        print(f"{datetime.now()} Start bridging")
 
         try:
 
             self.__is_source_succeeded = self.__progress_source()
             print(f'{datetime.now()} Source succeeded: {self.__is_source_succeeded}')
-
+            
             self.__is_bridge_succeeded = self.__progress_bridge()
             print(f'{datetime.now()} Bridge succeeded: {self.__is_bridge_succeeded}')
-
+            
             self.__is_destination_succeeded: bool = self.__progress_destination()
             print(f'{datetime.now()} Destination succeeded: {self.__is_destination_succeeded}')
 
