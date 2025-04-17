@@ -2,7 +2,7 @@
 name: Multiple Reactor Partner Transactions
 on:
   schedule:
-    - cron: '0 6,13 * * *'
+    - cron: '30 4,11 * * *'
   workflow_dispatch:
     inputs:
       notification:

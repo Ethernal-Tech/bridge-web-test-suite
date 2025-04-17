@@ -163,7 +163,7 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "Ethernal Wallet: *${{ inputs.eternl_wallet_extension }}*"
+                      "text": "Eternl Wallet: *${{ inputs.eternl_wallet_extension }}*"
                     }
                   ]
                 },
@@ -174,28 +174,28 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_01_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_01_source_chain }}(${{ inputs.tx_01_source_token }})* ${{ inputs.tx_01_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_01_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_01_destination_chain }}(${{ inputs.tx_01_destination_token }})*"
+                    "text": "${{ inputs.tx_01_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_01_source_chain }} ${{ inputs.tx_01_source_token }}* ${{ inputs.tx_01_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_01_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_01_destination_chain }} ${{ inputs.tx_01_destination_token }}*"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_02_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_02_source_chain }}(${{ inputs.tx_02_source_token }})* ${{ inputs.tx_02_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_02_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_02_destination_chain }}(${{ inputs.tx_02_destination_token }})*"
+                    "text": "${{ inputs.tx_02_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_02_source_chain }} ${{ inputs.tx_02_source_token }}* ${{ inputs.tx_02_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_02_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_02_destination_chain }} ${{ inputs.tx_02_destination_token }}*"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_03_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_03_source_chain }}(${{ inputs.tx_03_source_token }})* ${{ inputs.tx_03_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_03_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_03_destination_chain }}(${{ inputs.tx_03_destination_token }})*"
+                    "text": "${{ inputs.tx_03_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_03_source_chain }} ${{ inputs.tx_03_source_token }}* ${{ inputs.tx_03_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_03_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_03_destination_chain }} ${{ inputs.tx_03_destination_token }}*"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_04_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_03_source_chain }}(${{ inputs.tx_03_source_token }})* ${{ inputs.tx_04_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_04_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_03_destination_chain }}(${{ inputs.tx_03_destination_token }})*"
+                    "text": "${{ inputs.tx_04_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_04_source_chain }} ${{ inputs.tx_04_source_token }}* ${{ inputs.tx_04_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_04_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_04_destination_chain }} ${{ inputs.tx_04_destination_token }}*"
                   }
                 }
               ]

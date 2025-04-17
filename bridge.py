@@ -22,9 +22,9 @@ class Bridge:
     ) -> None:
 
         self.__bridge_name: str = bridge_name
-        self.__bridge_url: str = bridge_url
+        self.__bridge_url: str = path.join(bridge_url, 'dashboard') if self.__bridge_name == 'skyline' else bridge_url
         self.__apex_faucet_url: str = apex_faucet_url
-        self.__transactions_url: str = path.join(self.__bridge_url, 'transactions')
+        self.__transactions_url: str = path.join(bridge_url, 'transactions')
         self.__driver: Chrome = driver
         self.__source_wallet: Union[Eternl, MetaMask] = source_wallet
         self.__destination_wallet: Union[Eternl, MetaMask] = destination_wallet
@@ -217,18 +217,39 @@ class Bridge:
         return False
 
     def __progress_source(self) -> bool:
-        return self.__progress('//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[1]/div/div[2]'
-                               '//*[local-name()="svg"]//*[local-name()="path"]')
+        if self.__bridge_name == 'skyline':
+            timeout = 1800
+        else:
+            timeout = 600
+
+        return self.__progress(
+            '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[1]/div/div[2]'
+            '//*[local-name()="svg"]//*[local-name()="path"]',
+            timeout
+        )
 
     def __progress_bridge(self) -> bool:
+        if self.__bridge_name == 'skyline' or self.__destination_wallet.get_subnetwork() == ApexFusionSubnetwork.prime:
+            timeout = 1800
+        else:
+            timeout = 600
+
         return self.__progress(
             '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[2]/div/div[2]'
             '//*[local-name()="svg"]//*[local-name()="path"]',
-            1800 if self.__destination_wallet.get_subnetwork() == ApexFusionSubnetwork.prime else 600)
+            timeout)
 
     def __progress_destination(self) -> bool:
-        return self.__progress('//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[3]/div/div[2]'
-                               '//*[local-name()="svg"]//*[local-name()="path"]')
+        if self.__bridge_name == 'skyline':
+            timeout = 1800
+        else:
+            timeout = 600
+
+        return self.__progress(
+            '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[3]/div/div[2]'
+            '//*[local-name()="svg"]//*[local-name()="path"]',
+            timeout
+        )
 
     @retry()
     def __get_status(self) -> str:
@@ -248,10 +269,13 @@ class Bridge:
             '//*[@id="destination-chain"]'
         ).click()
 
-        sleep(1)
+        sleep(3)
 
         self.__driver.find_element_by_xpath(
-            f'//*[starts-with(@id, ":r")]//*[contains(text(), "{self.__destination_wallet.get_subnetwork().capitalize()}")]'
+            f'//*[starts-with(@id, ":r")]'
+            f'//*[translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", '
+            f'"abcdefghijklmnopqrstuvwxyz") = '
+            f'"{self.__destination_wallet.get_web_app_identifier()}"]'
         ).click()
 
         sleep(1)
@@ -263,9 +287,20 @@ class Bridge:
         # wait the bridging history to be loaded
         sleep(30)
 
-        status = self.__driver.find_element_by_xpath(
-            '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[7]/div/p'
-        ).text
+        if self.__bridge_name == 'reactor':
+
+            status = self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[7]/div/p'
+            ).text
+
+        elif self.__bridge_name == 'skyline':
+
+            status = self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[8]/div/p'
+            ).text
+
+        else:
+            raise Exception
 
         if status != 'Success':
             sleep(10)
@@ -295,15 +330,15 @@ class Bridge:
         self.__select_token()
         self.__amount_to_send(amount)
         self.__send_tx()
-
+        
         self.__open_popup_for_signing_tx()
-
+        
         if type(self.__source_wallet) == Eternl:
             self.__transaction_signed_error = self.__sign_transaction(self.__source_wallet.get_sign_key())
-
+        
         elif type(self.__source_wallet) == MetaMask:
             self.__confirm_transaction()
-
+        
         if self.__transaction_signed_error != "":
             dump(
                 obj={
@@ -328,10 +363,10 @@ class Bridge:
 
             self.__is_source_succeeded = self.__progress_source()
             print(f'{datetime.now()} Source succeeded: {self.__is_source_succeeded}')
-
+            
             self.__is_bridge_succeeded = self.__progress_bridge()
             print(f'{datetime.now()} Bridge succeeded: {self.__is_bridge_succeeded}')
-
+            
             self.__is_destination_succeeded: bool = self.__progress_destination()
             print(f'{datetime.now()} Destination succeeded: {self.__is_destination_succeeded}')
 

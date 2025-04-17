@@ -144,7 +144,7 @@ class MetaMask:
         self.__got_it()
         self.__finish()
 
-        print(f'{datetime.now()} {self.__subnetwork.capitalize()} wallet recovered successfully"')
+        print(f"{datetime.now()} {self.__subnetwork.capitalize()} wallet recovered successfully")
 
     def toggle(self) -> None:
         pass

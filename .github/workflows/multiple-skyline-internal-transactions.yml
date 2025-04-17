@@ -2,7 +2,7 @@
 name: Multiple Skyline Internal Transactions
 on:
   schedule:
-    - cron: '30 6,13 * * *'
+    - cron: '0 5,12 * * *'
   workflow_dispatch:
     inputs:
       notification:

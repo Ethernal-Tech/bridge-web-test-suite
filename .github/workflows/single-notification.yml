@@ -91,7 +91,7 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "Ethernal Wallet: *${{ inputs.eternl_wallet_extension }}*"
+                      "text": "Eternl Wallet: *${{ inputs.eternl_wallet_extension }}*"
                     }
                   ]
                 },
@@ -102,7 +102,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.source_chain }}(${{ inputs.source_token }})* ${{ inputs.bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.destination_chain }}(${{ inputs.destination_token }})*"
+                    "text": "${{ inputs.source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.source_chain }} ${{ inputs.source_token }}* ${{ inputs.bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.destination_chain }} ${{ inputs.destination_token }}*"
                   }
                 }
               ]

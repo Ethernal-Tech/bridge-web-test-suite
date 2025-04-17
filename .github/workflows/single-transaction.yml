@@ -135,7 +135,7 @@ permissions:
 
 jobs:
   bridging:
-    name: "${{ inputs.source_chain }}(${{ inputs.source_token }}) to ${{ inputs.destination_chain }}(${{ inputs.destination_token }})"
+    name: "${{ inputs.source_chain }} ${{ inputs.source_token }} to ${{ inputs.destination_chain }} ${{ inputs.destination_token }}"
     runs-on: macos-latest
     outputs:
       bridging_status: ${{ steps.bridging_status.outputs.bridging_status }}

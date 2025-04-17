@@ -167,7 +167,7 @@ if __name__ == '__main__':
         dt = argv[7]
 
         print(f"{datetime.now()} Bridge: {bdg} {depl}")
-        print(f"{datetime.now()} Transaction: {ss} {amt}({st}) to {ds} ?({dt})")
+        print(f"{datetime.now()} Transaction: {ss} {amt}{st} to {ds} {amt}{dt}")
 
         main(
             bridge_name=bdg.lower(),
