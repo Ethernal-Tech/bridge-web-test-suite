@@ -123,6 +123,9 @@ class Bridge:
         # Scroll to the bottom of the page
         self.__driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
+        # Wait 15sec before submit transaction
+        sleep(15)
+
         if self.__bridge_name == 'reactor':
 
             self.__driver.find_element_by_xpath(
