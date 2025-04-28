@@ -44,6 +44,8 @@ class Bridge:
 
     @retry()
     def __fund(self, receiver_address: str) -> None:
+        print(f'{datetime.now()} Get funds from {self.__apex_faucet_url}')
+
         self.__driver.get(self.__apex_faucet_url)
 
         self.__driver.find_element_by_xpath(
