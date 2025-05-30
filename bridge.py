@@ -222,10 +222,7 @@ class Bridge:
         return False
 
     def __progress_source(self) -> bool:
-        if self.__bridge_name == 'skyline':
-            timeout = 1800
-        else:
-            timeout = 600
+        timeout = 1800
 
         return self.__progress(
             '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[1]/div/div[2]'
@@ -234,10 +231,7 @@ class Bridge:
         )
 
     def __progress_bridge(self) -> bool:
-        if self.__bridge_name == 'skyline' or self.__destination_wallet.get_subnetwork() == ApexFusionSubnetwork.prime:
-            timeout = 1800
-        else:
-            timeout = 600
+        timeout = 1800
 
         return self.__progress(
             '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[2]/div/div[2]'
@@ -245,10 +239,7 @@ class Bridge:
             timeout)
 
     def __progress_destination(self) -> bool:
-        if self.__bridge_name == 'skyline':
-            timeout = 1800
-        else:
-            timeout = 600
+        timeout = 1800
 
         return self.__progress(
             '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[3]/div/div[2]'
