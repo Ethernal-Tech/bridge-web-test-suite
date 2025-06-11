@@ -120,6 +120,8 @@ def main(
 
         if deployment == 'internal':
             web_app_url = getenv('INTERNAL_SKYLINE_URL')
+        elif deployment == 'partner':
+            web_app_url = getenv('PARTNER_SKYLINE_URL')
         else:
             raise Exception
 
