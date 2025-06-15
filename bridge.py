@@ -37,9 +37,7 @@ class Bridge:
         self.__final_status: str = 'Unknown'
 
         # TODO: Add support for Cardano Preview Faucet
-        if datetime.today().strftime('%A') == 'Monday' and \
-                self.__source_wallet.get_subnetwork() != CardanoSubnetwork.preview:
-
+        if self.__source_wallet.get_subnetwork() != CardanoSubnetwork.preview:
             self.__fund(self.__source_wallet.get_receive_address())
 
     @retry()
