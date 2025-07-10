@@ -168,8 +168,8 @@ if __name__ == '__main__':
         ds = argv[6]
         dt = argv[7]
 
-        print(f"{datetime.now()} - Bridge: {bdg} {depl}")
-        print(f"{datetime.now()} - Transaction: {ss} {amt}{st} to {ds} {amt}{dt}")
+        print(f"{datetime.now()} - [INF] Bridge: {bdg} {depl}")
+        print(f"{datetime.now()} - [INF] Transaction: {ss} {amt}{st} to {ds} {amt}{dt}")
 
         main(
             bridge_name=bdg.lower(),
@@ -181,8 +181,8 @@ if __name__ == '__main__':
             amount=amt
         )
 
-        print(f"{datetime.now()} - Bridging completed")
+        print(f"{datetime.now()} - [INF] Bridging completed")
 
     except Exception as error:
         # if recovery from the error is not possible
-        print(f"{datetime.now()} - Bridging failed: {error}")
+        print(f"{datetime.now()} - [ERR] Bridging failed: {error}")

@@ -15,48 +15,52 @@ class Chrome(WebDriver):
         driver_version: str,
         eternl_wallet_extension: str
     ) -> None:
+        print(f"{datetime.now()} - [INF] Starting ChromeDriver setup...")
 
-        print(f"{datetime.now()} - Starting ChromeDriver setup...")
+        try:
+            self.__extensions_dir_path: str = path.join(path.dirname(path.abspath(__file__)), 'extensions')
 
-        self.__extensions_dir_path: str = path.join(path.dirname(path.abspath(__file__)), 'extensions')
+            self.__options = [
+                "--headless",
+                "--no-sandbox",
+                "--disable-gpu",
+                "--window-size=1920,1080",
+                "--disable-popup-blocking"
+                # "--disable-features=DisableLoadExtensionCommandLineSwitch" #Allow loading extensions in Chrome version >=137
+            ]
 
-        self.__options = [
-            "--headless",
-            "--no-sandbox",
-            "--disable-gpu",
-            "--window-size=1920,1080",
-            "--disable-popup-blocking"
-            # "--disable-features=DisableLoadExtensionCommandLineSwitch" #Allow loading extensions in Chrome version >=137
-        ]
+            self.__chrome_options = Options()
 
-        self.__chrome_options = Options()
+            for arg in self.__options:
+                self.__chrome_options.add_argument(arg)
 
-        for arg in self.__options:
-            self.__chrome_options.add_argument(arg)
+            self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/MetaMask.crx')
 
-        self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/MetaMask.crx')
+            if eternl_wallet_extension.lower() == 'beta':
+                self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/EternlBeta.crx')
+            else:
+                self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/Eternl.crx')
 
-        if eternl_wallet_extension.lower() == 'beta':
-            self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/EternlBeta.crx')
-        else:
-            self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/Eternl.crx')
+            self.__chrome_services = Service()
+            self.__chrome_services.path = ChromeDriverManager(driver_version=driver_version).install()
 
-        self.__chrome_services = Service()
-        self.__chrome_services.path = ChromeDriverManager(driver_version=driver_version).install()
+            super().__init__(
+                options=self.__chrome_options,
+                service=self.__chrome_services
+            )
 
-        super().__init__(
-            options=self.__chrome_options,
-            service=self.__chrome_services
-        )
+            # the first tab opened when chrome started
+            self.__init_tab = self.current_window_handle
 
-        # the first tab opened when chrome started
-        self.__init_tab = self.current_window_handle
+            # wait to chrome to open all startup tabs
+            sleep(5)
 
-        # wait to chrome to open all startup tabs
-        sleep(5)
+            print(f"{datetime.now()} - [INF] ChromeDriver initialized with MetaMask and Eternl({eternl_wallet_extension}) extension.")
 
-        print(f"{datetime.now()} - ChromeDriver initialized with MetaMask and Eternl({eternl_wallet_extension}) extension.")
-
+        except Exception as e:
+            print(f"{datetime.now()} - [ERR] Error during ChromeDriver setup: {e}")
+            raise e
+        
     def get_init_tab(self) -> str:
         return self.__init_tab
 
