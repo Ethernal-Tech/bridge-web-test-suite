@@ -1,5 +1,6 @@
 from os import path
 from time import sleep
+from datetime import datetime
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebElement
 from selenium.webdriver.chrome.options import Options
@@ -15,6 +16,8 @@ class Chrome(WebDriver):
         eternl_wallet_extension: str
     ) -> None:
 
+        print(f"{datetime.now()} - Starting ChromeDriver setup...")
+
         self.__extensions_dir_path: str = path.join(path.dirname(path.abspath(__file__)), 'extensions')
 
         self.__options = [
@@ -23,6 +26,7 @@ class Chrome(WebDriver):
             "--disable-gpu",
             "--window-size=1920,1080",
             "--disable-popup-blocking"
+            # "--disable-features=DisableLoadExtensionCommandLineSwitch" #Allow loading extensions in Chrome version >=137
         ]
 
         self.__chrome_options = Options()
@@ -50,6 +54,8 @@ class Chrome(WebDriver):
 
         # wait to chrome to open all startup tabs
         sleep(5)
+
+        print(f"{datetime.now()} - ChromeDriver initialized with MetaMask and Eternl({eternl_wallet_extension}) extension.")
 
     def get_init_tab(self) -> str:
         return self.__init_tab

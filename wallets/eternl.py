@@ -209,7 +209,7 @@ class Eternl:
         return self.__token_name
 
     def recover(self, recovery_phrase: str) -> None:
-        print(f"{datetime.now()} Start recovering {self.__subnetwork} wallet")
+        print(f"{datetime.now()} - Start recovering {self.__subnetwork} wallet")
 
         self.__driver.get(self.__url)
 

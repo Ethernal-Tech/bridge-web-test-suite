@@ -114,7 +114,7 @@ def main(
         elif deployment == 'partner':
             web_app_url = getenv('PARTNER_REACTOR_URL')
         else:
-            raise Exception
+            raise ValueError(f"Invalid input parameter: deployment='{deployment}' for bridge='reactor'")
 
     elif bridge_name == 'skyline':
 
@@ -123,10 +123,10 @@ def main(
         elif deployment == 'partner':
             web_app_url = getenv('PARTNER_SKYLINE_URL')
         else:
-            raise Exception
+            raise ValueError(f"Invalid input parameter: deployment='{deployment}' for bridge='skyline'")
 
     else:
-        raise Exception
+        raise ValueError(f"Invalid input parameter: bridge='{bridge_name}'")
 
     bridge = Bridge(
         driver=chrome,
@@ -168,8 +168,8 @@ if __name__ == '__main__':
         ds = argv[6]
         dt = argv[7]
 
-        print(f"{datetime.now()} Bridge: {bdg} {depl}")
-        print(f"{datetime.now()} Transaction: {ss} {amt}{st} to {ds} {amt}{dt}")
+        print(f"{datetime.now()} - Bridge: {bdg} {depl}")
+        print(f"{datetime.now()} - Transaction: {ss} {amt}{st} to {ds} {amt}{dt}")
 
         main(
             bridge_name=bdg.lower(),
@@ -181,8 +181,8 @@ if __name__ == '__main__':
             amount=amt
         )
 
-        print(f"{datetime.now()} Bridging completed")
+        print(f"{datetime.now()} - Bridging completed")
 
     except Exception as error:
         # if recovery from the error is not possible
-        print(f"{datetime.now()} Bridging failed: {error}")
+        print(f"{datetime.now()} - Bridging failed: {error}")
