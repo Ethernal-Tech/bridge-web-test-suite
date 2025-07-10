@@ -34,9 +34,13 @@ class Eternl:
     def __open_app(self) -> None:
         sleep(3)
 
-        self.__driver.find_element_by_xpath(
-            '//*[@id="eternl-modal"]/div/div/div/div[2]/div[4]/div/button'
-        ).click()
+        try:
+            self.__driver.find_element_by_xpath(
+                '//*[@id="eternl-modal"]/div/div/div/div[2]/div[4]/div/button'
+            ).click()
+        except NoSuchElementException:
+            print(f"{datetime.now()} - [INF] Eternl Wallet is already initialized, skipping the opening step.")
+            return
 
         sleep(1)
 
@@ -209,24 +213,19 @@ class Eternl:
         return self.__token_name
 
     def recover(self, recovery_phrase: str) -> None:
-        print(f"{datetime.now()} - Start recovering {self.__subnetwork} wallet")
+        print(f"{datetime.now()} - [INF] Start recovering {self.__subnetwork.capitalize()} wallet")
 
         self.__driver.get(self.__url)
 
-        try:
-            self.__open_app()
-        except NoSuchElementException:
-            # Only when opening the Eternl Wallet for the first time
-            pass
-
+        self.__open_app()
         self.__restore_wallet()
         self.__insert_recover_phrase(recovery_phrase)
         self.__number_of_accounts()
         self.__set_wallet_name_and_sign_key()
         self.__set_receive_address()
 
-        print(f"{datetime.now()} {self.__subnetwork.capitalize()} wallet recovered successfully")
-        print(f'{datetime.now()} {self.__subnetwork.capitalize()} address: {self.__receive_address}')
+        print(f"{datetime.now()} - [INF] {self.__subnetwork.capitalize()} wallet recovered successfully")
+        print(f'{datetime.now()} - [INF] {self.__subnetwork.capitalize()} address: {self.__receive_address}')
 
     @retry()
     def toggle(self) -> None:
