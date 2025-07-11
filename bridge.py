@@ -42,7 +42,7 @@ class Bridge:
 
     @retry()
     def __fund(self, receiver_address: str) -> None:
-        print(f'{datetime.now()} Get funds from {self.__apex_faucet_url}')
+        print(f'{datetime.now()} - [INF] Get funds from {self.__apex_faucet_url}')
 
         self.__driver.get(self.__apex_faucet_url)
 
@@ -54,7 +54,7 @@ class Bridge:
             '//*[@id="app"]/div/div/div[2]/main/div/div[2]/div/div/form/div[2]/button'
         ).click()
 
-        print(f'{datetime.now()} {receiver_address} has been funded')
+        print(f'{datetime.now()} - [INF] {receiver_address} has been funded')
 
     @retry()
     def __open_bridge_app(self, source: str, destination: str) -> None:
@@ -69,8 +69,12 @@ class Bridge:
 
         self.__driver.refresh()
 
+        print(f"{datetime.now()} - [INF] Opened bridging app at {self.__bridge_url} with source chain '{source}' and destination chain '{destination}'")
+
     @retry()
     def __connect_wallet_and_move_funds(self) -> None:
+        print(f"{datetime.now()} - [INF] Start connecting wallet...")
+
         # wait for the button to be available
         sleep(10)
 
@@ -314,7 +318,7 @@ class Bridge:
 
         self.__connect_wallet_and_move_funds()
 
-        print(f'{datetime.now()} Waiting for access to {self.__bridge_url} to be granted')
+        print(f'{datetime.now()} - [INF] Waiting for access to {self.__bridge_url} to be granted')
         self.__source_wallet.grant_access()
         print(f'{datetime.now()} Access granted successfully')
 
