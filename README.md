@@ -104,10 +104,10 @@ By addressing **all possible scenarios**, this tool provides a strong foundation
 
 ### Skyline
 
-1. **Prime (APEX) to Preview (WAPEX)**
+1. **Prime (AP3X) to Preview (cAP3X)**
 
    ```bash
-   dotenv -f environment.env run -- python main.py Skyline Internal Prime 5 APEX Preview WAPEX
+   dotenv -f environment.env run -- python main.py Skyline Internal Prime 5 AP3X Preview cAP3X
    ```
 
 2. **Preview (Ada) to Prime (WAda)**
@@ -122,8 +122,8 @@ By addressing **all possible scenarios**, this tool provides a strong foundation
    dotenv -f environment.env run -- python main.py Skyline Internal Prime 5 WAda Preview Ada
    ```
 
-4. **Preview (WAPEX) to Prime (APEX)**
+4. **Preview (cAP3X) to Prime (AP3X)**
 
    ```bash
-   dotenv -f environment.env run -- python main.py Skyline Internal Preview 5 WAPEX Prime APEX
+   dotenv -f environment.env run -- python main.py Skyline Internal Preview 5 cAP3X Prime AP3X
    ```
