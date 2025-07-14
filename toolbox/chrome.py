@@ -55,6 +55,13 @@ class Chrome(WebDriver):
             # wait to chrome to open all startup tabs
             sleep(5)
 
+            caps = self.capabilities
+            chrome_version = caps.get("browserVersion", "unknown")
+            chromedriver_version = caps.get("chrome", {}).get("chromedriverVersion", "unknown").split(" ")[0]
+
+            print(f"{datetime.now()} - [INF] Chrome version: {chrome_version}")
+            print(f"{datetime.now()} - [INF] ChromeDriver version: {chromedriver_version}")
+
             print(f"{datetime.now()} - [INF] ChromeDriver initialized with MetaMask and Eternl({eternl_wallet_extension}) extension.")
 
         except Exception as e:

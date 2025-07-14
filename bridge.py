@@ -320,7 +320,7 @@ class Bridge:
 
         print(f'{datetime.now()} - [INF] Waiting for access to {self.__bridge_url} to be granted')
         self.__source_wallet.grant_access()
-        print(f'{datetime.now()} Access granted successfully')
+        print(f'{datetime.now()} - [INF] Access granted successfully')
 
         self.__connect_wallet_and_move_funds()
 
