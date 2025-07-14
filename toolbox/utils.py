@@ -2,6 +2,7 @@ from time import sleep
 from functools import wraps
 from dataclasses import dataclass
 from datetime import datetime
+from selenium.common.exceptions import NoSuchElementException
 
 
 @dataclass(frozen=True)
@@ -42,12 +43,15 @@ def retry(tries: int = 10, delay: int = 1, back_off: float = 1.5):
             while f_tries > 0:
                 try:
                     return f(*args, **kwargs)
+                except NoSuchElementException as e:
+                    last_exception = e
+                    print(f"{datetime.now()} - [ERR] Retrying '{f.__name__}' due to NoSuchElementException: {e.msg}")
                 except Exception as e:
                     last_exception = e
-                    f_tries -= 1
                     print(f"{datetime.now()} - [ERR] Retrying '{f.__name__}' due to: {e}")
-                    sleep(f_delay)
-                    f_delay *= back_off
+                f_tries -= 1
+                sleep(f_delay)
+                f_delay *= back_off
             print(f"{datetime.now()} - [ERR] Function '{f.__name__}' failed after {tries} attempts.")
             raise last_exception
         return f_retry
