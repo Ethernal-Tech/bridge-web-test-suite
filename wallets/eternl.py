@@ -45,7 +45,8 @@ class Eternl:
         sleep(1)
 
         self.__driver.find_element_by_xpath(
-            '//*[@id="modalSetupSettingsFooter"]/button'
+            # '//*[@id="modalSetupSettingsFooter"]/button'
+            '//*[@id="modalSetupSettingsFooter"]/div/button' #new version of Eternl
         ).click()
 
         sleep(1)
@@ -90,21 +91,28 @@ class Eternl:
 
         sleep(5)
 
-        self.__driver.find_element_by_xpath(
-            '//*[@id="eternl-modal"]/div[2]/div/div/div[2]/div[4]/div/button'
-        ).click()
-
     @retry()
     def __restore_wallet(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="eternl-modal"]/div/div/div/div[2]/div[5]/div/div/button[3]'
-        ).click()
-
-        sleep(3)
+        sleep(2)
 
         self.__driver.find_element_by_xpath(
-            '//*[@id="eternl-modal"]/div/div/div/div[2]/div[3]/div/div/div/button[1]'
+            # '//*[@id="eternl-modal"]/div[2]/div/div/div[2]/div[4]/div/button'
+            '//*[@id="eternl-modal"]/div/div/div[2]/div[2]/div[5]/div/div/button[3]' #new version of Eternl
         ).click()
+
+        sleep(1)
+
+        self.__driver.find_element_by_xpath(
+            # '//*[@id="eternl-modal"]/div/div/div/div[2]/div[5]/div/div/button[3]'
+            '//*[@id="eternl-modal"]/div/div/div[2]/div[2]/div[3]/div/div/div/button[1]' #new version of Eternl
+        ).click()
+
+        sleep(2)
+
+        # new version of Eternl doesn't have this button
+        # self.__driver.find_element_by_xpath(
+        #     '//*[@id="eternl-modal"]/div/div/div/div[2]/div[3]/div/div/div/button[1]'
+        # ).click()
 
     @retry()
     def __insert_recover_phrase(self, recover_phrase: str) -> None:
@@ -169,7 +177,8 @@ class Eternl:
         try:
 
             self.__driver.find_element_by_xpath(
-                '//*[@id="eternl-app"]/div[2]/div[1]/div/div[1]/div[2]/nav/div/div[1]/div/div/button[3]'
+                # '//*[@id="eternl-app"]/div[2]/div[1]/div/div[1]/div[2]/nav/div/div[1]/div/div/button[3]'
+                '//*[@id="eternl-app"]/div[2]/div[1]/div/div[1]/div[1]/div/div[2]/div/div/button[2]' #new version of Eternl
             ).click()
 
             sleep(1)
@@ -195,7 +204,7 @@ class Eternl:
         except NoSuchElementException:
 
             self.__driver.refresh()
-            raise NoSuchElementException
+            raise NoSuchElementException("Not found element")
 
     def get_sign_key(self) -> str:
         return self.__sign_key

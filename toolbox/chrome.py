@@ -37,9 +37,9 @@ class Chrome(WebDriver):
             self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/MetaMask.crx')
 
             if eternl_wallet_extension.lower() == 'beta':
-                self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/EternlBeta.crx')
+                self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/EternlBetaNew.crx')
             else:
-                self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/Eternl.crx')
+                self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/EternlNew.crx')
 
             self.__chrome_services = Service()
             self.__chrome_services.path = ChromeDriverManager(driver_version=driver_version).install()
