@@ -22,7 +22,7 @@ class Bridge:
     ) -> None:
 
         self.__bridge_name: str = bridge_name
-        self.__bridge_url: str = path.join(bridge_url, 'dashboard') if self.__bridge_name == 'skyline' else bridge_url
+        self.__bridge_url: str = path.join(bridge_url, 'app') if self.__bridge_name == 'skyline' else bridge_url
         self.__apex_faucet_url: str = apex_faucet_url
         self.__transactions_url: str = path.join(bridge_url, 'transactions')
         self.__driver: Chrome = driver
