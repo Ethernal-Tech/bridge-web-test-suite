@@ -72,9 +72,18 @@ class Bridge:
         print(f"{datetime.now()} - [INF] Opened bridging app at {self.__bridge_url} with source chain '{source}' and destination chain '{destination}'")
 
     @retry()
-    def __connect_wallet_and_move_funds(self) -> None:
+    def __connect_wallet(self) -> None:
         print(f"{datetime.now()} - [INF] Start connecting wallet...")
 
+        # wait for the button to be available
+        sleep(10)
+
+        self.__driver.find_element_by_xpath(
+            '//*[@id="root"]/div[1]/div[2]/div/button'
+        ).click()
+
+    @retry()
+    def __move_funds(self) -> None:
         # wait for the button to be available
         sleep(10)
 
@@ -143,7 +152,7 @@ class Bridge:
             ).click()
 
         else:
-            raise Exception
+            raise ValueError(f"Invalid bridge: bridge='{self.__bridge_name}'")
 
     @retry()
     def __open_popup_for_signing_tx(self) -> None:
@@ -316,14 +325,15 @@ class Bridge:
             self.__destination_wallet.get_web_app_identifier()
         )
 
-        self.__connect_wallet_and_move_funds()
+        self.__connect_wallet()
 
         print(f'{datetime.now()} - [INF] Waiting for access to {self.__bridge_url} to be granted')
         self.__source_wallet.grant_access()
         print(f'{datetime.now()} - [INF] Access granted successfully')
 
-        self.__connect_wallet_and_move_funds()
+        self.__move_funds()
 
+        print(f'{datetime.now()} - [INF] Entering bridging transaction data: destination address, token, and amount.')
         self.__destination_address(self.__destination_wallet.get_receive_address())
         self.__select_token()
         self.__amount_to_send(amount)
