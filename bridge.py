@@ -167,15 +167,20 @@ class Bridge:
 
     @retry()
     def __sign_transaction(self, password: str) -> str:
+        print(f"{datetime.now()} - [INF] 1. Start signing transaction")
         self.__driver.find_element_by_xpath(
             '//*[@id="passwordInput"]'
         ).send_keys(password)
 
+        print(f"{datetime.now()} - [INF] 2. Enter password to sign transaction")
+        
         sleep(1)
 
         self.__driver.find_element_by_xpath(
             '//*[@id="eternl-sign-tx"]/div/div/div/div[2]/div[2]/div/div/div/div[4]/div[2]/button[2]'
         ).click()
+
+        print(f"{datetime.now()} - [INF] 3. Click Sign button to sign transaction")
 
         # wait for the transaction to be signed
         sleep(15)
@@ -186,13 +191,14 @@ class Bridge:
             error = self.__driver.find_element_by_xpath(
                 '//*[@id="eternl-sign"]/div/div/div/div[2]/div[2]/div/div[5]/div[2]/div'
             ).text
+            print(f"{datetime.now()} - [INF] 4. Transaction signing error: {error}")
 
             print(f"{datetime.now()} Sign transaction error: {error}")
 
             return error
 
         except Exception:
-
+            print(f"{datetime.now()} - [INF] 5. Transaction successfully signed")
             print(f"{datetime.now()} Transaction successfully signed")
             pass
 
