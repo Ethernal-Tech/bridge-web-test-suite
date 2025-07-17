@@ -84,6 +84,7 @@ class Bridge:
             '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[2]/div/div/input'
         ).send_keys(destination_address)
 
+    @retry()
     def __select_token(self) -> None:
         if self.__bridge_name == 'skyline':
 
