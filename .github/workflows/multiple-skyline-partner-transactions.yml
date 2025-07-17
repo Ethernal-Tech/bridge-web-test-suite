@@ -17,16 +17,16 @@ permissions:
   security-events: write
 
 jobs:
-  prime_apex_to_preview_wapex:
-    name: Prime(APEX) to Preview(WAPEX)
+  prime_ap3x_to_preview_cap3x:
+    name: Prime(AP3X) to Preview(cAP3X)
     uses: ./.github/workflows/single-transaction.yml
     with:
       bridge: Skyline
       deployment: Partner
       source_chain: Prime
-      source_token: APEX
+      source_token: AP3X
       destination_chain: Preview
-      destination_token: WAPEX
+      destination_token: cAP3X
       amount: 5
       eternl_wallet_extension: Stable
       notification: false
@@ -37,7 +37,7 @@ jobs:
   # prime_wada_to_preview_ada:
   #   name: Prime(WAda) to Preview(Ada)
   #   uses: ./.github/workflows/single-transaction.yml
-  #   needs: prime_apex_to_preview_wapex
+  #   needs: prime_ap3x_to_preview_cap3x
   #   if: success() || failure()
   #   with:
   #     bridge: Skyline
@@ -70,17 +70,17 @@ jobs:
   #     SIGN_KEY: ${{ secrets.SIGN_KEY }}
   #     PREVIEW_WALLET_RECOVERY_PHRASE: ${{ secrets.PREVIEW_WALLET_RECOVERY_PHRASE }}
   #     PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
-  preview_wapex_to_prime_apex:
-    name: Preview(WAPEX) to Prime(APEX)
+  preview_cap3x_to_prime_ap3x:
+    name: Preview(cAP3X) to Prime(AP3X)
     uses: ./.github/workflows/single-transaction.yml
     # needs: preview_ada_to_prime_wada
     with:
       bridge: Skyline
       deployment: Partner
       source_chain: Preview
-      source_token: WAPEX
+      source_token: cAP3X
       destination_chain: Prime
-      destination_token: APEX
+      destination_token: AP3X
       amount: 2
       eternl_wallet_extension: Stable
       notification: false
@@ -105,8 +105,8 @@ jobs:
   notification:
     name: Send notification
     uses: ./.github/workflows/multiple-transactions-notification.yml
-    # needs: [prime_apex_to_preview_wapex, prime_wada_to_preview_ada, preview_ada_to_prime_wada, preview_wapex_to_prime_apex, inputs_check]
-    needs: [prime_apex_to_preview_wapex, preview_wapex_to_prime_apex, inputs_check]
+    # needs: [prime_ap3x_to_preview_cap3x, prime_wada_to_preview_ada, preview_ada_to_prime_wada, preview_cap3x_to_prime_ap3x, inputs_check]
+    needs: [prime_ap3x_to_preview_cap3x, preview_cap3x_to_prime_ap3x, inputs_check]
     if: ((success() || failure()) && (needs.inputs_check.outputs.notification == 'true'))
     with:
       bridge: Skyline
@@ -116,10 +116,10 @@ jobs:
       tx_01_source_token: APEX
       tx_01_destination_chain: Preview
       tx_01_destination_token: WAPEX
-      tx_01_source_status: ${{ needs.prime_apex_to_preview_wapex.outputs.source_status }}
-      tx_01_bridge_status: ${{ needs.prime_apex_to_preview_wapex.outputs.bridge_status }}
-      tx_01_destination_status: ${{ needs.prime_apex_to_preview_wapex.outputs.destination_status }}
-      tx_01_status: ${{ needs.prime_apex_to_preview_wapex.outputs.bridging_status }}
+      tx_01_source_status: ${{ needs.prime_ap3x_to_preview_cap3x.outputs.source_status }}
+      tx_01_bridge_status: ${{ needs.prime_ap3x_to_preview_cap3x.outputs.bridge_status }}
+      tx_01_destination_status: ${{ needs.prime_ap3x_to_preview_cap3x.outputs.destination_status }}
+      tx_01_status: ${{ needs.prime_ap3x_to_preview_cap3x.outputs.bridging_status }}
       tx_02_source_chain: Prime
       tx_02_source_token: WAda
       tx_02_destination_chain: Preview
@@ -152,9 +152,9 @@ jobs:
       tx_04_source_token: WAPEX
       tx_04_destination_chain: Prime
       tx_04_destination_token: APEX
-      tx_04_source_status: ${{ needs.preview_wapex_to_prime_apex.outputs.source_status }}
-      tx_04_bridge_status: ${{ needs.preview_wapex_to_prime_apex.outputs.bridge_status }}
-      tx_04_destination_status: ${{ needs.preview_wapex_to_prime_apex.outputs.destination_status }}
-      tx_04_status: ${{ needs.preview_wapex_to_prime_apex.outputs.bridging_status }}
+      tx_04_source_status: ${{ needs.preview_cap3x_to_prime_ap3x.outputs.source_status }}
+      tx_04_bridge_status: ${{ needs.preview_cap3x_to_prime_ap3x.outputs.bridge_status }}
+      tx_04_destination_status: ${{ needs.preview_cap3x_to_prime_ap3x.outputs.destination_status }}
+      tx_04_status: ${{ needs.preview_cap3x_to_prime_ap3x.outputs.bridging_status }}
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
