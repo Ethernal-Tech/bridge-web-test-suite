@@ -256,65 +256,6 @@ class Bridge:
                 timeout
             )
 
-    @retry()
-    def __get_status(self) -> str:
-        self.__driver.get(self.__transactions_url)
-
-        # wait the bridging history to be loaded
-        sleep(30)
-
-        # filter by Destination
-        self.__driver.find_element_by_xpath(
-            '//*[@id="root"]/div[1]/div[2]/div/div[1]/div/div/button'
-        ).click()
-
-        sleep(1)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="destination-chain"]'
-        ).click()
-
-        sleep(3)
-
-        self.__driver.find_element_by_xpath(
-            f'//*[starts-with(@id, ":r")]'
-            f'//*[translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", '
-            f'"abcdefghijklmnopqrstuvwxyz") = '
-            f'"{self.__destination_wallet.get_web_app_identifier()}"]'
-        ).click()
-
-        sleep(1)
-
-        self.__driver.find_element_by_xpath(
-            '/html/body/div[2]/div[3]/div[2]/button[2]'
-        ).click()
-
-        # wait the bridging history to be loaded
-        sleep(30)
-
-        if self.__bridge_name == 'reactor':
-
-            status = self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[7]/div/p'
-            ).text
-
-        elif self.__bridge_name == 'skyline':
-
-            status = self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[2]/div/div[2]/table/tbody/tr[1]/td[8]/div/p'
-            ).text
-
-        else:
-            raise Exception
-
-        if status != 'Success':
-            sleep(10)
-
-            # try again
-            raise Exception
-
-        return status
-
     def bridging(self, amount: str) -> str:
         self.__source_wallet.toggle()
 
@@ -375,8 +316,10 @@ class Bridge:
             self.__is_destination_succeeded: bool = self.__progress_destination()
             print(f'{datetime.now()} Destination succeeded: {self.__is_destination_succeeded}')
 
-            self.__final_status = self.__get_status()
-            print(f'{datetime.now()} Bridging status: {self.__final_status}')
+            if self.__is_source_succeeded and self.__is_bridge_succeeded and self.__is_destination_succeeded:
+                self.__final_status = "success"
+            else:
+                self.__final_status = "failed"
 
         except Exception:
             # the progress status may occasionally fail to be detected,
@@ -385,7 +328,7 @@ class Bridge:
 
         dump(
             obj={
-                'status': self.__final_status.lower(),
+                'status': self.__final_status,
                 'source': self.__is_source_succeeded,
                 'bridge': self.__is_bridge_succeeded,
                 'destination': self.__is_destination_succeeded
