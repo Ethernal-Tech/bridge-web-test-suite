@@ -188,12 +188,12 @@ class Bridge:
                 '//*[@id="eternl-sign"]/div/div/div/div[2]/div[2]/div/div[5]/div[2]/div'
             ).text
 
-            print(f"{datetime.now()} Sign transaction error: {error}")
+            print(f"{datetime.now()} - [ERR] Sign transaction error: {error}")
 
             return error
 
         except Exception:
-            print(f"{datetime.now()} Transaction successfully signed")
+            print(f"{datetime.now()} - [INF] Transaction successfully signed")
             pass
 
         self.__driver.switch_to.window(self.__driver.get_init_tab())
@@ -365,7 +365,7 @@ class Bridge:
 
             return self.__transaction_signed_error
 
-        print(f"{datetime.now()} Start bridging")
+        print(f"{datetime.now()} - [INF] Start bridging")
 
         try:
 

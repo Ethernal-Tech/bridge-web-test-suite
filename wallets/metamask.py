@@ -130,7 +130,7 @@ class MetaMask:
         return self.__token_name
 
     def recover(self, recovery_phrase: str) -> None:
-        print(f"{datetime.now()} Start recovering {self.__subnetwork} wallet")
+        print(f"{datetime.now()} - [INF] Start recovering {self.__subnetwork} wallet")
 
         self.__driver.get(self.__url)
         self.__agree_terms()
@@ -144,7 +144,7 @@ class MetaMask:
         self.__got_it()
         self.__finish()
 
-        print(f"{datetime.now()} {self.__subnetwork.capitalize()} wallet recovered successfully")
+        print(f"{datetime.now()} - [INF] {self.__subnetwork.capitalize()} wallet recovered successfully")
 
     def toggle(self) -> None:
         pass
@@ -181,7 +181,7 @@ class MetaMask:
             '//*[@id="popover-content"]/div/div/section/div[2]/div/button[1]'
         ).click()
 
-        print(f"{datetime.now()} {name} network successfully added")
+        print(f"{datetime.now()} - [INF] {name} network successfully added")
 
         sleep(1)
 
@@ -189,7 +189,7 @@ class MetaMask:
         self.__set_receive_address()
         self.__driver.get(self.__url)
 
-        print(f'{datetime.now()} {self.__subnetwork.capitalize()} address: {self.__receive_address}')
+        print(f'{datetime.now()} - [INF] {self.__subnetwork.capitalize()} address: {self.__receive_address}')
 
     @retry()
     def grant_access(self) -> None:
