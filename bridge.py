@@ -370,16 +370,16 @@ class Bridge:
         try:
 
             self.__is_source_succeeded = self.__progress_source()
-            print(f'{datetime.now()} Source succeeded: {self.__is_source_succeeded}')
+            print(f'{datetime.now()} - [INF] Source succeeded: {self.__is_source_succeeded}')
             
             self.__is_bridge_succeeded = self.__progress_bridge()
-            print(f'{datetime.now()} Bridge succeeded: {self.__is_bridge_succeeded}')
+            print(f'{datetime.now()} - [INF] Bridge succeeded: {self.__is_bridge_succeeded}')
             
             self.__is_destination_succeeded: bool = self.__progress_destination()
-            print(f'{datetime.now()} Destination succeeded: {self.__is_destination_succeeded}')
+            print(f'{datetime.now()} - [INF] Destination succeeded: {self.__is_destination_succeeded}')
 
             self.__final_status = self.__get_status()
-            print(f'{datetime.now()} Bridging status: {self.__final_status}')
+            print(f'{datetime.now()} - [INF] Bridging status: {self.__final_status}')
 
         except Exception:
             # the progress status may occasionally fail to be detected,
