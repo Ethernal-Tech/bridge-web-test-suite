@@ -174,8 +174,7 @@ class Bridge:
         sleep(1)
 
         self.__driver.find_element_by_xpath(
-            # '//*[@id="eternl-sign-tx"]/div/div/div/div[2]/div[2]/div/div/div/div[4]/div[2]/button[2]'
-            '//*[@id="eternl-sign-tx"]/div[2]/div/div[2]/div[2]/div[2]/div/div/div/div[4]/div[2]/button[2]' #new version of Eternl
+            '//*[@id="eternl-sign-tx"]/div[2]/div/div[2]/div[2]/div[2]/div/div/div/div[4]/div[2]/button[2]'
         ).click()
 
         # wait for the transaction to be signed
