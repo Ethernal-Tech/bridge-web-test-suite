@@ -106,17 +106,18 @@ class Bridge:
 
     @retry()
     def __amount_to_send(self, amount: str) -> None:
-        if self.__source_wallet.get_web_app_identifier() != Network.cardano and \
-                self.__destination_wallet.get_web_app_identifier() != Network.cardano:
+        if self.__bridge_name == 'skyline':
 
             self.__driver.find_element_by_xpath(
-                '//*[@id=":rb:"]'
+                '/html/body/div/div[1]/div[2]/div/div/div[4]/div/'
+                'div[4]/div[1]/div/div/div/input'
             ).send_keys(amount)
 
         else:
 
             self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[4]/div[1]/div/div/div/input'
+                '/html/body/div/div[1]/div[2]/div/div/div[4]/div/'
+                'div[3]/div[1]/div/div/div/input'
             ).send_keys(amount)
 
     @retry()
@@ -240,21 +241,11 @@ class Bridge:
     def __progress_destination(self) -> bool:
         timeout = 1800
 
-        if self.__bridge_name == 'skyline':
-
-            return self.__progress(
-                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]',
-                timeout
-            )
-
-        else:
-
-            return self.__progress(
-                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[3]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]',
-                timeout
-            )
+        return self.__progress(
+            '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
+            '//*[local-name()="svg"]//*[local-name()="path"]',
+            timeout
+        )
 
     def bridging(self, amount: str) -> str:
         self.__source_wallet.toggle()
