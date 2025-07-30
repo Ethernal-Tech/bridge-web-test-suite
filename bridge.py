@@ -241,21 +241,11 @@ class Bridge:
     def __progress_destination(self) -> bool:
         timeout = 1800
 
-        if self.__bridge_name == 'skyline':
-
-            return self.__progress(
-                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]',
-                timeout
-            )
-
-        else:
-
-            return self.__progress(
-                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[3]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]',
-                timeout
-            )
+        return self.__progress(
+            '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
+            '//*[local-name()="svg"]//*[local-name()="path"]',
+            timeout
+        )
 
     def bridging(self, amount: str) -> str:
         self.__source_wallet.toggle()
