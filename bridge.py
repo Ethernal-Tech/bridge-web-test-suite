@@ -88,16 +88,26 @@ class Bridge:
 
     @retry()
     def __destination_address(self, destination_address: str) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[2]/div/div/input'
-        ).send_keys(destination_address)
+        if self.__bridge_name == 'skyline':
+
+            self.__driver.find_element_by_xpath(
+                '/html/body/div/div[1]/'
+                'div[3]/div/div/div[4]/div/div[2]/div/div/input'
+            ).send_keys(destination_address)
+
+        else:
+
+            self.__driver.find_element_by_xpath(
+                '/html/body/div/div[1]/'
+                'div[2]/div/div/div[4]/div/div[2]/div/div/input'
+            ).send_keys(destination_address)
 
     @retry()
     def __select_token(self) -> None:
         if self.__bridge_name == 'skyline':
 
             self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[3]/div'
+                '//*[@id="root"]/div[1]/div[3]/div/div/div[4]/div/div[3]/div'
             ).click()
 
             sleep(1)
@@ -117,14 +127,16 @@ class Bridge:
         if self.__bridge_name == 'skyline':
 
             self.__driver.find_element_by_xpath(
-                '/html/body/div/div[1]/div[2]/div/div/div[4]/div/'
+                '/html/body/div/div[1]/'
+                'div[3]/div/div/div[4]/div/'
                 'div[4]/div[1]/div/div/div/input'
             ).send_keys(amount)
 
         else:
 
             self.__driver.find_element_by_xpath(
-                '/html/body/div/div[1]/div[2]/div/div/div[4]/div/'
+                '/html/body/div/div[1]/'
+                'div[2]/div/div/div[4]/div/'
                 'div[3]/div[1]/div/div/div/input'
             ).send_keys(amount)
 
@@ -139,13 +151,17 @@ class Bridge:
         if self.__bridge_name == 'reactor':
 
             self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[3]/button[2]'
+                '//*[@id="root"]/div[1]/'
+                'div[2]/div/div/div[4]/div/'
+                'div[3]/button[2]'
             ).click()
 
         elif self.__bridge_name == 'skyline':
 
             self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[4]/button[2]'
+                '/html/body/div/div[1]/'
+                'div[3]/div/div/div[4]/div/'
+                'div[4]/button[2]'
             ).click()
 
         else:
