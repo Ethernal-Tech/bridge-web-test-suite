@@ -74,9 +74,17 @@ class Bridge:
         # wait for the button to be available
         sleep(10)
 
-        self.__driver.find_element_by_xpath(
-            '//*[@id="root"]/div[1]/div[2]/div/button'
-        ).click()
+        if self.__bridge_name == 'skyline':
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[3]/div/button'
+            ).click()
+
+        else:
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[2]/div/button'
+            ).click()
 
     @retry()
     def __destination_address(self, destination_address: str) -> None:
