@@ -151,17 +151,13 @@ class Bridge:
         if self.__bridge_name == 'reactor':
 
             self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/'
-                'div[2]/div/div/div[4]/div/'
-                'div[3]/button[2]'
+                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[3]/button[2]'
             ).click()
 
         elif self.__bridge_name == 'skyline':
 
             self.__driver.find_element_by_xpath(
-                '/html/body/div/div[1]/'
-                'div[3]/div/div/div[4]/div/'
-                'div[4]/button[2]'
+                '/html/body/div/div[1]/div[3]/div/div/div[4]/div/div[4]/button[2]'
             ).click()
 
         else:
@@ -248,28 +244,58 @@ class Bridge:
     def __progress_source(self) -> bool:
         timeout = 1800
 
-        return self.__progress(
-            '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[1]/div/div[2]'
-            '//*[local-name()="svg"]//*[local-name()="path"]',
-            timeout
-        )
+        if self.__bridge_name == "skyline":
+
+            return self.__progress(
+                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[4]/div/div[1]/div[1]/div/div[2]'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
+                timeout
+            )
+        
+        else:
+
+            return self.__progress(
+                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[1]/div/div[2]'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
+                timeout
+            )
 
     def __progress_bridge(self) -> bool:
         timeout = 1800
 
-        return self.__progress(
-            '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[2]/div/div[2]'
-            '//*[local-name()="svg"]//*[local-name()="path"]',
-            timeout)
+        if self.__bridge_name == "skyline":
+
+            return self.__progress(
+                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[4]/div/div[1]/div[2]/div/div[2]'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
+                timeout
+            )
+
+        else:
+            return self.__progress(
+                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[1]/div[2]/div/div[2]'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
+                timeout
+            )
 
     def __progress_destination(self) -> bool:
         timeout = 1800
 
-        return self.__progress(
-            '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
-            '//*[local-name()="svg"]//*[local-name()="path"]',
-            timeout
-        )
+        if self.__bridge_name == "skyline":
+
+            return self.__progress(
+                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]/svg'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
+                timeout
+            )
+
+        else:
+
+            return self.__progress(
+                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
+                timeout
+            )
 
     def bridging(self, amount: str) -> str:
         self.__source_wallet.toggle()
