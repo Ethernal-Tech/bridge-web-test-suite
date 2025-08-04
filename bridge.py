@@ -284,7 +284,7 @@ class Bridge:
         if self.__bridge_name == "skyline":
 
             return self.__progress(
-                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]/svg'
+                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
                 '//*[local-name()="svg"]//*[local-name()="path"]',
                 timeout
             )
