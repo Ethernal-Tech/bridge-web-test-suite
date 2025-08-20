@@ -92,7 +92,7 @@ class MetaMask:
 
                 # Checking if the page is fully loaded
                 self.__driver.find_element_by_xpath(
-                    '//*[@id="app-content"]/div/div/div/form/div/h1'
+                    '/html/body/div[1]/div/div/div/form/div/h1'
                 )
 
                 break

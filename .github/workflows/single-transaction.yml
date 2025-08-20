@@ -160,7 +160,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4.4.3
         with:
-          name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}
+          name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_statuses
           path: statuses.json
           retention-days: 7
       - name: Archive logs
@@ -168,7 +168,7 @@ jobs:
         id: logs-artifact-upload
         uses: actions/upload-artifact@v4.4.3
         with:
-          name: logs
+          name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_logs
           path: logs/*
           retention-days: 7
   notification:
