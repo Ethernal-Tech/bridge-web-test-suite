@@ -1,8 +1,7 @@
 from time import sleep
-from datetime import datetime
 from toolbox.chrome import Chrome
+from toolbox.logger import logger
 from toolbox.utils import Network, retry
-from toolbox.utils import ApexFusionSubnetwork
 from selenium.common.exceptions import NoSuchElementException
 
 
@@ -14,12 +13,12 @@ class Eternl:
             subnetwork: str,
             token_name: str,
             connect: str,
-            sign_key: str,
-            extension: str
+            sign_key: str
     ) -> None:
 
-        self.__extension: str = 'aafgiaaomjbkmgainbdgjpcndnodkajp' if extension.lower() == 'beta' else 'kmhcihpebfmpgmihbkipmjlmmioameka'
-        self.__url: str = 'chrome-extension://%s/index.html#/%s/wallet/home' % (self.__extension, connect)
+        self.__extension_url: str = "chrome-extension://kmhcihpebfmpgmihbkipmjlmmioameka"
+        self.__url: str = f"{self.__extension_url}/index.html#/{connect}/wallet/home"
+        self.__sign_tx_url: str = f"{self.__extension_url}/app/signTx.html"
         self.__driver: Chrome = driver
         self.__network: str = network
         self.__subnetwork: str = subnetwork
@@ -30,220 +29,120 @@ class Eternl:
 
         self.__driver.switch_to.window(self.__driver.get_init_tab())
 
-    @retry(tries=5)
-    def __open_app(self) -> None:
-        sleep(3)
-
-        try:
-            self.__driver.find_element_by_xpath(
-                '//*[@id="eternl-modal"]/div/div/div/div[2]/div[4]/div/button'
-            ).click()
-        except NoSuchElementException:
-            print(f"{datetime.now()} - [INF] Eternl Wallet is already initialized, skipping the opening step.")
-            return
-
-        sleep(1)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="modalSetupSettingsFooter"]/div/button'
-        ).click()
-
-        sleep(1)
-
-        if self.__network == Network.cardano:
-
-            self.__driver.find_element_by_xpath(
-                '//*[@id="modal-network-select"]/div/div/div/div[2]/div[3]/div/div/div[2]/div/button[3]'
-            ).click()
-
-        elif self.__network == Network.apex:
-
-            self.__driver.find_element_by_xpath(
-                '//*[@id="modal-network-select"]/div/div/div/div[2]/div[3]/div/div/div[1]/button[2]'
-            ).click()
-
-            sleep(1)
-
-            if self.__subnetwork == ApexFusionSubnetwork.prime:
-
-                self.__driver.find_element_by_xpath(
-                    '//*[@id="modal-network-select"]/div/div/div/div[2]/div[3]/div/div/div[2]/div/button[3]'
-                ).click()
-
-            elif self.__subnetwork == ApexFusionSubnetwork.vector:
-
-                self.__driver.find_element_by_xpath(
-                    '//*[@id="modal-network-select"]/div/div/div/div[2]/div[3]/div/div/div[2]/div/button[2]'
-                ).click()
-
-        sleep(1)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="modelSetupSettingsBtnNext"]'
-        ).click()
-
-        sleep(1)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="modalSetupSettingsFooter"]/div/button[1]'
-        ).click()
-
-        sleep(5)
-
-    @retry()
-    def __restore_wallet(self) -> None:
-        sleep(2)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="eternl-modal"]/div/div/div[2]/div[2]/div[5]/div/div/button[3]'
-        ).click()
-
-        sleep(1)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="eternl-modal"]/div/div/div[2]/div[2]/div[3]/div/div/div/button[1]'
-        ).click()
-
-        sleep(2)
-
-    @retry()
-    def __insert_recover_phrase(self, recover_phrase: str) -> None:
-        sleep(1)
-
-        for index, word in enumerate(recover_phrase.split()):
-
-            self.__driver.find_element_by_xpath(
-                f'//*[@id="word{index}"]'
-            ).send_keys(word)
-
-            sleep(1)
-
-            self.__driver.find_element_by_xpath(
-                '//*[@id="eternl-modal"]/div/div/div/div[2]/div[1]'
-            ).click()
-
-        sleep(1)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="modelRestoreWalletBtnNext"]'
-        ).click()
-
-    @retry()
-    def __set_wallet_name_and_sign_key(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="walletName"]'
-        ).send_keys(self.__subnetwork)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="modelRestoreWalletBtnNext"]'
-        ).click()
-
-        sleep(1)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="password"]'
-        ).send_keys(self.__sign_key)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="passwordConfirm"]'
-        ).send_keys(self.__sign_key)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="eternl-sign-derivation"]/div/div/div/div[2]'
-        ).click()
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="eternl-sign-derivation"]/div/div/div/div[2]/div[3]/div/div/div[2]/div[2]/button[2]'
-        ).click()
-
-        sleep(10)
-
-    @retry()
-    def __number_of_accounts(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="modelRestoreWalletBtnNext"]'
-        ).click()
+        self.open_wallet()
+        self.__set_receive_address()
 
     @retry()
     def __set_receive_address(self) -> None:
-        try:
 
-            self.__driver.find_element_by_xpath(
-                '//*[@id="eternl-app"]/div[2]/div[1]/div/div[1]/div[1]/div/div[2]/div/div/button[2]'
-            ).click()
+        logger.debug(f"Setting {self.__subnetwork.capitalize()} address")
 
-            sleep(1)
+        self.__driver.find_element_by_xpath(
+            '//*[@id="eternl-app"]/div[2]/div[1]/div/'
+            'div[1]/div[1]/div/div[2]/div/div/button[2]'
+        ).click()
 
-            self.__driver.find_element_by_xpath(
-                '//*[@id="eternl-app"]/div[2]/div[1]/div/div[2]/main/div/div/div/div/div/div[2]/div/div/div/div/div[2]/div/div/div/div/div[2]/button'
-            ).click()
+        sleep(1)
 
-            sleep(1)
+        self.__driver.find_element_by_xpath(
+            '//*[@id="eternl-app"]/div[2]/div[1]/div/'
+            'div[2]/main/div/div/div/div/div/div[2]/div/div[1]/div/div/div[2]/div/div[2]/button'
+        ).click()
 
-            self.__driver.find_element_by_xpath(
-                '//*[@id="eternl-app"]/div[2]/div[1]/div/div[2]/main/div/div/div/div/div/div[2]/div/div/div/div/div[2]/div/div/div/div/div[2]/div/div/button'
-            ).click()
+        sleep(2)
 
-            sleep(2)
+        receive_address = self.__driver.find_element_by_xpath(
+            '/html/body/div[3]/div/div/div/div[2]/div/div[1]'
+        )
 
-            receive_address = self.__driver.find_element_by_xpath(
-                '/html/body/div[3]/div/div/div/div[2]/div/div[1]'
-            )
+        self.__receive_address = receive_address.text
 
-            self.__receive_address = receive_address.text
+        logger.info(f"{self.__subnetwork.capitalize()} address: {self.__receive_address}")
 
-        except NoSuchElementException:
+    @retry()
+    def open_wallet(self) -> None:
 
-            self.__driver.refresh()
-            raise NoSuchElementException("Not found element")
+        logger.debug(f"Opening {self.__subnetwork.capitalize()} wallet at {self.__url}")
 
-    def get_sign_key(self) -> str:
-        return self.__sign_key
+        self.__driver.get(self.__url)
+        sleep(5)
+
+        while True:
+
+            try:
+
+                # Checking if the page is fully loaded
+                self.__driver.find_element_by_xpath(
+                    '//*[@id="eternl-app"]/div[2]/div[1]/div/'
+                    'div[2]/main/div/div/div/div/div/div[3]/div/div[2]/div/div/div/div/div/div[1]/span'
+                )
+
+                break
+
+            except NoSuchElementException:
+
+                logger.debug(f"{self.__subnetwork.capitalize()} wallet is not fully loaded")
+                self.__driver.refresh()
+                sleep(5)
+                pass
+
+        logger.debug(f"{self.__subnetwork.capitalize()} wallet url opened successfully")
+
+    @retry()
+    def sign_and_confirm_transaction(self) -> None:
+
+        logger.debug("Opening Sign Tx element in new Chrome tab")
+
+        self.__driver.switch_to.new_window(type_hint="tab")
+        popup = list(set(self.__driver.window_handles) - set(self.__opened_tabs))[0]
+        self.__driver.switch_to.window(popup)
+        self.__driver.get(self.__sign_tx_url)
+
+        logger.debug("The Sign Tx element opened successfully")
+
+        sleep(5)
+
+        logger.debug(f"Inserting Sign Key for {self.__subnetwork} wallet")
+
+        # Note: Using XPath by ID is not an option
+        # because the same ID appears twice
+        # and the one retrieved is incorrect
+        self.__driver.find_element_by_xpath(
+            '/html/body/div/div[3]/div[18]/div[2]/div/div[2]/div[2]/div[2]/div/div/div/div[4]/'
+            'div[1]/div[1]/div/span/div/input'
+        ).send_keys(self.__sign_key)
+
+        logger.debug("The Sign Key inserted successfully")
+
+        sleep(1)
+
+        logger.debug("Start confirming transaction")
+
+        self.__driver.find_element_by_xpath(
+            '/html/body/div/div[3]/div[18]/div[2]/div/div[2]/div[2]/div[2]/div/div/div/div[4]/'
+            'div[2]/button[2]'
+        ).click()
+
+        # wait for the transaction to be signed
+        sleep(5)
+
+        logger.debug("The transaction confirmed successfully")
+
+        self.__driver.close()
+        self.__driver.switch_to.window(self.__driver.get_init_tab())
 
     def get_receive_address(self) -> str:
+
         return self.__receive_address
 
     def get_subnetwork(self) -> str:
+
         return self.__subnetwork
 
     def get_web_app_identifier(self) -> str:
+
         return self.__subnetwork if self.__network == Network.apex else self.__network
 
     def get_token_name(self) -> str:
+
         return self.__token_name
-
-    def recover(self, recovery_phrase: str) -> None:
-        print(f"{datetime.now()} - [INF] Start recovering {self.__subnetwork.capitalize()} wallet")
-
-        self.__driver.get(self.__url)
-
-        self.__open_app()
-        self.__restore_wallet()
-        self.__insert_recover_phrase(recovery_phrase)
-        self.__number_of_accounts()
-        self.__set_wallet_name_and_sign_key()
-        self.__set_receive_address()
-
-        print(f"{datetime.now()} - [INF] {self.__subnetwork.capitalize()} wallet recovered successfully")
-        print(f'{datetime.now()} - [INF] {self.__subnetwork.capitalize()} address: {self.__receive_address}')
-
-    @retry()
-    def toggle(self) -> None:
-        self.__driver.get(self.__url)
-
-    @retry()
-    def grant_access(self) -> None:
-        sleep(3)
-        
-        popup = list(set(self.__driver.window_handles) - set(self.__opened_tabs))[0]
-
-        self.__driver.switch_to.window(popup)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="eternl-enable"]/div/div/div/div[2]/div[4]/div/button[2]'
-        ).click()
-
-        # wait access to be granted
-        sleep(5)
-
-        self.__driver.switch_to.window(self.__driver.get_init_tab())

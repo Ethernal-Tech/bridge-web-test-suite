@@ -1,37 +1,36 @@
 from time import sleep
 from functools import wraps
 from dataclasses import dataclass
-from datetime import datetime
-from selenium.common.exceptions import NoSuchElementException
+from toolbox.logger import logger
 
 
 @dataclass(frozen=True)
 class Network:
-    apex: str = 'apex'
-    cardano: str = 'cardano'
+    apex: str = "apex"
+    cardano: str = "cardano"
 
 
 @dataclass(frozen=True)
 class EternlApexFusionIdentifier:
-    prime_testnet: str = 'afpt'
-    vector_testnet: str = 'afvt'
+    prime_testnet: str = "afpt"
+    vector_testnet: str = "afvt"
 
 
 @dataclass(frozen=True)
 class ApexFusionSubnetwork:
-    prime: str = 'prime'
-    vector: str = 'vector'
-    nexus: str = 'nexus'
+    prime: str = "prime"
+    vector: str = "vector"
+    nexus: str = "nexus"
 
 
 @dataclass(frozen=True)
 class EternlCardanoIdentifier:
-    preview: str = 'preview'
+    preview: str = "preview"
 
 
 @dataclass(frozen=True)
 class CardanoSubnetwork:
-    preview: str = 'preview'
+    preview: str = "preview"
 
 
 def retry(tries: int = 10, delay: int = 1, back_off: float = 1.5):
@@ -39,17 +38,16 @@ def retry(tries: int = 10, delay: int = 1, back_off: float = 1.5):
         @wraps(f)
         def f_retry(*args, **kwargs):
             f_tries, f_delay = tries, delay
-            last_exception = None
             while f_tries > 0:
                 try:
                     return f(*args, **kwargs)
                 except Exception as e:
-                    last_exception = e
                     f_tries -= 1
-                    print(f"{datetime.now()} - [ERR] Retrying '{f.__name__}' due to: {str(e).splitlines()[0] if str(e).splitlines() else repr(e)}")
+                    logger.error(f"Remaining attempt: {f_tries}")
+                    logger.error(e, exc_info=True)
                     sleep(f_delay)
                     f_delay *= back_off
-            print(f"{datetime.now()} - [ERR] Function '{f.__name__}' failed after {tries} attempts.")
-            raise last_exception
+            logger.critical(f"{f.__name__} failed after {tries} attempts")
+            return f(*args, **kwargs)
         return f_retry
     return deco_retry

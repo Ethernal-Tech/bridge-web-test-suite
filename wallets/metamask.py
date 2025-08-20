@@ -1,7 +1,8 @@
 from time import sleep
-from datetime import datetime
 from toolbox.chrome import Chrome
+from toolbox.logger import logger
 from toolbox.utils import retry
+from selenium.common.exceptions import NoSuchElementException
 
 
 class MetaMask:
@@ -13,8 +14,9 @@ class MetaMask:
             token_name: str
     ) -> None:
 
-        self.__url: str = 'chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html'
-        self.__add_network_url: str = f'{self.__url}#settings/networks/add-network'
+        self.__extension_url: str = "chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn"
+        self.__url: str = f"{self.__extension_url}/home.html"
+        self.__notification_url: str = f"{self.__extension_url}/notification.html"
         self.__driver: Chrome = driver
         self.__sign_key: str = sign_key
         self.__subnetwork: str = subnetwork
@@ -24,188 +26,121 @@ class MetaMask:
 
         self.__driver.switch_to.window(self.__driver.get_init_tab())
 
-    @retry()
-    def __agree_terms(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="onboarding__terms-checkbox"]'
-        ).click()
-
-    @retry()
-    def __import_wallet(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div/div/ul/li[3]/button'
-        ).click()
-
-    @retry()
-    def __no_improve(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/button[1]'
-        ).click()
-
-    @retry()
-    def __recover_phrase(self, recovery_phrase: str) -> None:
-        phrase = recovery_phrase.split()
-
-        for i in range(len(phrase)):
-
-            self.__driver.find_element_by_xpath(
-                f'//*[@id="import-srp__srp-word-{i}"]'
-            ).send_keys(phrase[i])
-
-    @retry()
-    def __confirm_phrase(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div/div/div[4]/div/button'
-        ).click()
-
-    @retry()
-    def __set_sign_key(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/div[1]/label/input'
-        ).send_keys(self.__sign_key)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/div[2]/label/input'
-        ).send_keys(self.__sign_key)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/div[3]/label/span[1]/input'
-        ).click()
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/button'
-        ).click()
+        self.open_wallet()
+        self.__unlock()
+        self.__set_receive_address()
 
     @retry()
     def __unlock(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="password"]'
-        ).send_keys(self.__sign_key)
 
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[3]/div/div/div/div/button'
-        ).click()
+        logger.debug("Unlocking Metamask")
 
-    @retry()
-    def __got_it(self) -> None:
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/button'
-        ).click()
+        sleep(5)
 
-    @retry()
-    def __finish(self) -> None:
-        bnt = self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/button'
+        self.__driver.bypass_input_protection(
+            self.__driver.find_element_by_xpath(
+                '//*[@id="password"]'
+            ),
+            self.__sign_key
         )
 
-        for i in range(2):
+        self.__driver.find_element_by_xpath(
+            '//*[@id="app-content"]/div/div/div/form/div/button[1]'
+        ).click()
 
-            bnt.click()
-            sleep(1)
+        logger.debug("Metamask unlocked successfully")
 
     @retry()
     def __set_receive_address(self) -> None:
+
+        logger.debug(f"Setting {self.__subnetwork.capitalize()} address")
+
+        self.__driver.get(self.__url)
+
+        sleep(5)
+
         self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div[3]/div/div/button'
+            '//*[@id="app-content"]/div/div[2]/div/div[2]/div/div/button'
         ).click()
 
         self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div[3]/div[2]/button[2]'
+            '//*[@id="app-content"]/div/div[2]/div/div[2]/div[2]/button[2]'
         ).click()
 
-        self.__receive_address = self.__driver.find_element_by_xpath(
-            '/html/body/div[3]/div[3]/div/section/div/div/div[2]/p'
-        ).text
+        self.__driver.find_element_by_xpath(
+            '//*[@id="app-content"]/div/div/div/div/div[2]/div[2]/div[2]'
+        ).click()
+
+        self.__receive_address = self.__driver.execute_script(
+            "return arguments[0].textContent;",
+            self.__driver.find_element_by_xpath('//*[@id="app-content"]/div/div/div/div/div[2]/div/p[2]')
+        )
+
+        logger.info(f"{self.__subnetwork.capitalize()} address: {self.__receive_address}")
+
+    @retry()
+    def open_wallet(self) -> None:
+
+        logger.debug(f"Opening {self.__subnetwork.capitalize()} wallet at {self.__url}")
+
+        self.__driver.get(self.__url)
+        sleep(5)
+
+        while True:
+
+            try:
+
+                # Checking if the page is fully loaded
+                self.__driver.find_element_by_xpath(
+                    '//*[@id="app-content"]/div/div[3]/div/div/div/div[1]/div/div[1]/div/div/div/div[1]'
+                )
+
+                break
+
+            except NoSuchElementException:
+                logger.debug(f"{self.__subnetwork.capitalize()} wallet is not fully loaded")
+                self.__driver.refresh()
+                sleep(5)
+                pass
+
+        logger.debug(f"{self.__subnetwork.capitalize()} wallet url opened successfully")
+
+    @retry()
+    def sign_and_confirm_transaction(self) -> None:
+
+        logger.debug("Opening transaction confirmation element in new Chrome tab")
+
+        self.__driver.switch_to.new_window(type_hint="tab")
+        popup = list(set(self.__driver.window_handles) - set(self.__opened_tabs))[0]
+        self.__driver.switch_to.window(popup)
+        self.__driver.get(self.__notification_url)
+
+        sleep(5)
+
+        self.__driver.find_element_by_xpath(
+            '//*[@id="app-content"]/div/div/div/div/div[3]/div/button[2]'
+        ).click()
+
+        # wait for the transaction to be confirmed
+        sleep(5)
+
+        logger.debug("The transaction confirmation done successfully")
+
+        self.__driver.close()
+        self.__driver.switch_to.window(self.__driver.get_init_tab())
 
     def get_receive_address(self) -> str:
+
         return self.__receive_address
 
     def get_subnetwork(self) -> str:
+
         return self.__subnetwork
 
     def get_web_app_identifier(self) -> str:
+
         return self.__subnetwork
 
     def get_token_name(self) -> str:
+
         return self.__token_name
-
-    def recover(self, recovery_phrase: str) -> None:
-        print(f"{datetime.now()} - [INF] Start recovering {self.__subnetwork} wallet")
-
-        self.__driver.get(self.__url)
-        self.__agree_terms()
-        self.__import_wallet()
-        self.__no_improve()
-        self.__recover_phrase(recovery_phrase)
-        self.__confirm_phrase()
-        self.__set_sign_key()
-        self.__driver.get(self.__url)
-        self.__unlock()
-        self.__got_it()
-        self.__finish()
-
-        print(f"{datetime.now()} - [INF] {self.__subnetwork.capitalize()} wallet recovered successfully")
-
-    def toggle(self) -> None:
-        pass
-
-    @retry()
-    def add_network(self, name: str, rpc_url: str, chain_id: str, currency_symbol: str) -> None:
-        self.__driver.get(self.__add_network_url)
-
-        sleep(5)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[3]/div/div[2]/div[2]/div/div[2]/div/div[1]/div[2]/div[1]/div/input'
-        ).send_keys(name)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[3]/div/div[2]/div[2]/div/div[2]/div/div[1]/div[2]/div[2]/label/input'
-        ).send_keys(rpc_url)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[3]/div/div[2]/div[2]/div/div[2]/div/div[1]/div[2]/div[3]/div/input'
-        ).send_keys(chain_id)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[3]/div/div[2]/div[2]/div/div[2]/div/div[1]/div[2]/div[4]/div/input'
-        ).send_keys(currency_symbol)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[3]/div/div[2]/div[2]/div/div[2]/div/div[2]/button[2]'
-        ).click()
-
-        sleep(1)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="popover-content"]/div/div/section/div[2]/div/button[1]'
-        ).click()
-
-        print(f"{datetime.now()} - [INF] {name} network successfully added")
-
-        sleep(1)
-
-        self.__driver.get(self.__url)
-        self.__set_receive_address()
-        self.__driver.get(self.__url)
-
-        print(f'{datetime.now()} - [INF] {self.__subnetwork.capitalize()} address: {self.__receive_address}')
-
-    @retry()
-    def grant_access(self) -> None:
-        popup = list(set(self.__driver.window_handles) - set(self.__opened_tabs))[0]
-
-        self.__driver.switch_to.window(popup)
-
-        for i in range(2):
-
-            self.__driver.find_element_by_xpath(
-                '//*[@id="app-content"]/div/div/div/div[3]/div[2]/footer/button[2]'
-            ).click()
-
-            sleep(1)
-
-        # wait access to be granted
-        sleep(5)
-
-        self.__driver.switch_to.window(self.__driver.get_init_tab())
