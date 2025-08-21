@@ -37,27 +37,39 @@ class Eternl:
 
         logger.debug(f"Setting {self.__subnetwork.capitalize()} address")
 
-        self.__driver.find_element_by_xpath(
-            '//*[@id="eternl-app"]/div[2]/div[1]/div/'
-            'div[1]/div[1]/div/div[2]/div/div/button[2]'
-        ).click()
+        for i in range(10):
 
-        sleep(1)
+            self.__driver.find_element_by_xpath(
+                '//*[@id="eternl-app"]/div[2]/div[1]/div/'
+                'div[1]/div[1]/div/div[2]/div/div/button[2]'
+            ).click()
 
-        self.__driver.find_element_by_xpath(
-            '//*[@id="eternl-app"]/div[2]/div[1]/div/'
-            'div[2]/main/div/div/div/div/div/div[2]/div/div[1]/div/div/div[2]/div/div[2]/button'
-        ).click()
+            sleep(1)
 
-        sleep(2)
+            self.__driver.find_element_by_xpath(
+                '//*[@id="eternl-app"]/div[2]/div[1]/div/'
+                'div[2]/main/div/div/div/div/div/div[2]/div/div[1]/div/div/div[2]/div/div[2]/button'
+            ).click()
 
-        receive_address = self.__driver.find_element_by_xpath(
-            '/html/body/div[3]/div/div/div/div[2]/div/div[1]'
-        )
+            sleep(1)
 
-        self.__receive_address = receive_address.text
+            receive_address = self.__driver.find_element_by_xpath(
+                '/html/body/div[3]/div/div/div/div[2]/div/div[1]'
+            )
 
-        logger.info(f"{self.__subnetwork.capitalize()} address: {self.__receive_address}")
+            self.__receive_address = receive_address.text
+
+            if len(self.__receive_address) > 0:
+
+                logger.info(f"{self.__subnetwork.capitalize()} address: {self.__receive_address}")
+
+                break
+
+            logger.error(f"{self.__subnetwork.capitalize()} address is unknown")
+
+        else:
+
+            logger.critical(f"Failed to set {self.__subnetwork.capitalize()} address")
 
     @retry()
     def open_wallet(self) -> None:
@@ -67,7 +79,7 @@ class Eternl:
         self.__driver.get(self.__url)
         sleep(5)
 
-        while True:
+        for i in range(10):
 
             try:
 
@@ -77,16 +89,20 @@ class Eternl:
                     'div[2]/main/div/div/div/div/div/div[3]/div/div[2]/div/div/div/div/div/div[1]/span'
                 )
 
+                logger.debug(f"{self.__subnetwork.capitalize()} wallet url opened successfully")
+
                 break
 
             except NoSuchElementException:
 
-                logger.debug(f"{self.__subnetwork.capitalize()} wallet is not fully loaded")
+                logger.error(f"{self.__subnetwork.capitalize()} wallet is not fully loaded")
                 self.__driver.refresh()
                 sleep(5)
                 pass
 
-        logger.debug(f"{self.__subnetwork.capitalize()} wallet url opened successfully")
+        else:
+
+            logger.critical(f"Failed to load {self.__subnetwork.capitalize()} wallet")
 
     @retry()
     def sign_and_confirm_transaction(self) -> None:

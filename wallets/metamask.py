@@ -55,28 +55,40 @@ class MetaMask:
 
         logger.debug(f"Setting {self.__subnetwork.capitalize()} address")
 
-        self.__driver.get(self.__url)
+        for i in range(10):
 
-        sleep(5)
+            self.__driver.get(self.__url)
 
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div[2]/div/div/button'
-        ).click()
+            sleep(5)
 
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div[2]/div/div[2]/div[2]/button[2]'
-        ).click()
+            self.__driver.find_element_by_xpath(
+                '//*[@id="app-content"]/div/div[2]/div/div[2]/div/div/button'
+            ).click()
 
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app-content"]/div/div/div/div/div[2]/div[2]/div[2]'
-        ).click()
+            self.__driver.find_element_by_xpath(
+                '//*[@id="app-content"]/div/div[2]/div/div[2]/div[2]/button[2]'
+            ).click()
 
-        self.__receive_address = self.__driver.execute_script(
-            "return arguments[0].textContent;",
-            self.__driver.find_element_by_xpath('//*[@id="app-content"]/div/div/div/div/div[2]/div/p[2]')
-        )
+            self.__driver.find_element_by_xpath(
+                '//*[@id="app-content"]/div/div/div/div/div[2]/div[2]/div[2]'
+            ).click()
 
-        logger.info(f"{self.__subnetwork.capitalize()} address: {self.__receive_address}")
+            self.__receive_address = self.__driver.execute_script(
+                "return arguments[0].textContent;",
+                self.__driver.find_element_by_xpath('//*[@id="app-content"]/div/div/div/div/div[2]/div/p[2]')
+            )
+
+            if len(self.__receive_address) > 0:
+
+                logger.info(f"{self.__subnetwork.capitalize()} address: {self.__receive_address}")
+
+                break
+
+            logger.error(f"{self.__subnetwork.capitalize()} address is unknown")
+
+        else:
+
+            logger.critical(f"Failed to set {self.__subnetwork.capitalize()} address")
 
     @retry()
     def open_wallet(self) -> None:
@@ -86,7 +98,7 @@ class MetaMask:
         self.__driver.get(self.__url)
         sleep(5)
 
-        while True:
+        for i in range(10):
 
             try:
 
@@ -95,15 +107,20 @@ class MetaMask:
                     '/html/body/div[1]/div/div/div/form/div/h1'
                 )
 
+                logger.debug(f"{self.__subnetwork.capitalize()} wallet url opened successfully")
+
                 break
 
             except NoSuchElementException:
-                logger.debug(f"{self.__subnetwork.capitalize()} wallet is not fully loaded")
+
+                logger.error(f"{self.__subnetwork.capitalize()} wallet is not fully loaded")
                 self.__driver.refresh()
                 sleep(5)
                 pass
 
-        logger.debug(f"{self.__subnetwork.capitalize()} wallet url opened successfully")
+        else:
+
+            logger.critical(f"Failed to load {self.__subnetwork.capitalize()} wallet")
 
     @retry()
     def sign_and_confirm_transaction(self) -> None:
