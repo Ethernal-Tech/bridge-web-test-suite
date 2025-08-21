@@ -23,7 +23,6 @@ on:
         type: choice
         options:
           - Prime
-          - Vector
           - Nexus
           - Preview
       source_token:
@@ -39,7 +38,6 @@ on:
         type: choice
         options:
           - Prime
-          - Vector
           - Nexus
           - Preview
       destination_token:
@@ -158,7 +156,7 @@ jobs:
           echo "bridging_status=$(cat statuses.json | jq -r '.status')" >> $GITHUB_OUTPUT
           echo "source_status=$(cat statuses.json | jq -r '.source')" >> $GITHUB_OUTPUT
           echo "bridge_status=$(cat statuses.json | jq -r '.bridge')" >> $GITHUB_OUTPUT
-          echo "destination_status=$(cat /statuses.json | jq -r '.destination')" >> $GITHUB_OUTPUT
+          echo "destination_status=$(cat statuses.json | jq -r '.destination')" >> $GITHUB_OUTPUT
       - name: Archive status
         if: always()
         uses: actions/upload-artifact@v4.4.3
