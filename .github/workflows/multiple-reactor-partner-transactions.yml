@@ -78,6 +78,7 @@ jobs:
       tx_01_bridge_status: ${{ needs.prime_to_nexus.outputs.bridge_status }}
       tx_01_destination_status: ${{ needs.prime_to_nexus.outputs.destination_status }}
       tx_01_status: ${{ needs.prime_to_nexus.outputs.bridging_status }}
+      tx_01_logs_artifact_id: ${{ needs.prime_to_nexus.outputs.logs_artifact_id }}
       tx_02_source_chain: Nexus
       tx_02_source_token: AP3X
       tx_02_destination_chain: Prime
@@ -86,5 +87,6 @@ jobs:
       tx_02_bridge_status: ${{ needs.nexus_to_prime.outputs.bridge_status }}
       tx_02_destination_status: ${{ needs.nexus_to_prime.outputs.destination_status }}
       tx_02_status: ${{ needs.nexus_to_prime.outputs.bridging_status }}
+      tx_02_logs_artifact_id: ${{ needs.nexus_to_prime.outputs.logs_artifact_id }}
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

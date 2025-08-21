@@ -78,6 +78,7 @@ jobs:
       tx_01_bridge_status: ${{ needs.prime_ap3x_to_preview_cap3x.outputs.bridge_status }}
       tx_01_destination_status: ${{ needs.prime_ap3x_to_preview_cap3x.outputs.destination_status }}
       tx_01_status: ${{ needs.prime_ap3x_to_preview_cap3x.outputs.bridging_status }}
+      tx_01_logs_artifact_id: ${{ needs.prime_ap3x_to_preview_cap3x.outputs.logs_artifact_id }}
       tx_02_source_chain: Preview
       tx_02_source_token: cAP3X
       tx_02_destination_chain: Prime
@@ -86,6 +87,7 @@ jobs:
       tx_02_bridge_status: ${{ needs.preview_cap3x_to_prime_ap3x.outputs.bridge_status }}
       tx_02_destination_status: ${{ needs.preview_cap3x_to_prime_ap3x.outputs.destination_status }}
       tx_02_status: ${{ needs.preview_cap3x_to_prime_ap3x.outputs.bridging_status }}
+      tx_02_logs_artifact_id: ${{ needs.preview_cap3x_to_prime_ap3x.outputs.logs_artifact_id }}
       
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
