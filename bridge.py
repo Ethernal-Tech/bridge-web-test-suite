@@ -227,7 +227,7 @@ class Bridge:
 
         sleep(5)
 
-    def __progress(self, xpath: str, tries: int = 1800) -> bool:
+    def __progress(self, xpath1: str, xpath2: str, tries: int = 1800) -> bool:
 
         logger.debug("Getting progress status every 1sec")
 
@@ -235,7 +235,7 @@ class Bridge:
 
             try:
 
-                status = self.__driver.find_element_by_xpath(xpath).get_attribute("d")
+                status = self.__driver.find_element_by_xpath(xpath1).get_attribute("d")
 
                 if status == self.__status_done:
 
@@ -244,6 +244,19 @@ class Bridge:
                     return True
 
             except NoSuchElementException:
+
+                try:
+
+                    status = self.__driver.find_element_by_xpath(xpath2).get_attribute("d")
+
+                    if status == self.__status_done:
+                        logger.debug("Progress is done")
+
+                        return True
+
+                except NoSuchElementException:
+
+                    pass
 
                 pass
 
@@ -264,6 +277,8 @@ class Bridge:
 
             return self.__progress(
                 '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[4]/div/div[1]/div[1]/div/div[2]'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
+                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[2]/div/div[1]/div[1]/div/div[2]'
                 '//*[local-name()="svg"]//*[local-name()="path"]'
             )
 
@@ -271,6 +286,8 @@ class Bridge:
 
             return self.__progress(
                 '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[4]/div/div[1]/div[1]/div/div[2]'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
+                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[1]/div/div[2]'
                 '//*[local-name()="svg"]//*[local-name()="path"]'
             )
 
@@ -282,6 +299,8 @@ class Bridge:
 
             return self.__progress(
                 '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[4]/div/div[1]/div[2]/div/div[2]'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
+                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]'
                 '//*[local-name()="svg"]//*[local-name()="path"]'
             )
 
@@ -289,6 +308,8 @@ class Bridge:
 
             return self.__progress(
                 '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[4]/div/div[1]/div[2]/div/div[2]'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
+                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]'
                 '//*[local-name()="svg"]//*[local-name()="path"]'
             )
 
@@ -300,12 +321,16 @@ class Bridge:
 
             return self.__progress(
                 '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
+                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
                 '//*[local-name()="svg"]//*[local-name()="path"]'
             )
 
         else:
 
             return self.__progress(
+                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
+                '//*[local-name()="svg"]//*[local-name()="path"]',
                 '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
                 '//*[local-name()="svg"]//*[local-name()="path"]'
             )
