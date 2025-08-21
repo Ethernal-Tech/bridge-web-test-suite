@@ -6,9 +6,6 @@ on:
       bridge:
         type: string
         required: true
-      deployment:
-        type: string
-        required: true
       source_chain:
         type: string
         required: true
@@ -21,9 +18,6 @@ on:
       destination_token:
         type: string
         required: true
-      eternl_wallet_extension:
-        type: string
-        required: true
       bridging_status:
         type: string
         required: true
@@ -34,6 +28,9 @@ on:
         type: string
         required: true
       destination_status:
+        type: string
+        required: true
+      logs_results_artifact_id:
         type: string
         required: true
     secrets:
@@ -65,7 +62,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "${{ inputs.bridge }} ${{ inputs.deployment }} Test"
+                    "text": "${{ inputs.bridge }} Test"
                   }
                 },
                 {
@@ -79,6 +76,14 @@ jobs:
                       },
                       "style": "${{ inputs.bridging_status == 'success' && env.succeed_bnt || env.failed_bnt }}",
                       "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ inputs.logs_results_artifact_id }}"
                     }
                   ]
                 },
@@ -88,10 +93,6 @@ jobs:
                     {
                       "type": "mrkdwn",
                       "text": "Commit: *<https://github.com/${{ github.repository }}/tree/${{ github.sha }}|${{ steps.short_sha.outputs.value }}>*"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "Eternl Wallet: *${{ inputs.eternl_wallet_extension }}*"
                     }
                   ]
                 },

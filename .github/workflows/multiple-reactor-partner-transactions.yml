@@ -20,38 +20,35 @@ jobs:
   prime_to_nexus:
     name: Prime to Nexus
     uses: ./.github/workflows/single-transaction.yml
-    if: success() || failure()
     with:
       bridge: Reactor
-      deployment: Partner
+      url: ${{ vars.REACTOR_URL }}
       source_chain: Prime
+      amount: 5
       source_token: AP3X
       destination_chain: Nexus
       destination_token: AP3X
-      amount: 5
-      eternl_wallet_extension: Stable
       notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
-      NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
+      CHROME_URL: ${{ secrets.CHROME_URL }}
+      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
   nexus_to_prime:
     name: Nexus to Prime
     uses: ./.github/workflows/single-transaction.yml
     with:
       bridge: Reactor
-      deployment: Partner
+      url: ${{ vars.REACTOR_URL }}
       source_chain: Nexus
+      amount: 2
       source_token: AP3X
       destination_chain: Prime
       destination_token: AP3X
-      amount: 2
-      eternl_wallet_extension: Stable
       notification: false
     secrets:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
-      PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
+      CHROME_URL: ${{ secrets.CHROME_URL }}
+      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
   inputs_check:
     name: Inputs Check
     runs-on: ubuntu-latest
@@ -68,13 +65,11 @@ jobs:
           fi
   notification:
     name: Send notification
-    uses: ./.github/workflows/multiple-transactions-without-vector-notification.yml
+    uses: ./.github/workflows/multiple-transactions-notification.yml
     needs: [prime_to_nexus, nexus_to_prime, inputs_check]
-    if: ((success() || failure()) && (needs.inputs_check.outputs.notification == 'true'))
+    if: (!cancelled() && (needs.inputs_check.outputs.notification == 'true'))
     with:
       bridge: Reactor
-      deployment: Partner
-      eternl_wallet_extension: Stable
       tx_01_source_chain: Prime
       tx_01_source_token: AP3X
       tx_01_destination_chain: Nexus
@@ -83,6 +78,7 @@ jobs:
       tx_01_bridge_status: ${{ needs.prime_to_nexus.outputs.bridge_status }}
       tx_01_destination_status: ${{ needs.prime_to_nexus.outputs.destination_status }}
       tx_01_status: ${{ needs.prime_to_nexus.outputs.bridging_status }}
+      tx_01_logs_artifact_id: ${{ needs.prime_to_nexus.outputs.logs_artifact_id }}
       tx_02_source_chain: Nexus
       tx_02_source_token: AP3X
       tx_02_destination_chain: Prime
@@ -91,5 +87,6 @@ jobs:
       tx_02_bridge_status: ${{ needs.nexus_to_prime.outputs.bridge_status }}
       tx_02_destination_status: ${{ needs.nexus_to_prime.outputs.destination_status }}
       tx_02_status: ${{ needs.nexus_to_prime.outputs.bridging_status }}
+      tx_02_logs_artifact_id: ${{ needs.nexus_to_prime.outputs.logs_artifact_id }}
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

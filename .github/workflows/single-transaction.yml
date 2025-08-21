@@ -10,20 +10,19 @@ on:
         options:
           - Reactor
           - Skyline
-      deployment:
+      url:
         required: true
-        description: Deployment
+        description: URL
         type: choice
         options:
-          - Internal
-          - Partner
+          - https://reactor.testnet.apexfusion.org/
+          - https://skyline.testnet.ethernal.work/
       source_chain:
         required: true
         description: Source chain
         type: choice
         options:
           - Prime
-          - Vector
           - Nexus
           - Preview
       source_token:
@@ -31,19 +30,14 @@ on:
         description: Source token
         type: choice
         options:
-          - APEX
           - AP3X
-          - WAPEX
           - cAP3X
-          - Ada
-          - WAda
       destination_chain:
         required: true
         description: Destination chain
         type: choice
         options:
           - Prime
-          - Vector
           - Nexus
           - Preview
       destination_token:
@@ -51,23 +45,12 @@ on:
         description: Destination token
         type: choice
         options:
-          - APEX
           - AP3X
-          - WAPEX
           - cAP3X
-          - Ada
-          - WAda
       amount:
         required: true
         description: Amount to send from Source to Destination
         type: string
-      eternl_wallet_extension:
-        required: true
-        description: Eternl Wallet Extension
-        type: choice
-        options:
-          - Stable
-          - Beta
       notification:
         required: false
         description: Notification
@@ -79,9 +62,9 @@ on:
         required: true
         description: Bridge
         type: string
-      deployment:
+      url:
         required: true
-        description: Deployment
+        description: URL
         type: string
       source_chain:
         required: true
@@ -102,10 +85,6 @@ on:
       amount:
         required: true
         description: Amount to send from Source to Destination
-        type: string
-      eternl_wallet_extension:
-        required: true
-        description: Eternl Wallet Extension
         type: string
       notification:
         required: true
@@ -120,17 +99,15 @@ on:
         value: ${{ jobs.bridging.outputs.bridge_status }}
       destination_status:
         value: ${{ jobs.bridging.outputs.destination_status }}
+      logs_artifact_id:
+        value: ${{ jobs.bridging.outputs.logs_artifact_id }}
     secrets:
       SIGN_KEY:
         required: true
-      PRIME_WALLET_RECOVERY_PHRASE:
-        required: false
-      VECTOR_WALLET_RECOVERY_PHRASE:
-        required: false
-      NEXUS_WALLET_RECOVERY_PHRASE:
-        required: false
-      PREVIEW_WALLET_RECOVERY_PHRASE:
-        required: false
+      CHROME_URL:
+        required: true
+      CHROME_CONFIGS_URL:
+        required: true
 
 permissions:
   id-token: write
@@ -146,6 +123,7 @@ jobs:
       source_status: ${{ steps.bridging_status.outputs.source_status }}
       bridge_status: ${{ steps.bridging_status.outputs.bridge_status }}
       destination_status: ${{ steps.bridging_status.outputs.destination_status }}
+      logs_artifact_id: ${{ steps.logs-artifact-upload.outputs.artifact-id }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -158,44 +136,41 @@ jobs:
       - name: Change Google Chrome For Testing version
         run: |
           sudo rm -rf /Applications/Google\ Chrome\ for\ Testing.app
-          wget -q -O chrome.zip "${{ vars.CHROME_FOR_TESTING_URL }}"
+          wget -q -O chrome.zip "${{ secrets.CHROME_URL }}"
           unzip -q chrome.zip
           sudo mv chrome-mac-arm64/Google\ Chrome\ for\ Testing.app /Applications
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Start bridging
-        run: python main.py ${{ inputs.bridge }} ${{ inputs.deployment }} ${{ inputs.source_chain }} ${{ inputs.amount }} ${{ inputs.source_token }} ${{ inputs.destination_chain }} ${{ inputs.destination_token }}
+        run: python main.py ${{ inputs.bridge }} ${{ inputs.source_chain }} ${{ inputs.amount }} ${{ inputs.source_token }} ${{ inputs.destination_chain }}
         env:
           PYTHONUNBUFFERED: 1
           SIGN_KEY: ${{ secrets.SIGN_KEY }}
-          PRIME_WALLET_RECOVERY_PHRASE: ${{ secrets.PRIME_WALLET_RECOVERY_PHRASE }}
-          VECTOR_WALLET_RECOVERY_PHRASE: ${{ secrets.VECTOR_WALLET_RECOVERY_PHRASE }}
-          NEXUS_WALLET_RECOVERY_PHRASE: ${{ secrets.NEXUS_WALLET_RECOVERY_PHRASE }}
-          PREVIEW_WALLET_RECOVERY_PHRASE: ${{ secrets.PREVIEW_WALLET_RECOVERY_PHRASE }}
-          NEXUS_NETWORK_NAME: ${{ vars.NEXUS_NETWORK_NAME }}
-          NEXUS_NETWORK_RPC_URL: ${{ vars.NEXUS_NETWORK_RPC_URL }}
-          NEXUS_NETWORK_CHAIN_ID: ${{ vars.NEXUS_NETWORK_CHAIN_ID }}
-          NEXUS_NETWORK_CURRENCY_SYMBOL: ${{ vars.NEXUS_NETWORK_CURRENCY_SYMBOL }}
-          PARTNER_REACTOR_URL: ${{ vars.PARTNER_REACTOR_URL }}
-          INTERNAL_REACTOR_URL: ${{ vars.INTERNAL_REACTOR_URL }}
-          PARTNER_SKYLINE_URL: ${{ vars.PARTNER_SKYLINE_URL }}
-          INTERNAL_SKYLINE_URL: ${{ vars.INTERNAL_SKYLINE_URL }}
+          BRIDGE_URL: ${{ inputs.url }}
           APEX_FUSION_FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
           CHROMEDRIVER_VERSION: ${{ vars.CHROMEDRIVER_VERSION }}
-          ETERNL_WALLET_EXTENSION: ${{ inputs.eternl_wallet_extension }}
+          CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
       - name: Get status of the bridging
         id: bridging_status
         run: |
-          echo "bridging_status=$(cat /tmp/statuses.json | jq -r '.status')" >> $GITHUB_OUTPUT
-          echo "source_status=$(cat /tmp/statuses.json | jq -r '.source')" >> $GITHUB_OUTPUT
-          echo "bridge_status=$(cat /tmp/statuses.json | jq -r '.bridge')" >> $GITHUB_OUTPUT
-          echo "destination_status=$(cat /tmp/statuses.json | jq -r '.destination')" >> $GITHUB_OUTPUT
+          echo "bridging_status=$(cat statuses.json | jq -r '.status')" >> $GITHUB_OUTPUT
+          echo "source_status=$(cat statuses.json | jq -r '.source')" >> $GITHUB_OUTPUT
+          echo "bridge_status=$(cat statuses.json | jq -r '.bridge')" >> $GITHUB_OUTPUT
+          echo "destination_status=$(cat statuses.json | jq -r '.destination')" >> $GITHUB_OUTPUT
       - name: Archive status
         if: always()
         uses: actions/upload-artifact@v4.4.3
         with:
-          name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}
-          path: /tmp/statuses.json
+          name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_statuses
+          path: statuses.json
+          retention-days: 7
+      - name: Archive logs
+        if: always()
+        id: logs-artifact-upload
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_logs
+          path: logs/*
           retention-days: 7
   notification:
     name: Send notification
@@ -204,15 +179,15 @@ jobs:
     if: ((success() || failure()) && inputs.notification)
     with:
       bridge: ${{ inputs.bridge }}
-      deployment: ${{ inputs.deployment }}
       source_chain: ${{ inputs.source_chain }}
       source_token: ${{ inputs.source_token }}
       destination_chain: ${{ inputs.destination_chain }}
       destination_token: ${{ inputs.destination_token }}
-      eternl_wallet_extension: ${{ inputs.eternl_wallet_extension }}
       bridging_status: ${{ needs.bridging.outputs.bridging_status }}
       source_status: ${{ needs.bridging.outputs.source_status }}
       bridge_status: ${{ needs.bridging.outputs.bridge_status }}
       destination_status: ${{ needs.bridging.outputs.destination_status }}
+      logs_results_artifact_id: ${{ needs.bridging.outputs.logs_artifact_id }}
+
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

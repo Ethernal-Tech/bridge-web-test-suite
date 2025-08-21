@@ -1,58 +1,168 @@
-from os import path
 from time import sleep
+from requests import get
+from zipfile import ZipFile
+from os import getenv, path, remove
+from shutil import copyfileobj, rmtree
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebElement
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.webdriver import WebDriver
 from webdriver_manager.chrome import ChromeDriverManager
+from toolbox.logger import logger
+from toolbox.utils import retry
 
 
 class Chrome(WebDriver):
-    def __init__(
-        self, 
-        driver_version: str,
-        eternl_wallet_extension: str
-    ) -> None:
+    def __init__(self) -> None:
 
-        self.__extensions_dir_path: str = path.join(path.dirname(path.abspath(__file__)), 'extensions')
+        logger.debug("Starting Chrome setup")
 
-        self.__options = [
-            "--headless",
-            "--no-sandbox",
-            "--disable-gpu",
-            "--window-size=1920,1080",
-            "--disable-popup-blocking"
-        ]
+        try:
 
-        self.__chrome_options = Options()
+            # Set Chrome Options flags
+            self.__options: [str] = [
+                "--headless",
+                "--no-sandbox",
+                "--disable-gpu",
+                "--window-size=1920,1080",
+                "--disable-popup-blocking",
+                "--disable-features=DisableLoadExtensionCommandLineSwitch"
+            ]
 
-        for arg in self.__options:
-            self.__chrome_options.add_argument(arg)
+            # Pre-configured Chrome profile with ready-to-use Metamask wallet and Eternl wallet
+            # Also, Reactor Bridge and Skyline Bridge permissions already setup
+            if getenv("CHROME_CONFIGS_URL"):
 
-        self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/MetaMask.crx')
+                logger.debug("Downloading Chrome Configs")
 
-        if eternl_wallet_extension.lower() == 'beta':
-            self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/EternlBeta.crx')
-        else:
-            self.__chrome_options.add_extension(f'{self.__extensions_dir_path}/Eternl.crx')
+                r = get(getenv("CHROME_CONFIGS_URL"), stream=True)
+                with open("/tmp/bridge-web-test-suite.zip", "wb") as f:
+                    copyfileobj(r.raw, f)
 
-        self.__chrome_services = Service()
-        self.__chrome_services.path = ChromeDriverManager(driver_version=driver_version).install()
+                logger.debug("The Chrome Configs downloaded successfully")
+                logger.debug("Extracting the Chrome Configs")
 
-        super().__init__(
-            options=self.__chrome_options,
-            service=self.__chrome_services
-        )
+                if path.exists("/tmp/bridge-web-test-suite"):
+                    rmtree("/tmp/bridge-web-test-suite")
 
-        # the first tab opened when chrome started
-        self.__init_tab = self.current_window_handle
+                with ZipFile("/tmp/bridge-web-test-suite.zip", "r") as z:
+                    z.extractall("/tmp/")
 
-        # wait to chrome to open all startup tabs
-        sleep(5)
+                remove("/tmp/bridge-web-test-suite.zip")
+
+                self.__options.append("user-data-dir=/tmp/bridge-web-test-suite")
+                self.__options.append("profile-directory=Default")
+
+                logger.debug("The Chrome Configs extracted successfully")
+
+            self.__chrome_options: Options = Options()
+
+            for arg in self.__options:
+
+                self.__chrome_options.add_argument(arg)
+                logger.debug(f"{arg} added to Chrome Options")
+
+            # Add extensions
+            self.__extensions_dir_path: str = path.join(path.dirname(path.abspath(__file__)), "extensions")
+            self.__chrome_options.add_extension(path.join(self.__extensions_dir_path, "MetaMask.crx"))
+            self.__chrome_options.add_extension(path.join(self.__extensions_dir_path, "Eternl.crx"))
+
+            self.__chrome_services: Service = Service()
+
+            logger.debug("Installing Chrome Driver")
+
+            self.__chrome_services.path = ChromeDriverManager(
+                driver_version=getenv("CHROMEDRIVER_VERSION")
+            ).install()
+
+            logger.debug(f"Chrome Driver v{self.__chrome_services.path.split('/')[-3]} installed successfully")
+
+            logger.debug("Starting Chrome")
+
+            super().__init__(
+                options=self.__chrome_options,
+                service=self.__chrome_services
+            )
+
+            # The first tab opened when chrome started
+            self.__init_tab: str = self.current_window_handle
+
+            # Wait to chrome to open all startup tabs
+            sleep(5)
+
+            logger.debug(
+                f"Chrome v{self.capabilities['browserVersion']} "
+                f"with Chrome Driver v{self.capabilities['chrome']['chromedriverVersion'].split()[0]} "
+                f"is running"
+            )
+
+            logger.debug("Chrome setup completed successfully")
+
+        except Exception as e:
+
+            logger.critical(e, exc_info=True)
+
+            raise
 
     def get_init_tab(self) -> str:
+
         return self.__init_tab
 
     def find_element_by_xpath(self, xpath: str) -> WebElement:
+
         return self.find_element(By.XPATH, xpath)
+
+    @retry()
+    def bypass_input_protection(self, element: WebElement, value: str) -> None:
+
+        logger.debug("Bypassing input protection")
+
+        try:
+
+            self.execute_script(
+                """
+                const el = arguments[0];
+                const val = arguments[1];
+
+                if (el.hasAttribute('contenteditable')) {
+                    el.innerHTML = val;
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                    return;
+                }
+
+                const lastValue = el.value;
+                el.value = val;
+                const tracker = el._valueTracker;
+
+                if (tracker) {
+                    tracker.setValue(lastValue);
+                }
+
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                """,
+                element,
+                value
+            )
+
+            new_value = self.execute_script(
+                "return arguments[0].value || arguments[0].innerHTML",
+                element
+            )
+
+            if value not in new_value:
+
+                logger.error("Error while bypassing input protection")
+                logger.error(f"Expected value: {value}")
+                logger.error(f"Returned value: {new_value}")
+
+                raise ValueError
+
+        except Exception as e:
+
+            logger.error(e, exc_info=True)
+
+            raise
+
+        logger.debug("Bypassed input protection successfully")
