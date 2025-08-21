@@ -71,13 +71,15 @@ class Eternl:
 
             logger.critical(f"Failed to set {self.__subnetwork.capitalize()} address")
 
+            raise ValueError
+
     @retry()
     def open_wallet(self) -> None:
 
         logger.debug(f"Opening {self.__subnetwork.capitalize()} wallet at {self.__url}")
 
         self.__driver.get(self.__url)
-        sleep(5)
+        sleep(10)
 
         for i in range(10):
 
@@ -97,12 +99,14 @@ class Eternl:
 
                 logger.error(f"{self.__subnetwork.capitalize()} wallet is not fully loaded")
                 self.__driver.refresh()
-                sleep(5)
+                sleep(10)
                 pass
 
         else:
 
             logger.critical(f"Failed to load {self.__subnetwork.capitalize()} wallet")
+
+            raise ValueError
 
     @retry()
     def sign_and_confirm_transaction(self) -> None:

@@ -90,6 +90,8 @@ class MetaMask:
 
             logger.critical(f"Failed to set {self.__subnetwork.capitalize()} address")
 
+            raise ValueError
+
     @retry()
     def open_wallet(self) -> None:
 
@@ -121,6 +123,8 @@ class MetaMask:
         else:
 
             logger.critical(f"Failed to load {self.__subnetwork.capitalize()} wallet")
+
+            raise ValueError
 
     @retry()
     def sign_and_confirm_transaction(self) -> None:
