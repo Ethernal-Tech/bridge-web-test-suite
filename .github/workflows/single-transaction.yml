@@ -149,6 +149,7 @@ jobs:
           BRIDGE_URL: ${{ inputs.url }}
           APEX_FUSION_FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
           CHROMEDRIVER_VERSION: ${{ vars.CHROMEDRIVER_VERSION }}
+          CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
       - name: Get status of the bridging
         id: bridging_status
         run: |
