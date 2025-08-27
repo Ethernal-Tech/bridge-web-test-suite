@@ -227,6 +227,7 @@ class Bridge:
 
         sleep(5)
 
+    @retry()
     def __progress(self, xpath1: str, xpath2: str, tries: int = 1800) -> bool:
 
         logger.debug("Getting progress status every 1sec")
