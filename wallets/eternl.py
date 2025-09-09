@@ -44,10 +44,19 @@ class Eternl:
 
             sleep(1)
 
-            receive_address = self.__driver.find_element_by_xpath(
-                '/html/body/div[1]/div[2]/div[1]/div'
-                '/div[2]/main/div/div/div/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/div/div/div[1]'
-            )
+            try:
+
+                receive_address = self.__driver.find_element_by_xpath(
+                    '/html/body/div[1]/div[2]/div[1]/div'
+                    '/div[2]/main/div/div/div/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/div/div/div[1]'
+                )
+
+            except NoSuchElementException:
+
+                receive_address = self.__driver.find_element_by_xpath(
+                    '/html/body/div[1]/div[2]/div[1]/div'
+                    '/div[2]/main/div/div/div/div/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div[1]'
+                )
 
             self.__receive_address = receive_address.text
 
