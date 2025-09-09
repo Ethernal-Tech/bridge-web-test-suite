@@ -36,6 +36,7 @@ jobs:
   prime_to_nexus:
     name: Prime to Nexus
     uses: ./.github/workflows/single-transaction.yml
+    needs: prime_to_vector
     with:
       bridge: Reactor
       url: ${{ vars.REACTOR_URL }}
@@ -68,6 +69,7 @@ jobs:
   vector_to_nexus:
     name: Vector to Nexus
     uses: ./.github/workflows/single-transaction.yml
+    needs: vector_to_prime
     with:
       bridge: Reactor
       url: ${{ vars.REACTOR_URL }}
@@ -100,6 +102,7 @@ jobs:
   nexus_to_vector:
     name: Nexus to Vector
     uses: ./.github/workflows/single-transaction.yml
+    needs: nexus_to_prime
     with:
       bridge: Reactor
       url: ${{ vars.REACTOR_URL }}
