@@ -23,6 +23,7 @@ on:
         type: choice
         options:
           - Prime
+          - Vector
           - Nexus
           - Preview
       source_token:
@@ -31,13 +32,16 @@ on:
         type: choice
         options:
           - AP3X
+          - ADA
           - cAP3X
+          - wADA
       destination_chain:
         required: true
         description: Destination chain
         type: choice
         options:
           - Prime
+          - Vector
           - Nexus
           - Preview
       destination_token:
@@ -46,7 +50,9 @@ on:
         type: choice
         options:
           - AP3X
+          - ADA
           - cAP3X
+          - wADA
       amount:
         required: true
         description: Amount to send from Source to Destination
