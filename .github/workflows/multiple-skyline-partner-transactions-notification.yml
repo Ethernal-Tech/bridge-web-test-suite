@@ -1,5 +1,5 @@
 ---
-name: Multiple Transactions Notification
+name: Multiple Skyline Partner Transactions Notification
 on:
   workflow_call:
     inputs:
