@@ -34,7 +34,7 @@ on:
           - AP3X
           - ADA
           - cAP3X
-          - wADA
+          - vADA
       destination_chain:
         required: true
         description: Destination chain
@@ -52,7 +52,7 @@ on:
           - AP3X
           - ADA
           - cAP3X
-          - wADA
+          - vADA
       amount:
         required: true
         description: Amount to send from Source to Destination
