@@ -58,6 +58,21 @@ class Bridge:
         logger.debug(f"{receiver_address} has been funded")
 
     @retry()
+    def __reject_sentry(self) -> None:
+
+        if self.__bridge_name == "Skyline":
+
+            logger.debug("Closing sentry dialog")
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[4]/div[4]/div/button[2]'
+            ).click()
+
+            sleep(3)
+
+            logger.debug("Sentry dialog closed")
+
+    @retry()
     def __open_bridge_app(self, source: str, destination: str) -> None:
 
         logger.debug(f"Opening {self.__bridge_name} Bridge on {self.__bridge_url}")
@@ -348,6 +363,8 @@ class Bridge:
             self.__source_wallet.get_web_app_identifier(),
             self.__destination_wallet.get_web_app_identifier()
         )
+
+        self.__reject_sentry()
 
         self.__connect_wallet_and_move_funds()
         self.__destination_address(self.__destination_wallet.get_receive_address())
