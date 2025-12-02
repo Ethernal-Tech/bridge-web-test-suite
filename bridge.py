@@ -60,15 +60,17 @@ class Bridge:
     @retry()
     def __reject_sentry(self) -> None:
 
-        logger.debug("Closing sentry dialog")
+        if self.__bridge_name == "Skyline":
 
-        self.__driver.find_element_by_xpath(
-            '//*[@id="root"]/div[1]/div[4]/div[4]/div/button[2]'
-        ).click()
+            logger.debug("Closing sentry dialog")
 
-        sleep(3)
+            self.__driver.find_element_by_xpath(
+                '//*[@id="root"]/div[1]/div[4]/div[4]/div/button[2]'
+            ).click()
 
-        logger.debug("Sentry dialog closed")
+            sleep(3)
+
+            logger.debug("Sentry dialog closed")
 
     @retry()
     def __open_bridge_app(self, source: str, destination: str) -> None:
