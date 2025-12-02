@@ -22,7 +22,7 @@ class Chrome(WebDriver):
 
             # Set Chrome Options flags
             self.__options: [str] = [
-                # "--headless",
+                "--headless",
                 "--no-sandbox",
                 "--disable-gpu",
                 "--window-size=1920,1080",
