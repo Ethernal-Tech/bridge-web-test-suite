@@ -1,8 +1,9 @@
 from time import sleep
 from requests import get
 from zipfile import ZipFile
-from os import getenv, path, remove
-from shutil import copyfileobj, rmtree
+from subprocess import run, DEVNULL
+from os import getenv, path, remove, listdir
+from shutil import copyfileobj, rmtree, move
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebElement
 from selenium.webdriver.chrome.options import Options
@@ -36,9 +37,9 @@ class Chrome(WebDriver):
 
                 logger.debug("Downloading Chrome Configs")
 
-                r = get(getenv("CHROME_CONFIGS_URL"), stream=True)
+                config = get(getenv("CHROME_CONFIGS_URL"), stream=True)
                 with open("/tmp/bridge-web-test-suite.zip", "wb") as f:
-                    copyfileobj(r.raw, f)
+                    copyfileobj(config.raw, f)
 
                 logger.debug("The Chrome Configs downloaded successfully")
                 logger.debug("Extracting the Chrome Configs")
@@ -57,6 +58,69 @@ class Chrome(WebDriver):
                 logger.debug("The Chrome Configs extracted successfully")
 
             self.__chrome_options: Options = Options()
+
+            if bool(getenv("LOCAL_TEST")):
+
+                logger.debug("Downloading Chrome For Testing")
+
+                app = get(getenv("CHROME_URL"), stream=True)
+                with open("chrome.zip", "wb") as f:
+                    copyfileobj(app.raw, f)
+
+                logger.debug("The Chrome For Testing downloaded successfully")
+                logger.debug("Extracting the Chrome For Testing")
+
+                chrome_path: str = path.join(path.dirname(path.abspath(__file__)), "chrome")
+
+                if path.exists(chrome_path):
+                    rmtree(chrome_path)
+
+                with ZipFile("chrome.zip", "r") as z:
+                    z.extractall("chrome_tmp")
+
+                for directory in listdir("chrome_tmp"):
+                    move(path.join("chrome_tmp", directory), chrome_path)
+
+                logger.debug("Fix permission for the Chrome For Testing")
+
+                run(
+                    args=[
+                        "sudo",
+                        "-S",
+                        "xattr",
+                        "-r",
+                        "-d",
+                        "com.apple.quarantine",
+                        path.join(chrome_path, "Google Chrome for Testing.app")
+                    ],
+                    check=True,
+                    input=getenv("SUDO").encode(),
+                    stderr=DEVNULL
+                )
+
+                run(
+                    args=[
+                        "sudo",
+                        "-S",
+                        "chmod",
+                        "-R",
+                        "+x",
+                        path.join(chrome_path, "Google Chrome for Testing.app")
+                    ],
+                    check=True,
+                    input=getenv("SUDO").encode(),
+                    stderr=DEVNULL
+                )
+
+                rmtree("chrome_tmp")
+                remove("chrome.zip")
+
+                self.__chrome_options.binary_location = path.join(
+                    chrome_path,
+                    "Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+                )
+
+                logger.debug("The Chrome For Testing extracted successfully")
 
             for arg in self.__options:
 

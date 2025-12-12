@@ -100,6 +100,23 @@ jobs:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
       CHROME_URL: ${{ secrets.CHROME_URL }}
       CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
+  preview_ada_to_nexus_xada:
+    name: Preview(ADA) to Nexus(xADA)
+    uses: ./.github/workflows/single-transaction.yml
+    needs: preview_ada_to_vector_xada
+    with:
+      bridge: Skyline
+      url: ${{ vars.SKYLINE_URL }}
+      source_chain: Preview
+      amount: 5
+      source_token: ADA
+      destination_chain: Nexus
+      destination_token: xADA
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      CHROME_URL: ${{ secrets.CHROME_URL }}
+      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
   vector_ap3x_to_prime_ap3x:
     name: Vector(AP3X) to Prime(AP3X)
     uses: ./.github/workflows/single-transaction.yml
@@ -150,6 +167,40 @@ jobs:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
       CHROME_URL: ${{ secrets.CHROME_URL }}
       CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
+  vector_xada_to_nexus_xada:
+    name: Vector(xADA) to Nexus(xADA)
+    uses: ./.github/workflows/single-transaction.yml
+    needs: vector_ap3x_to_nexus_ap3x
+    with:
+      bridge: Skyline
+      url: ${{ vars.SKYLINE_URL }}
+      source_chain: Vector
+      amount: 5
+      source_token: xADA
+      destination_chain: Nexus
+      destination_token: xADA
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      CHROME_URL: ${{ secrets.CHROME_URL }}
+      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
+  vector_mytesttoken_to_nexus_mytesttoken:
+    name: Vector(myTestToken) to Nexus(myTestToken)
+    uses: ./.github/workflows/single-transaction.yml
+    needs: vector_xada_to_nexus_xada
+    with:
+      bridge: Skyline
+      url: ${{ vars.SKYLINE_URL }}
+      source_chain: Vector
+      amount: 2
+      source_token: myTestToken
+      destination_chain: Nexus
+      destination_token: myTestToken
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      CHROME_URL: ${{ secrets.CHROME_URL }}
+      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
   nexus_ap3x_to_prime_ap3x:
     name: Nexus(AP3X) to Prime(AP3X)
     uses: ./.github/workflows/single-transaction.yml
@@ -183,6 +234,57 @@ jobs:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
       CHROME_URL: ${{ secrets.CHROME_URL }}
       CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
+  nexus_xada_to_vector_xada:
+    name: Nexus(xADA) to Vector(xADA)
+    uses: ./.github/workflows/single-transaction.yml
+    needs: nexus_ap3x_to_vector_ap3x
+    with:
+      bridge: Skyline
+      url: ${{ vars.SKYLINE_URL }}
+      source_chain: Nexus
+      amount: 2
+      source_token: xADA
+      destination_chain: Vector
+      destination_token: xADA
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      CHROME_URL: ${{ secrets.CHROME_URL }}
+      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
+  nexus_mytesttoken_to_vector_mytesttoken:
+    name: Nexus(myTestToken) to Vector(myTestToken)
+    uses: ./.github/workflows/single-transaction.yml
+    needs: nexus_xada_to_vector_xada
+    with:
+      bridge: Skyline
+      url: ${{ vars.SKYLINE_URL }}
+      source_chain: Nexus
+      amount: 5
+      source_token: myTestToken
+      destination_chain: Vector
+      destination_token: myTestToken
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      CHROME_URL: ${{ secrets.CHROME_URL }}
+      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
+  nexus_xada_to_preview_ada:
+    name: Nexus(xADA) to Preview(ADA)
+    uses: ./.github/workflows/single-transaction.yml
+    needs: nexus_mytesttoken_to_vector_mytesttoken
+    with:
+      bridge: Skyline
+      url: ${{ vars.SKYLINE_URL }}
+      source_chain: Nexus
+      amount: 2
+      source_token: xADA
+      destination_chain: Preview
+      destination_token: ADA
+      notification: false
+    secrets:
+      SIGN_KEY: ${{ secrets.SIGN_KEY }}
+      CHROME_URL: ${{ secrets.CHROME_URL }}
+      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
   inputs_check:
     name: Inputs Check
     runs-on: ubuntu-latest
@@ -200,7 +302,7 @@ jobs:
   notification:
     name: Send notification
     uses: ./.github/workflows/multiple-skyline-partner-transactions-notification.yml
-    needs: [prime_ap3x_to_preview_cap3x, prime_ap3x_to_vector_ap3x, prime_ap3x_to_nexus_ap3x, preview_cap3x_to_prime_ap3x, preview_ada_to_vector_xada, vector_ap3x_to_prime_ap3x, vector_xada_to_preview_ada, vector_ap3x_to_nexus_ap3x, nexus_ap3x_to_prime_ap3x, nexus_ap3x_to_vector_ap3x, inputs_check]
+    needs: [prime_ap3x_to_preview_cap3x, prime_ap3x_to_vector_ap3x, prime_ap3x_to_nexus_ap3x, preview_cap3x_to_prime_ap3x, preview_ada_to_vector_xada, preview_ada_to_nexus_xada, vector_ap3x_to_prime_ap3x, vector_xada_to_preview_ada, vector_ap3x_to_nexus_ap3x, vector_xada_to_nexus_xada, vector_mytesttoken_to_nexus_mytesttoken, nexus_ap3x_to_prime_ap3x, nexus_ap3x_to_vector_ap3x, nexus_xada_to_vector_xada, nexus_mytesttoken_to_vector_mytesttoken, nexus_xada_to_preview_ada, inputs_check]
     if: (!cancelled() && (needs.inputs_check.outputs.notification == 'true'))
     with:
       bridge: Skyline
@@ -249,50 +351,104 @@ jobs:
       tx_05_destination_status: ${{ needs.preview_ada_to_vector_xada.outputs.destination_status }}
       tx_05_status: ${{ needs.preview_ada_to_vector_xada.outputs.bridging_status }}
       tx_05_logs_artifact_id: ${{ needs.preview_ada_to_vector_xada.outputs.logs_artifact_id }}
-      tx_06_source_chain: Vector
-      tx_06_source_token: AP3X
-      tx_06_destination_chain: Prime
-      tx_06_destination_token: AP3X
-      tx_06_source_status: ${{ needs.vector_ap3x_to_prime_ap3x.outputs.source_status }}
-      tx_06_bridge_status: ${{ needs.vector_ap3x_to_prime_ap3x.outputs.bridge_status }}
-      tx_06_destination_status: ${{ needs.vector_ap3x_to_prime_ap3x.outputs.destination_status }}
-      tx_06_status: ${{ needs.vector_ap3x_to_prime_ap3x.outputs.bridging_status }}
-      tx_06_logs_artifact_id: ${{ needs.vector_ap3x_to_prime_ap3x.outputs.logs_artifact_id }}
+      tx_06_source_chain: Preview
+      tx_06_source_token: ADA
+      tx_06_destination_chain: Nexus
+      tx_06_destination_token: xADA
+      tx_06_source_status: ${{ needs.preview_ada_to_nexus_xada.outputs.source_status }}
+      tx_06_bridge_status: ${{ needs.preview_ada_to_nexus_xada.outputs.bridge_status }}
+      tx_06_destination_status: ${{ needs.preview_ada_to_nexus_xada.outputs.destination_status }}
+      tx_06_status: ${{ needs.preview_ada_to_nexus_xada.outputs.bridging_status }}
+      tx_06_logs_artifact_id: ${{ needs.preview_ada_to_nexus_xada.outputs.logs_artifact_id }}
       tx_07_source_chain: Vector
-      tx_07_source_token: xADA
-      tx_07_destination_chain: Preview
-      tx_07_destination_token: ADA
-      tx_07_source_status: ${{ needs.vector_xada_to_preview_ada.outputs.source_status }}
-      tx_07_bridge_status: ${{ needs.vector_xada_to_preview_ada.outputs.bridge_status }}
-      tx_07_destination_status: ${{ needs.vector_xada_to_preview_ada.outputs.destination_status }}
-      tx_07_status: ${{ needs.vector_xada_to_preview_ada.outputs.bridging_status }}
-      tx_07_logs_artifact_id: ${{ needs.vector_xada_to_preview_ada.outputs.logs_artifact_id }}
+      tx_07_source_token: AP3X
+      tx_07_destination_chain: Prime
+      tx_07_destination_token: AP3X
+      tx_07_source_status: ${{ needs.vector_ap3x_to_prime_ap3x.outputs.source_status }}
+      tx_07_bridge_status: ${{ needs.vector_ap3x_to_prime_ap3x.outputs.bridge_status }}
+      tx_07_destination_status: ${{ needs.vector_ap3x_to_prime_ap3x.outputs.destination_status }}
+      tx_07_status: ${{ needs.vector_ap3x_to_prime_ap3x.outputs.bridging_status }}
+      tx_07_logs_artifact_id: ${{ needs.vector_ap3x_to_prime_ap3x.outputs.logs_artifact_id }}
       tx_08_source_chain: Vector
-      tx_08_source_token: AP3X
-      tx_08_destination_chain: Nexus
-      tx_08_destination_token: AP3X
-      tx_08_source_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.source_status }}
-      tx_08_bridge_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.bridge_status }}
-      tx_08_destination_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.destination_status }}
-      tx_08_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.bridging_status }}
-      tx_08_logs_artifact_id: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.logs_artifact_id }}
-      tx_09_source_chain: Nexus
-      tx_09_source_token: AP3X
-      tx_09_destination_chain: Prime
-      tx_09_destination_token: AP3X
-      tx_09_source_status: ${{ needs.nexus_ap3x_to_prime_ap3x.outputs.source_status }}
-      tx_09_bridge_status: ${{ needs.nexus_ap3x_to_prime_ap3x.outputs.bridge_status }}
-      tx_09_destination_status: ${{ needs.nexus_ap3x_to_prime_ap3x.outputs.destination_status }}
-      tx_09_status: ${{ needs.nexus_ap3x_to_prime_ap3x.outputs.bridging_status }}
-      tx_09_logs_artifact_id: ${{ needs.nexus_ap3x_to_prime_ap3x.outputs.logs_artifact_id }}
-      tx_10_source_chain: Nexus
+      tx_08_source_token: xADA
+      tx_08_destination_chain: Preview
+      tx_08_destination_token: ADA
+      tx_08_source_status: ${{ needs.vector_xada_to_preview_ada.outputs.source_status }}
+      tx_08_bridge_status: ${{ needs.vector_xada_to_preview_ada.outputs.bridge_status }}
+      tx_08_destination_status: ${{ needs.vector_xada_to_preview_ada.outputs.destination_status }}
+      tx_08_status: ${{ needs.vector_xada_to_preview_ada.outputs.bridging_status }}
+      tx_08_logs_artifact_id: ${{ needs.vector_xada_to_preview_ada.outputs.logs_artifact_id }}
+      tx_09_source_chain: Vector
+      tx_09_source_token: xADA
+      tx_09_destination_chain: Nexus
+      tx_09_destination_token: xADA
+      tx_09_source_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.source_status }}
+      tx_09_bridge_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.bridge_status }}
+      tx_09_destination_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.destination_status }}
+      tx_09_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.bridging_status }}
+      tx_09_logs_artifact_id: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.logs_artifact_id }}
+      tx_10_source_chain: Vector
       tx_10_source_token: AP3X
-      tx_10_destination_chain: Vector
+      tx_10_destination_chain: Nexus
       tx_10_destination_token: AP3X
-      tx_10_source_status: ${{ needs.nexus_ap3x_to_vector_ap3x.outputs.source_status }}
-      tx_10_bridge_status: ${{ needs.nexus_ap3x_to_vector_ap3x.outputs.bridge_status }}
-      tx_10_destination_status: ${{ needs.nexus_ap3x_to_vector_ap3x.outputs.destination_status }}
-      tx_10_status: ${{ needs.nexus_ap3x_to_vector_ap3x.outputs.bridging_status }}
-      tx_10_logs_artifact_id: ${{ needs.nexus_ap3x_to_vector_ap3x.outputs.logs_artifact_id }}
+      tx_10_source_status: ${{ needs.vector_xada_to_nexus_xada.outputs.source_status }}
+      tx_10_bridge_status: ${{ needs.vector_xada_to_nexus_xada.outputs.bridge_status }}
+      tx_10_destination_status: ${{ needs.vector_xada_to_nexus_xada.outputs.destination_status }}
+      tx_10_status: ${{ needs.vector_xada_to_nexus_xada.outputs.bridging_status }}
+      tx_10_logs_artifact_id: ${{ needs.vector_xada_to_nexus_xada.outputs.logs_artifact_id }}
+      tx_11_source_chain: Vector
+      tx_11_source_token: myTestToken
+      tx_11_destination_chain: Nexus
+      tx_11_destination_token: myTestToken
+      tx_11_source_status: ${{ needs.vector_mytesttoken_to_nexus_mytesttoken.outputs.source_status }}
+      tx_11_bridge_status: ${{ needs.vector_mytesttoken_to_nexus_mytesttoken.outputs.bridge_status }}
+      tx_11_destination_status: ${{ needs.vector_mytesttoken_to_nexus_mytesttoken.outputs.destination_status }}
+      tx_11_status: ${{ needs.vector_mytesttoken_to_nexus_mytesttoken.outputs.bridging_status }}
+      tx_11_logs_artifact_id: ${{ needs.vector_mytesttoken_to_nexus_mytesttoken.outputs.logs_artifact_id }}
+      tx_12_source_chain: Nexus
+      tx_12_source_token: AP3X
+      tx_12_destination_chain: Prime
+      tx_12_destination_token: AP3X
+      tx_12_source_status: ${{ needs.nexus_ap3x_to_prime_ap3x.outputs.source_status }}
+      tx_12_bridge_status: ${{ needs.nexus_ap3x_to_prime_ap3x.outputs.bridge_status }}
+      tx_12_destination_status: ${{ needs.nexus_ap3x_to_prime_ap3x.outputs.destination_status }}
+      tx_12_status: ${{ needs.nexus_ap3x_to_prime_ap3x.outputs.bridging_status }}
+      tx_12_logs_artifact_id: ${{ needs.nexus_ap3x_to_prime_ap3x.outputs.logs_artifact_id }}
+      tx_13_source_chain: Nexus
+      tx_13_source_token: AP3X
+      tx_13_destination_chain: Vector
+      tx_13_destination_token: AP3X
+      tx_13_source_status: ${{ needs.nexus_ap3x_to_vector_ap3x.outputs.source_status }}
+      tx_13_bridge_status: ${{ needs.nexus_ap3x_to_vector_ap3x.outputs.bridge_status }}
+      tx_13_destination_status: ${{ needs.nexus_ap3x_to_vector_ap3x.outputs.destination_status }}
+      tx_13_status: ${{ needs.nexus_ap3x_to_vector_ap3x.outputs.bridging_status }}
+      tx_13_logs_artifact_id: ${{ needs.nexus_ap3x_to_vector_ap3x.outputs.logs_artifact_id }}
+      tx_14_source_chain: Nexus
+      tx_14_source_token: xADA
+      tx_14_destination_chain: Vector
+      tx_14_destination_token: xADA
+      tx_14_source_status: ${{ needs.nexus_xada_to_vector_xada.outputs.source_status }}
+      tx_14_bridge_status: ${{ needs.nexus_xada_to_vector_xada.outputs.bridge_status }}
+      tx_14_destination_status: ${{ needs.nexus_xada_to_vector_xada.outputs.destination_status }}
+      tx_14_status: ${{ needs.nexus_xada_to_vector_xada.outputs.bridging_status }}
+      tx_14_logs_artifact_id: ${{ needs.nexus_xada_to_vector_xada.outputs.logs_artifact_id }}
+      tx_15_source_chain: Nexus
+      tx_15_source_token: myTestToken
+      tx_15_destination_chain: Vector
+      tx_15_destination_token: myTestToken
+      tx_15_source_status: ${{ needs.nexus_mytesttoken_to_vector_mytesttoken.outputs.source_status }}
+      tx_15_bridge_status: ${{ needs.nexus_mytesttoken_to_vector_mytesttoken.outputs.bridge_status }}
+      tx_15_destination_status: ${{ needs.nexus_mytesttoken_to_vector_mytesttoken.outputs.destination_status }}
+      tx_15_status: ${{ needs.nexus_mytesttoken_to_vector_mytesttoken.outputs.bridging_status }}
+      tx_15_logs_artifact_id: ${{ needs.nexus_mytesttoken_to_vector_mytesttoken.outputs.logs_artifact_id }}
+      tx_16_source_chain: Nexus
+      tx_16_source_token: xADA
+      tx_16_destination_chain: Preview
+      tx_16_destination_token: ADA
+      tx_16_source_status: ${{ needs.nexus_xada_to_preview_ada.outputs.source_status }}
+      tx_16_bridge_status: ${{ needs.nexus_xada_to_preview_ada.outputs.bridge_status }}
+      tx_16_destination_status: ${{ needs.nexus_xada_to_preview_ada.outputs.destination_status }}
+      tx_16_status: ${{ needs.nexus_xada_to_preview_ada.outputs.bridging_status }}
+      tx_16_logs_artifact_id: ${{ needs.nexus_xada_to_preview_ada.outputs.logs_artifact_id }}
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

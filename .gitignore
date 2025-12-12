@@ -3,3 +3,6 @@
 .idea
 .DS_Store
 logs/
+/toolbox/chrome/
+chrome.zip
+statuses.json
