@@ -712,7 +712,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_13_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_13_source_chain }}(${{ inputs.tx_13_source_token }})* ${{ inputs.tx_13_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_13_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_13_destination_chain }}(${{ inputs.tx_13_destination_token }})*",
+                    "text": "${{ inputs.tx_13_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_13_source_chain }}(${{ inputs.tx_13_source_token }})* ${{ inputs.tx_13_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_13_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_13_destination_chain }}(${{ inputs.tx_13_destination_token }})*"
                     }
                 },
                 {
