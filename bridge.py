@@ -373,6 +373,13 @@ class Bridge:
         self.__send_tx()
         self.__source_wallet.sign_and_confirm_transaction()
 
+        if self.__bridge_name == "Skyline" and \
+                self.__source_wallet.get_subnetwork() == ApexFusionSubnetwork.nexus and \
+                self.__source_wallet.get_token_name().lower() == "mytesttoken":
+
+            # Second transaction confirm
+            self.__source_wallet.sign_and_confirm_transaction()
+
         logger.info(f"Start bridging {amount} {self.__source_wallet.get_token_name().upper()}")
 
         try:

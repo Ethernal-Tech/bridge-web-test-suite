@@ -276,6 +276,168 @@ on:
       tx_10_logs_artifact_id:
         required: true
         type: string
+      tx_11_source_chain:
+        required: true
+        type: string
+      tx_11_source_token:
+        required: true
+        type: string
+      tx_11_destination_chain:
+        required: true
+        type: string
+      tx_11_destination_token:
+        required: true
+        type: string
+      tx_11_source_status:
+        required: true
+        type: string
+      tx_11_bridge_status:
+        required: true
+        type: string
+      tx_11_destination_status:
+        required: true
+        type: string
+      tx_11_status:
+        required: true
+        type: string
+      tx_11_logs_artifact_id:
+        required: true
+        type: string
+      tx_12_source_chain:
+        required: true
+        type: string
+      tx_12_source_token:
+        required: true
+        type: string
+      tx_12_destination_chain:
+        required: true
+        type: string
+      tx_12_destination_token:
+        required: true
+        type: string
+      tx_12_source_status:
+        required: true
+        type: string
+      tx_12_bridge_status:
+        required: true
+        type: string
+      tx_12_destination_status:
+        required: true
+        type: string
+      tx_12_status:
+        required: true
+        type: string
+      tx_12_logs_artifact_id:
+        required: true
+        type: string
+      tx_13_source_chain:
+        required: true
+        type: string
+      tx_13_source_token:
+        required: true
+        type: string
+      tx_13_destination_chain:
+        required: true
+        type: string
+      tx_13_destination_token:
+        required: true
+        type: string
+      tx_13_source_status:
+        required: true
+        type: string
+      tx_13_bridge_status:
+        required: true
+        type: string
+      tx_13_destination_status:
+        required: true
+        type: string
+      tx_13_status:
+        required: true
+        type: string
+      tx_13_logs_artifact_id:
+        required: true
+        type: string
+      tx_14_source_chain:
+        required: true
+        type: string
+      tx_14_source_token:
+        required: true
+        type: string
+      tx_14_destination_chain:
+        required: true
+        type: string
+      tx_14_destination_token:
+        required: true
+        type: string
+      tx_14_source_status:
+        required: true
+        type: string
+      tx_14_bridge_status:
+        required: true
+        type: string
+      tx_14_destination_status:
+        required: true
+        type: string
+      tx_14_status:
+        required: true
+        type: string
+      tx_14_logs_artifact_id:
+        required: true
+        type: string
+      tx_15_source_chain:
+        required: true
+        type: string
+      tx_15_source_token:
+        required: true
+        type: string
+      tx_15_destination_chain:
+        required: true
+        type: string
+      tx_15_destination_token:
+        required: true
+        type: string
+      tx_15_source_status:
+        required: true
+        type: string
+      tx_15_bridge_status:
+        required: true
+        type: string
+      tx_15_destination_status:
+        required: true
+        type: string
+      tx_15_status:
+        required: true
+        type: string
+      tx_15_logs_artifact_id:
+        required: true
+        type: string
+      tx_16_source_chain:
+        required: true
+        type: string
+      tx_16_source_token:
+        required: true
+        type: string
+      tx_16_destination_chain:
+        required: true
+        type: string
+      tx_16_destination_token:
+        required: true
+        type: string
+      tx_16_source_status:
+        required: true
+        type: string
+      tx_16_bridge_status:
+        required: true
+        type: string
+      tx_16_destination_status:
+        required: true
+        type: string
+      tx_16_status:
+        required: true
+        type: string
+      tx_16_logs_artifact_id:
+        required: true
+        type: string
     secrets:
       SLACK_WEBHOOK_URL:
         required: true
@@ -317,7 +479,7 @@ jobs:
                         "type": "plain_text",
                         "text": "Workflow Run"
                       },
-                      "style": "${{ inputs.tx_01_status == 'success' && inputs.tx_02_status == 'success' && inputs.tx_03_status == 'success' && inputs.tx_04_status == 'success' && inputs.tx_05_status == 'success' && inputs.tx_06_status == 'success' && inputs.tx_07_status == 'success' && inputs.tx_08_status == 'success' && inputs.tx_09_status == 'success' && inputs.tx_10_status == 'success' && env.succeed_bnt || env.failed_bnt }}",
+                      "style": "${{ inputs.tx_01_status == 'success' && inputs.tx_02_status == 'success' && inputs.tx_03_status == 'success' && inputs.tx_04_status == 'success' && inputs.tx_05_status == 'success' && inputs.tx_06_status == 'success' && inputs.tx_07_status == 'success' && inputs.tx_08_status == 'success' && inputs.tx_09_status == 'success' && inputs.tx_10_status == 'success' && inputs.tx_11_status == 'success' && inputs.tx_12_status == 'success' && inputs.tx_13_status == 'success' && inputs.tx_14_status == 'success' && inputs.tx_15_status == 'success' && inputs.tx_16_status == 'success' && env.succeed_bnt || env.failed_bnt }}",
                       "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                     },
                     {
@@ -399,6 +561,54 @@ jobs:
                         "text": "${{ inputs.tx_10_source_chain }}(${{ inputs.tx_10_source_token }}) ${{ inputs.tx_10_destination_chain }}(${{ inputs.tx_10_destination_token }}) Logs"
                       },
                       "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ inputs.tx_10_logs_artifact_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "${{ inputs.tx_11_source_chain }}(${{ inputs.tx_11_source_token }}) ${{ inputs.tx_11_destination_chain }}(${{ inputs.tx_11_destination_token }}) Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ inputs.tx_11_logs_artifact_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "${{ inputs.tx_12_source_chain }}(${{ inputs.tx_12_source_token }}) ${{ inputs.tx_12_destination_chain }}(${{ inputs.tx_12_destination_token }}) Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ inputs.tx_12_logs_artifact_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "${{ inputs.tx_13_source_chain }}(${{ inputs.tx_13_source_token }}) ${{ inputs.tx_13_destination_chain }}(${{ inputs.tx_13_destination_token }}) Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ inputs.tx_13_logs_artifact_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "${{ inputs.tx_14_source_chain }}(${{ inputs.tx_14_source_token }}) ${{ inputs.tx_14_destination_chain }}(${{ inputs.tx_14_destination_token }}) Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ inputs.tx_14_logs_artifact_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "${{ inputs.tx_15_source_chain }}(${{ inputs.tx_15_source_token }}) ${{ inputs.tx_15_destination_chain }}(${{ inputs.tx_15_destination_token }}) Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ inputs.tx_15_logs_artifact_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "${{ inputs.tx_16_source_chain }}(${{ inputs.tx_16_source_token }}) ${{ inputs.tx_16_destination_chain }}(${{ inputs.tx_16_destination_token }}) Logs"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ inputs.tx_16_logs_artifact_id }}"
                     }
                   ]
                 },
@@ -482,6 +692,48 @@ jobs:
                   "text": {
                     "type": "mrkdwn",
                     "text": "${{ inputs.tx_10_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_10_source_chain }}(${{ inputs.tx_10_source_token }})* ${{ inputs.tx_10_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_10_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_10_destination_chain }}(${{ inputs.tx_10_destination_token }})*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.tx_11_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_11_source_chain }}(${{ inputs.tx_11_source_token }})* ${{ inputs.tx_11_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_11_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_11_destination_chain }}(${{ inputs.tx_11_destination_token }})*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.tx_12_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_12_source_chain }}(${{ inputs.tx_12_source_token }})* ${{ inputs.tx_12_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_12_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_12_destination_chain }}(${{ inputs.tx_12_destination_token }})*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.tx_13_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_13_source_chain }}(${{ inputs.tx_13_source_token }})* ${{ inputs.tx_13_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_13_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_13_destination_chain }}(${{ inputs.tx_13_destination_token }})*",
+                    },
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.tx_14_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_14_source_chain }}(${{ inputs.tx_14_source_token }})* ${{ inputs.tx_14_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_14_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_14_destination_chain }}(${{ inputs.tx_14_destination_token }})*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.tx_15_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_15_source_chain }}(${{ inputs.tx_15_source_token }})* ${{ inputs.tx_15_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_15_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_15_destination_chain }}(${{ inputs.tx_15_destination_token }})*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ inputs.tx_16_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_16_source_chain }}(${{ inputs.tx_16_source_token }})* ${{ inputs.tx_16_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_16_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_16_destination_chain }}(${{ inputs.tx_16_destination_token }})*"
                   }
                 }
               ]
