@@ -101,66 +101,33 @@ class Bridge:
     @retry(tries=5)
     def __connect_wallet_and_move_funds(self) -> None:
 
-        if self.__bridge_name == "Skyline":
+        logger.debug(
+            f"Connecting {self.__source_wallet.get_subnetwork()} wallet "
+            f"to the {self.__bridge_name} Bridge"
+        )
 
-            logger.debug(
-                f"Connecting {self.__source_wallet.get_subnetwork()} wallet "
-                f"to the {self.__bridge_name} Bridge"
-            )
+        self.__driver.find_element_by_xpath(
+            '//*[@id="bridge-connect"]'
+        ).click()
 
-            self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[3]/div/button'
-            ).click()
+        sleep(3)
 
-            sleep(3)
+        logger.debug(f"Moving funds to {self.__destination_wallet.get_subnetwork()}")
 
-            logger.debug(f"Moving funds to {self.__destination_wallet.get_subnetwork()}")
+        self.__driver.find_element_by_xpath(
+            '//*[@id="move-funds"]'
+        ).click()
 
-            self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[3]/div/button'
-            ).click()
-
-            sleep(1)
-
-        else:
-
-            logger.debug(
-                f"Connecting {self.__source_wallet.get_subnetwork()} wallet "
-                f"to the {self.__bridge_name} Bridge"
-            )
-
-            self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[2]/div/button'
-            ).click()
-
-            sleep(3)
-
-            logger.debug(f"Moving funds to {self.__destination_wallet.get_subnetwork()}")
-
-            self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[2]/div/button'
-            ).click()
-
-            sleep(1)
+        sleep(1)
 
     @retry()
     def __destination_address(self, destination_address: str) -> None:
 
         logger.debug(f"Inserting destination address as {self.__destination_wallet.get_receive_address()}")
 
-        if self.__bridge_name == "Skyline":
-
-            self.__driver.find_element_by_xpath(
-                '/html/body/div/div[1]/'
-                'div[3]/div/div/div[4]/div/div[2]/div/div/input'
-            ).send_keys(destination_address)
-
-        else:
-
-            self.__driver.find_element_by_xpath(
-                '/html/body/div/div[1]/'
-                'div[2]/div/div/div[4]/div/div[2]/div/div/input'
-            ).send_keys(destination_address)
+        self.__driver.find_element_by_xpath(
+            '//*[@id="dest-addr"]'
+        ).send_keys(destination_address)
 
         logger.debug("The Destination address inserted successfully")
 
@@ -174,7 +141,7 @@ class Bridge:
             logger.debug(f"Selecting source token as {self.__source_wallet.get_token_name().upper()}")
 
             self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[3]/div/div/div[4]/div/div[3]/div'
+                '//*[@id="src-tokens"]'
             ).click()
 
             sleep(1)
@@ -196,21 +163,9 @@ class Bridge:
 
         logger.debug(f"Inserting {amount} tokens to be bridged")
 
-        if self.__bridge_name == "Skyline":
-
-            self.__driver.find_element_by_xpath(
-                '/html/body/div/div[1]/'
-                'div[3]/div/div/div[4]/div/'
-                'div[4]/div[1]/div/div/div/input'
-            ).send_keys(amount)
-
-        else:
-
-            self.__driver.find_element_by_xpath(
-                '/html/body/div/div[1]/'
-                'div[2]/div/div/div[4]/div/'
-                'div[3]/div[1]/div/div/div/input'
-            ).send_keys(amount)
+        self.__driver.find_element_by_xpath(
+            '//*[@id="bridge-amount"]'
+        ).send_keys(amount)
 
         logger.debug("Amount of tokens inserted successfully")
 
@@ -228,22 +183,14 @@ class Bridge:
         # Scroll to the bottom of the page
         self.__driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
-        if self.__bridge_name == "Skyline":
-
-            self.__driver.find_element_by_xpath(
-                '/html/body/div/div[1]/div[3]/div/div/div[4]/div/div[4]/button[2]'
-            ).click()
-
-        else:
-
-            self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[2]/div/div/div[4]/div/div[3]/button[2]'
-            ).click()
+        self.__driver.find_element_by_xpath(
+            '//*[@id="bridge-tx"]'
+        ).click()
 
         sleep(5)
 
     @retry()
-    def __progress(self, xpath1: str, xpath2: str, tries: int = 1800) -> bool:
+    def __progress(self, xpath: str, tries: int = 1800) -> bool:
 
         logger.debug("Getting progress status every 1sec")
 
@@ -251,7 +198,7 @@ class Bridge:
 
             try:
 
-                status = self.__driver.find_element_by_xpath(xpath1).get_attribute("d")
+                status = self.__driver.find_element_by_xpath(xpath).get_attribute("d")
 
                 if status == self.__status_done:
 
@@ -260,19 +207,6 @@ class Bridge:
                     return True
 
             except NoSuchElementException:
-
-                try:
-
-                    status = self.__driver.find_element_by_xpath(xpath2).get_attribute("d")
-
-                    if status == self.__status_done:
-                        logger.debug("Progress is done")
-
-                        return True
-
-                except NoSuchElementException:
-
-                    pass
 
                 pass
 
@@ -289,67 +223,29 @@ class Bridge:
 
         logger.debug("Checking status on source")
 
-        if self.__bridge_name == "Skyline":
-
-            return self.__progress(
-                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[4]/div/div[1]/div[1]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]',
-                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[2]/div/div[1]/div[1]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]'
-            )
-
-        else:
-
-            return self.__progress(
-                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[4]/div/div[1]/div[1]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]',
-                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[1]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]'
-            )
+        return self.__progress(
+            '//*[@id="src-status"]/div/div[2]'
+            '//*[local-name()="svg"]//*[local-name()="path"]'
+        )
 
     def __progress_bridge(self) -> bool:
 
         logger.debug("Checking status on bridge")
 
-        if self.__bridge_name == "Skyline":
-
-            return self.__progress(
-                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[4]/div/div[1]/div[2]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]',
-                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]'
-            )
-
-        else:
-
-            return self.__progress(
-                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[4]/div/div[1]/div[2]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]',
-                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]'
-            )
+        return self.__progress(
+            '//*[@id="bridge-status"]/div/div[2]'
+            '//*[local-name()="svg"]//*[local-name()="path"]'
+        )
 
     def __progress_destination(self) -> bool:
 
         logger.debug("Checking status on destination")
 
-        if self.__bridge_name == "Skyline":
+        return self.__progress(
+            '//*[@id="dest-status"]/div/div[2]'
+            '//*[local-name()="svg"]//*[local-name()="path"]'
+        )
 
-            return self.__progress(
-                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]',
-                '//*[@id="root"]/div[1]/div[3]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]'
-            )
-
-        else:
-
-            return self.__progress(
-                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]',
-                '//*[@id="root"]/div[1]/div[2]/div/div[2]/div[2]/div/div[1]/div[3]/div/div[2]'
-                '//*[local-name()="svg"]//*[local-name()="path"]'
-            )
 
     def bridging(self, amount: str) -> None:
 
