@@ -94,7 +94,7 @@ class Bridge:
         logger.debug(f"Reloading the {self.__bridge_name} Bridge")
 
         self.__driver.refresh()
-        sleep(10)
+        sleep(60)
 
         logger.debug(f"{self.__bridge_name} Bridge reloaded successfully")
 
@@ -245,7 +245,6 @@ class Bridge:
             '//*[@id="dest-status"]/div/div[2]'
             '//*[local-name()="svg"]//*[local-name()="path"]'
         )
-
 
     def bridging(self, amount: str) -> None:
 
