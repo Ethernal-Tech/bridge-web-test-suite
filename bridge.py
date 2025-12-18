@@ -275,38 +275,45 @@ class Bridge:
             # Second transaction confirm
             self.__source_wallet.sign_and_confirm_transaction()
 
-        logger.info(f"Start bridging {amount} {self.__source_wallet.get_token_name().upper()}")
+        logger.info(f"Start bridging {amount} {self.__source_wallet.get_token_name()}")
 
         try:
 
-            self.__is_source_succeeded = self.__progress_source()
+            for turn in ["initial", "final"]:
 
-            logger.info(
-                f"{self.__source_wallet.get_subnetwork().capitalize()} "
-                f"{'✅' if self.__is_source_succeeded else '❌'}"
-            )
-            
-            self.__is_bridge_succeeded = self.__progress_bridge()
+                logger.info(f"{turn.capitalize()} checks ⚙️")
 
-            logger.info(
-                f"Bridge "
-                f"{'✅' if self.__is_bridge_succeeded else '❌'}"
-            )
-            
-            self.__is_destination_succeeded: bool = self.__progress_destination()
+                self.__is_source_succeeded = self.__progress_source()
 
-            logger.info(
-                f"{self.__destination_wallet.get_subnetwork().capitalize()} "
-                f"{'✅' if self.__is_destination_succeeded else '❌'}"
-            )
+                logger.info(
+                    f"{self.__source_wallet.get_subnetwork().capitalize()} "
+                    f"{'✅' if self.__is_source_succeeded else '❌'}"
+                )
 
-            if self.__is_source_succeeded and self.__is_bridge_succeeded and self.__is_destination_succeeded:
+                self.__is_bridge_succeeded = self.__progress_bridge()
 
-                self.__final_status = "success"
+                logger.info(
+                    f"Bridge "
+                    f"{'✅' if self.__is_bridge_succeeded else '❌'}"
+                )
 
-            else:
+                self.__is_destination_succeeded: bool = self.__progress_destination()
 
-                self.__final_status = "failed"
+                logger.info(
+                    f"{self.__destination_wallet.get_subnetwork().capitalize()} "
+                    f"{'✅' if self.__is_destination_succeeded else '❌'}"
+                )
+
+                logger.info(f"{turn.capitalize()} checks completed 🏁")
+
+                if self.__is_source_succeeded and self.__is_bridge_succeeded and self.__is_destination_succeeded:
+
+                    self.__final_status = "success"
+                    break
+
+                else:
+
+                    self.__final_status = "failed"
 
         except Exception:
             # the progress status may occasionally fail to be detected,
@@ -328,4 +335,7 @@ class Bridge:
             indent=4
         )
 
-        logger.info("Bridging done successfully")
+        logger.info(
+            "Bridging "
+            f"{'done successfully' if self.__final_status == 'success' else 'encountered issues'}"
+        )
