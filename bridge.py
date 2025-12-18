@@ -190,7 +190,7 @@ class Bridge:
         sleep(5)
 
     @retry()
-    def __progress(self, xpath: str, tries: int = 1800) -> bool:
+    def __progress(self, xpath: str, tries: int) -> bool:
 
         logger.debug("Getting progress status every 1sec")
 
@@ -219,31 +219,34 @@ class Bridge:
 
         return False
 
-    def __progress_source(self) -> bool:
+    def __progress_source(self, tries: int) -> bool:
 
         logger.debug("Checking status on source")
 
         return self.__progress(
             '//*[@id="src-status"]/div/div[2]'
-            '//*[local-name()="svg"]//*[local-name()="path"]'
+            '//*[local-name()="svg"]//*[local-name()="path"]',
+            tries
         )
 
-    def __progress_bridge(self) -> bool:
+    def __progress_bridge(self, tries: int) -> bool:
 
         logger.debug("Checking status on bridge")
 
         return self.__progress(
             '//*[@id="bridge-status"]/div/div[2]'
-            '//*[local-name()="svg"]//*[local-name()="path"]'
+            '//*[local-name()="svg"]//*[local-name()="path"]',
+            tries
         )
 
-    def __progress_destination(self) -> bool:
+    def __progress_destination(self, tries: int) -> bool:
 
         logger.debug("Checking status on destination")
 
         return self.__progress(
             '//*[@id="dest-status"]/div/div[2]'
-            '//*[local-name()="svg"]//*[local-name()="path"]'
+            '//*[local-name()="svg"]//*[local-name()="path"]',
+            tries
         )
 
     def bridging(self, amount: str) -> None:
@@ -279,32 +282,32 @@ class Bridge:
 
         try:
 
-            for turn in ["initial", "final"]:
+            for turn in [["initial", 1800], ["final", 10]]:
 
-                logger.info(f"{turn.capitalize()} checks ⚙️")
+                logger.info(f"{turn[0].capitalize()} checks ⚙️")
 
-                self.__is_source_succeeded = self.__progress_source()
+                self.__is_source_succeeded = self.__progress_source(turn[1])
 
                 logger.info(
                     f"{self.__source_wallet.get_subnetwork().capitalize()} "
                     f"{'✅' if self.__is_source_succeeded else '❌'}"
                 )
 
-                self.__is_bridge_succeeded = self.__progress_bridge()
+                self.__is_bridge_succeeded = self.__progress_bridge(turn[1])
 
                 logger.info(
                     f"Bridge "
                     f"{'✅' if self.__is_bridge_succeeded else '❌'}"
                 )
 
-                self.__is_destination_succeeded: bool = self.__progress_destination()
+                self.__is_destination_succeeded: bool = self.__progress_destination(turn[1])
 
                 logger.info(
                     f"{self.__destination_wallet.get_subnetwork().capitalize()} "
                     f"{'✅' if self.__is_destination_succeeded else '❌'}"
                 )
 
-                logger.info(f"{turn.capitalize()} checks completed 🏁")
+                logger.info(f"{turn[0].capitalize()} checks completed 🏁")
 
                 if self.__is_source_succeeded and self.__is_bridge_succeeded and self.__is_destination_succeeded:
 
