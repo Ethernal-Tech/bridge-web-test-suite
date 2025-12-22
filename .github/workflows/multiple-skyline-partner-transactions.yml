@@ -379,18 +379,18 @@ jobs:
       tx_08_status: ${{ needs.vector_xada_to_preview_ada.outputs.bridging_status }}
       tx_08_logs_artifact_id: ${{ needs.vector_xada_to_preview_ada.outputs.logs_artifact_id }}
       tx_09_source_chain: Vector
-      tx_09_source_token: xADA
+      tx_09_source_token: AP3X
       tx_09_destination_chain: Nexus
-      tx_09_destination_token: xADA
+      tx_09_destination_token: AP3X
       tx_09_source_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.source_status }}
       tx_09_bridge_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.bridge_status }}
       tx_09_destination_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.destination_status }}
       tx_09_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.bridging_status }}
       tx_09_logs_artifact_id: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.logs_artifact_id }}
       tx_10_source_chain: Vector
-      tx_10_source_token: AP3X
+      tx_10_source_token: xADA
       tx_10_destination_chain: Nexus
-      tx_10_destination_token: AP3X
+      tx_10_destination_token: xADA
       tx_10_source_status: ${{ needs.vector_xada_to_nexus_xada.outputs.source_status }}
       tx_10_bridge_status: ${{ needs.vector_xada_to_nexus_xada.outputs.bridge_status }}
       tx_10_destination_status: ${{ needs.vector_xada_to_nexus_xada.outputs.destination_status }}
