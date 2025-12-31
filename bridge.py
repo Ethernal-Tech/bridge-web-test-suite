@@ -33,8 +33,8 @@ class Bridge:
         self.__final_status: str = "Unknown"
 
         # TODO: Add support for Cardano Preview Faucet
-        if self.__source_wallet.get_subnetwork() != CardanoSubnetwork.preview:
-            self.__fund(self.__source_wallet.get_receive_address())
+        # if self.__source_wallet.get_subnetwork() != CardanoSubnetwork.preview:
+        #     self.__fund(self.__source_wallet.get_receive_address())
 
     @retry()
     def __fund(self, receiver_address: str) -> None:
