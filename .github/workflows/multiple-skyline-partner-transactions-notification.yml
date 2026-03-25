@@ -649,13 +649,6 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.tx_09_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_09_source_chain }}(${{ inputs.tx_09_source_token }})* ${{ inputs.tx_09_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_09_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_09_destination_chain }}(${{ inputs.tx_09_destination_token }})*"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
                     "text": "${{ inputs.tx_10_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_10_source_chain }}(${{ inputs.tx_10_source_token }})* ${{ inputs.tx_10_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_10_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_10_destination_chain }}(${{ inputs.tx_10_destination_token }})*"
                   }
                 },
