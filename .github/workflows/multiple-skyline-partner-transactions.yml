@@ -150,27 +150,10 @@ jobs:
       SIGN_KEY: ${{ secrets.SIGN_KEY }}
       CHROME_URL: ${{ secrets.CHROME_URL }}
       CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
-  vector_ap3x_to_nexus_ap3x:
-    name: Vector(AP3X) to Nexus(AP3X)
-    uses: ./.github/workflows/single-transaction.yml
-    needs: vector_xada_to_preview_ada
-    with:
-      bridge: Skyline
-      url: ${{ vars.SKYLINE_URL }}
-      source_chain: Vector
-      amount: 2
-      source_token: AP3X
-      destination_chain: Nexus
-      destination_token: AP3X
-      notification: false
-    secrets:
-      SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      CHROME_URL: ${{ secrets.CHROME_URL }}
-      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
   vector_xada_to_nexus_xada:
     name: Vector(xADA) to Nexus(xADA)
     uses: ./.github/workflows/single-transaction.yml
-    needs: vector_ap3x_to_nexus_ap3x
+    needs: vector_xada_to_preview_ada
     with:
       bridge: Skyline
       url: ${{ vars.SKYLINE_URL }}
@@ -302,7 +285,7 @@ jobs:
   notification:
     name: Send notification
     uses: ./.github/workflows/multiple-skyline-partner-transactions-notification.yml
-    needs: [prime_ap3x_to_preview_cap3x, prime_ap3x_to_vector_ap3x, prime_ap3x_to_nexus_ap3x, preview_cap3x_to_prime_ap3x, preview_ada_to_vector_xada, preview_ada_to_nexus_xada, vector_ap3x_to_prime_ap3x, vector_xada_to_preview_ada, vector_ap3x_to_nexus_ap3x, vector_xada_to_nexus_xada, vector_mytesttoken_to_nexus_mytesttoken, nexus_ap3x_to_prime_ap3x, nexus_ap3x_to_vector_ap3x, nexus_xada_to_vector_xada, nexus_mytesttoken_to_vector_mytesttoken, nexus_xada_to_preview_ada, inputs_check]
+    needs: [prime_ap3x_to_preview_cap3x, prime_ap3x_to_vector_ap3x, prime_ap3x_to_nexus_ap3x, preview_cap3x_to_prime_ap3x, preview_ada_to_vector_xada, preview_ada_to_nexus_xada, vector_ap3x_to_prime_ap3x, vector_xada_to_preview_ada, vector_xada_to_nexus_xada, vector_mytesttoken_to_nexus_mytesttoken, nexus_ap3x_to_prime_ap3x, nexus_ap3x_to_vector_ap3x, nexus_xada_to_vector_xada, nexus_mytesttoken_to_vector_mytesttoken, nexus_xada_to_preview_ada, inputs_check]
     if: (!cancelled() && (needs.inputs_check.outputs.notification == 'true'))
     with:
       bridge: Skyline
@@ -378,15 +361,6 @@ jobs:
       tx_08_destination_status: ${{ needs.vector_xada_to_preview_ada.outputs.destination_status }}
       tx_08_status: ${{ needs.vector_xada_to_preview_ada.outputs.bridging_status }}
       tx_08_logs_artifact_id: ${{ needs.vector_xada_to_preview_ada.outputs.logs_artifact_id }}
-      tx_09_source_chain: Vector
-      tx_09_source_token: AP3X
-      tx_09_destination_chain: Nexus
-      tx_09_destination_token: AP3X
-      tx_09_source_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.source_status }}
-      tx_09_bridge_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.bridge_status }}
-      tx_09_destination_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.destination_status }}
-      tx_09_status: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.bridging_status }}
-      tx_09_logs_artifact_id: ${{ needs.vector_ap3x_to_nexus_ap3x.outputs.logs_artifact_id }}
       tx_10_source_chain: Vector
       tx_10_source_token: xADA
       tx_10_destination_chain: Nexus
