@@ -222,33 +222,6 @@ on:
       tx_08_logs_artifact_id:
         required: true
         type: string
-      tx_09_source_chain:
-        required: true
-        type: string
-      tx_09_source_token:
-        required: true
-        type: string
-      tx_09_destination_chain:
-        required: true
-        type: string
-      tx_09_destination_token:
-        required: true
-        type: string
-      tx_09_source_status:
-        required: true
-        type: string
-      tx_09_bridge_status:
-        required: true
-        type: string
-      tx_09_destination_status:
-        required: true
-        type: string
-      tx_09_status:
-        required: true
-        type: string
-      tx_09_logs_artifact_id:
-        required: true
-        type: string
       tx_10_source_chain:
         required: true
         type: string
@@ -479,7 +452,7 @@ jobs:
                         "type": "plain_text",
                         "text": "Workflow Run"
                       },
-                      "style": "${{ inputs.tx_01_status == 'success' && inputs.tx_02_status == 'success' && inputs.tx_03_status == 'success' && inputs.tx_04_status == 'success' && inputs.tx_05_status == 'success' && inputs.tx_06_status == 'success' && inputs.tx_07_status == 'success' && inputs.tx_08_status == 'success' && inputs.tx_09_status == 'success' && inputs.tx_10_status == 'success' && inputs.tx_11_status == 'success' && inputs.tx_12_status == 'success' && inputs.tx_13_status == 'success' && inputs.tx_14_status == 'success' && inputs.tx_15_status == 'success' && inputs.tx_16_status == 'success' && env.succeed_bnt || env.failed_bnt }}",
+                      "style": "${{ inputs.tx_01_status == 'success' && inputs.tx_02_status == 'success' && inputs.tx_03_status == 'success' && inputs.tx_04_status == 'success' && inputs.tx_05_status == 'success' && inputs.tx_06_status == 'success' && inputs.tx_07_status == 'success' && inputs.tx_08_status == 'success' && inputs.tx_10_status == 'success' && inputs.tx_11_status == 'success' && inputs.tx_12_status == 'success' && inputs.tx_13_status == 'success' && inputs.tx_14_status == 'success' && inputs.tx_15_status == 'success' && inputs.tx_16_status == 'success' && env.succeed_bnt || env.failed_bnt }}",
                       "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                     },
                     {
@@ -545,14 +518,6 @@ jobs:
                         "text": "${{ inputs.tx_08_source_chain }}(${{ inputs.tx_08_source_token }}) ${{ inputs.tx_08_destination_chain }}(${{ inputs.tx_08_destination_token }}) Logs"
                       },
                       "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ inputs.tx_08_logs_artifact_id }}"
-                    },
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "${{ inputs.tx_09_source_chain }}(${{ inputs.tx_09_source_token }}) ${{ inputs.tx_09_destination_chain }}(${{ inputs.tx_09_destination_token }}) Logs"
-                      },
-                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ inputs.tx_09_logs_artifact_id }}"
                     },
                     {
                       "type": "button",
@@ -678,13 +643,6 @@ jobs:
                   "text": {
                     "type": "mrkdwn",
                     "text": "${{ inputs.tx_08_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_08_source_chain }}(${{ inputs.tx_08_source_token }})* ${{ inputs.tx_08_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_08_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_08_destination_chain }}(${{ inputs.tx_08_destination_token }})*"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "${{ inputs.tx_09_source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_09_source_chain }}(${{ inputs.tx_09_source_token }})* ${{ inputs.tx_09_bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.tx_09_destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.tx_09_destination_chain }}(${{ inputs.tx_09_destination_token }})*"
                   }
                 },
                 {
