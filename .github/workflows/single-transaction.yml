@@ -134,9 +134,9 @@ jobs:
       logs_artifact_id: ${{ steps.logs-artifact-upload.outputs.artifact-id }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
       - name: Setup Python 3.9
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: '3.9'
           check-latest: true
@@ -167,7 +167,7 @@ jobs:
           echo "destination_status=$(cat statuses.json | jq -r '.destination')" >> $GITHUB_OUTPUT
       - name: Archive status
         if: always()
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_statuses
           path: statuses.json
@@ -175,7 +175,7 @@ jobs:
       - name: Archive logs
         if: always()
         id: logs-artifact-upload
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_logs
           path: logs/*
