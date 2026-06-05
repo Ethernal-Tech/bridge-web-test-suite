@@ -118,18 +118,6 @@ on:
       bridging_status:
         value: ${{ jobs.bridging.outputs.bridging_status }}
 
-      source_status:
-        value: ${{ jobs.bridging.outputs.source_status }}
-
-      bridge_status:
-        value: ${{ jobs.bridging.outputs.bridge_status }}
-
-      destination_status:
-        value: ${{ jobs.bridging.outputs.destination_status }}
-
-      logs_artifact_id:
-        value: ${{ jobs.bridging.outputs.logs_artifact_id }}
-
     secrets:
       SIGN_KEY:
         required: true

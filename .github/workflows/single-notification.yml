@@ -63,7 +63,7 @@ jobs:
                         "type": "plain_text",
                         "text": "Workflow Run"
                       },
-                      "style": "${{ inputs.bridging_status == 'success' && env.succeed_bnt || env.failed_bnt }}",
+                      "style": "${{ fromJSON(inputs.bridging_status).status == 'success' && env.succeed_bnt || env.failed_bnt }}",
                       "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                     },
                     {
@@ -92,7 +92,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ fromJSON(inputs.bridging_status).source == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.source_chain }} ${{ inputs.source_token }}* ${{ fromJSON(inputs.bridging_status).bridge == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ fromJSON(inputs.bridging_status).destination == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.destination_chain }} ${{ inputs.destination_token }}*"
+                    "text": "${{ fromJSON(inputs.bridging_status).source == true && env.succeed_job || env.failed_job }} *${{ inputs.source_chain }} ${{ inputs.source_token }}* ${{ fromJSON(inputs.bridging_status).bridge == true && env.succeed_job || env.failed_job }} *Bridge* ${{ fromJSON(inputs.bridging_status).destination == true && env.succeed_job || env.failed_job }} *${{ inputs.destination_chain }} ${{ inputs.destination_token }}*"
                   }
                 }
               ]
