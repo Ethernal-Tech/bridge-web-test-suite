@@ -21,18 +21,7 @@ on:
       bridging_status:
         type: string
         required: true
-      source_status:
-        type: string
-        required: true
-      bridge_status:
-        type: string
-        required: true
-      destination_status:
-        type: string
-        required: true
-      logs_results_artifact_id:
-        type: string
-        required: true
+
     secrets:
       SLACK_WEBHOOK_URL:
         required: true
@@ -83,7 +72,7 @@ jobs:
                         "type": "plain_text",
                         "text": "Logs"
                       },
-                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ inputs.logs_results_artifact_id }}"
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ fromJSON(inputs.bridging_status).logs_artifact_id }}"
                     }
                   ]
                 },
@@ -103,7 +92,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "${{ inputs.source_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.source_chain }} ${{ inputs.source_token }}* ${{ inputs.bridge_status == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ inputs.destination_status == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.destination_chain }} ${{ inputs.destination_token }}*"
+                    "text": "${{ fromJSON(inputs.bridging_status).source == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.source_chain }} ${{ inputs.source_token }}* ${{ fromJSON(inputs.bridging_status).bridge == 'true' && env.succeed_job || env.failed_job }} *Bridge* ${{ fromJSON(inputs.bridging_status).destination == 'true' && env.succeed_job || env.failed_job }} *${{ inputs.destination_chain }} ${{ inputs.destination_token }}*"
                   }
                 }
               ]

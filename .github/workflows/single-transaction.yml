@@ -10,6 +10,7 @@ on:
         options:
           - Reactor
           - Skyline
+
       url:
         required: true
         description: URL
@@ -17,6 +18,7 @@ on:
         options:
           - https://reactor.testnet.apexfusion.org/
           - https://skyline.testnet.ethernal.work/
+
       source_chain:
         required: true
         description: Source chain
@@ -26,6 +28,7 @@ on:
           - Vector
           - Nexus
           - Preview
+
       source_token:
         required: true
         description: Source token
@@ -36,6 +39,7 @@ on:
           - cAP3X
           - xADA
           - myTestToken
+
       destination_chain:
         required: true
         description: Destination chain
@@ -45,6 +49,7 @@ on:
           - Vector
           - Nexus
           - Preview
+
       destination_token:
         required: true
         description: Destination token
@@ -55,65 +60,83 @@ on:
           - cAP3X
           - xADA
           - myTestToken
+
       amount:
         required: true
         description: Amount to send from Source to Destination
         type: string
+
       notification:
         required: false
         description: Notification
         type: boolean
         default: true
+
   workflow_call:
     inputs:
       bridge:
         required: true
         description: Bridge
         type: string
+
       url:
         required: true
         description: URL
         type: string
+
       source_chain:
         required: true
         description: Source chain
         type: string
+
       source_token:
         required: true
         description: Source token
         type: string
+
       destination_chain:
         required: true
         description: Destination chain
         type: string
+
       destination_token:
         required: true
         description: Destination token
         type: string
+
       amount:
         required: true
         description: Amount to send from Source to Destination
         type: string
+
       notification:
         required: true
         description: Notification
         type: boolean
+
     outputs:
       bridging_status:
         value: ${{ jobs.bridging.outputs.bridging_status }}
+
       source_status:
         value: ${{ jobs.bridging.outputs.source_status }}
+
       bridge_status:
         value: ${{ jobs.bridging.outputs.bridge_status }}
+
       destination_status:
         value: ${{ jobs.bridging.outputs.destination_status }}
+
       logs_artifact_id:
         value: ${{ jobs.bridging.outputs.logs_artifact_id }}
+
     secrets:
       SIGN_KEY:
         required: true
+
       CHROME_URL:
         required: true
+
       CHROME_CONFIGS_URL:
         required: true
 
@@ -127,28 +150,28 @@ jobs:
     name: "${{ inputs.source_chain }} ${{ inputs.source_token }} to ${{ inputs.destination_chain }} ${{ inputs.destination_token }}"
     runs-on: macos-latest
     outputs:
-      bridging_status: ${{ steps.bridging_status.outputs.bridging_status }}
-      source_status: ${{ steps.bridging_status.outputs.source_status }}
-      bridge_status: ${{ steps.bridging_status.outputs.bridge_status }}
-      destination_status: ${{ steps.bridging_status.outputs.destination_status }}
-      logs_artifact_id: ${{ steps.logs-artifact-upload.outputs.artifact-id }}
+      bridging_status: ${{ steps.bridging_status.outputs.result }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6.0.2
+
       - name: Setup Python 3.9
         uses: actions/setup-python@v6.2.0
         with:
-          python-version: '3.9'
+          python-version: "3.9"
           check-latest: true
-          cache: 'pip'
+          cache: "pip"
+
       - name: Change Google Chrome For Testing version
         run: |
           sudo rm -rf /Applications/Google\ Chrome\ for\ Testing.app
           wget -q -O chrome.zip "${{ secrets.CHROME_URL }}"
           unzip -q chrome.zip
           sudo mv chrome-mac-arm64/Google\ Chrome\ for\ Testing.app /Applications
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Start bridging
         run: python main.py ${{ inputs.bridge }} ${{ inputs.source_chain }} ${{ inputs.amount }} ${{ inputs.source_token }} ${{ inputs.destination_chain }}
         env:
@@ -158,28 +181,34 @@ jobs:
           APEX_FUSION_FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
           CHROMEDRIVER_VERSION: ${{ vars.CHROMEDRIVER_VERSION }}
           CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
-      - name: Get status of the bridging
-        id: bridging_status
-        run: |
-          echo "bridging_status=$(cat statuses.json | jq -r '.status')" >> $GITHUB_OUTPUT
-          echo "source_status=$(cat statuses.json | jq -r '.source')" >> $GITHUB_OUTPUT
-          echo "bridge_status=$(cat statuses.json | jq -r '.bridge')" >> $GITHUB_OUTPUT
-          echo "destination_status=$(cat statuses.json | jq -r '.destination')" >> $GITHUB_OUTPUT
+
       - name: Archive status
-        if: always()
+        if: (!cancelled())
         uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_statuses
           path: statuses.json
           retention-days: 7
+
       - name: Archive logs
-        if: always()
+        if: (!cancelled())
         id: logs-artifact-upload
         uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_logs
           path: logs/*
           retention-days: 7
+
+      - name: Generate statuses of the bridging process
+        if: (!cancelled())
+        id: bridging_status
+        run: |
+          json=$(jq -c \
+            --arg logs_artifact_id "${{ steps.logs-artifact-upload.outputs.artifact-id }}" \
+            '. + {logs_artifact_id: $logs_artifact_id}' \
+            statuses.json)
+          echo "result=$json" >> $GITHUB_OUTPUT
+
   notification:
     name: Send notification
     uses: ./.github/workflows/single-notification.yml
@@ -192,10 +221,5 @@ jobs:
       destination_chain: ${{ inputs.destination_chain }}
       destination_token: ${{ inputs.destination_token }}
       bridging_status: ${{ needs.bridging.outputs.bridging_status }}
-      source_status: ${{ needs.bridging.outputs.source_status }}
-      bridge_status: ${{ needs.bridging.outputs.bridge_status }}
-      destination_status: ${{ needs.bridging.outputs.destination_status }}
-      logs_results_artifact_id: ${{ needs.bridging.outputs.logs_artifact_id }}
-
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
