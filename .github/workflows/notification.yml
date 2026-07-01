@@ -96,7 +96,7 @@ jobs:
             }' > payload.json
 
       - name: Notify Slack
-        uses: slackapi/slack-github-action@v3.0.3
+        uses: slackapi/slack-github-action@v3
         with:
           payload-file-path: payload.json
           payload-templated: true

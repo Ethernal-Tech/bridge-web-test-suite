@@ -460,3 +460,4 @@ jobs:
     with:
       needs_json: ${{ toJSON(needs) }}
       bridge_name: ${{ inputs.bridge_name }}
+    secrets: inherit
