@@ -52,25 +52,27 @@ jobs:
             --arg commit_url "$COMMIT_URL" \
             --arg short_sha "$SHORT_SHA" \
             '{
-              blocks: [
+              blocks: ([
                 {type: "header", text: {type: "plain_text", text: ($bridge + " Tests")}},
                 {
                   type: "actions",
-                  elements: [
-                    {
-                      type: "button",
-                      text: {type: "plain_text", text: "Workflow Run"},
-                      style: (if $all_success then "primary" else "danger" end),
-                      url: $run_url
-                    }
-                  ] + [
-                    $transactions[] |
-                    {
-                      type: "button",
-                      text: {type: "plain_text", text: (.source_label + " " + .destination_label + " Logs")},
-                      url: ($run_url + "/artifacts/" + (.logs_artifact_id | tostring))
-                    }
-                  ]
+                  elements: (
+                    [
+                      {
+                        type: "button",
+                        text: {type: "plain_text", text: "Workflow Run"},
+                        style: (if $all_success then "primary" else "danger" end),
+                        url: $run_url
+                      }
+                    ] + [
+                      $transactions[] |
+                      {
+                        type: "button",
+                        text: {type: "plain_text", text: (.source_label + " " + .destination_label + " Logs")},
+                        url: ($run_url + "/artifacts/" + (.logs_artifact_id | tostring))
+                      }
+                    ]
+                  )
                 },
                 {
                   type: "context",
@@ -84,13 +86,13 @@ jobs:
                   text: {
                     type: "mrkdwn",
                     text: (
-                      (if .source_status then ":green:" else ":red:" end) + " *" + .source_label + "* " +
-                      (if .bridge_status then ":green:" else ":red:" end) + " *Bridge* " +
-                      (if .destination_status then ":green:" else ":red:" end) + " *" + .destination_label + "*"
+                      (if .source then ":green:" else ":red:" end) + " *" + .source_label + "* " +
+                      (if .bridge then ":green:" else ":red:" end) + " *Bridge* " +
+                      (if .destination then ":green:" else ":red:" end) + " *" + .destination_label + "*"
                     )
                   }
                 }
-              ]
+              ])
             }' > payload.json
 
       - name: Notify Slack
