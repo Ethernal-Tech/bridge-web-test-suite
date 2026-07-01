@@ -24,7 +24,7 @@ jobs:
     uses: ./.github/workflows/source-prime.yml
     with:
       bridge_name: Skyline
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
 
   source_preview:
@@ -32,7 +32,7 @@ jobs:
     uses: ./.github/workflows/source-preview.yml
     with:
       bridge_name: Skyline
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
 
   source_vector:
@@ -40,7 +40,7 @@ jobs:
     uses: ./.github/workflows/source-vector.yml
     with:
       bridge_name: Skyline
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
 
   source_nexus:
@@ -48,7 +48,7 @@ jobs:
     uses: ./.github/workflows/source-nexus.yml
     with:
       bridge_name: Skyline
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
 
   source_polygon:
@@ -56,7 +56,7 @@ jobs:
     uses: ./.github/workflows/source-polygon.yml
     with:
       bridge_name: Skyline
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
 
   source_ethereum:
@@ -64,7 +64,7 @@ jobs:
     uses: ./.github/workflows/source-ethereum.yml
     with:
       bridge_name: Skyline
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
 
   source_katana:
@@ -72,7 +72,7 @@ jobs:
     uses: ./.github/workflows/source-katana.yml
     with:
       bridge_name: Skyline
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
 
   source_sei:
@@ -80,7 +80,7 @@ jobs:
     uses: ./.github/workflows/source-sei.yml
     with:
       bridge_name: Skyline
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
 
   source_scroll:
@@ -88,7 +88,7 @@ jobs:
     uses: ./.github/workflows/source-scroll.yml
     with:
       bridge_name: Skyline
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
 
   source_unichain:
@@ -96,5 +96,5 @@ jobs:
     uses: ./.github/workflows/source-unichain.yml
     with:
       bridge_name: Skyline
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit

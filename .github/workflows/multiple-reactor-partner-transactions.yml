@@ -24,7 +24,7 @@ jobs:
     uses: ./.github/workflows/source-prime.yml
     with:
       bridge_name: Reactor
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
 
   source_vector:
@@ -32,7 +32,7 @@ jobs:
     uses: ./.github/workflows/source-vector.yml
     with:
       bridge_name: Reactor
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
 
   source_nexus:
@@ -40,5 +40,5 @@ jobs:
     uses: ./.github/workflows/source-nexus.yml
     with:
       bridge_name: Reactor
-      notification: false
+      notification: ${{ inputs.notification != false }}
     secrets: inherit
