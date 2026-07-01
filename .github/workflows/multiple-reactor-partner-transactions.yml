@@ -1,14 +1,16 @@
 ---
-name: Multiple Reactor Partner Transactions
+name: Multiple Reactor Transactions
+
 on:
   schedule:
-    - cron: '30 4,11 * * *'
+    - cron: "30 4,11 * * *"
+
   workflow_dispatch:
     inputs:
       notification:
-        required: false
-        description: Notification
         type: boolean
+        required: false
+        description: "Notification"
         default: true
 
 permissions:
@@ -17,179 +19,26 @@ permissions:
   security-events: write
 
 jobs:
-  prime_to_vector:
-    name: Prime to Vector
-    uses: ./.github/workflows/single-transaction.yml
+  source_prime:
+    name: Source Prime
+    uses: ./.github/workflows/source-prime.yml
     with:
-      bridge: Reactor
-      url: ${{ vars.REACTOR_URL }}
-      source_chain: Prime
-      amount: 6
-      source_token: AP3X
-      destination_chain: Vector
-      destination_token: AP3X
+      bridge_name: Reactor
       notification: false
-    secrets:
-      SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      CHROME_URL: ${{ secrets.CHROME_URL }}
-      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
-  prime_to_nexus:
-    name: Prime to Nexus
-    uses: ./.github/workflows/single-transaction.yml
-    needs: prime_to_vector
+    secrets: inherit
+
+  source_vector:
+    name: Source Vector
+    uses: ./.github/workflows/source-vector.yml
     with:
-      bridge: Reactor
-      url: ${{ vars.REACTOR_URL }}
-      source_chain: Prime
-      amount: 6
-      source_token: AP3X
-      destination_chain: Nexus
-      destination_token: AP3X
+      bridge_name: Reactor
       notification: false
-    secrets:
-      SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      CHROME_URL: ${{ secrets.CHROME_URL }}
-      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
-  vector_to_prime:
-    name: Vector to Prime
-    uses: ./.github/workflows/single-transaction.yml
+    secrets: inherit
+
+  source_nexus:
+    name: Source Nexus
+    uses: ./.github/workflows/source-nexus.yml
     with:
-      bridge: Reactor
-      url: ${{ vars.REACTOR_URL }}
-      source_chain: Vector
-      amount: 2
-      source_token: AP3X
-      destination_chain: Prime
-      destination_token: AP3X
+      bridge_name: Reactor
       notification: false
-    secrets:
-      SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      CHROME_URL: ${{ secrets.CHROME_URL }}
-      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
-  vector_to_nexus:
-    name: Vector to Nexus
-    uses: ./.github/workflows/single-transaction.yml
-    needs: vector_to_prime
-    with:
-      bridge: Reactor
-      url: ${{ vars.REACTOR_URL }}
-      source_chain: Vector
-      amount: 2
-      source_token: AP3X
-      destination_chain: Nexus
-      destination_token: AP3X
-      notification: false
-    secrets:
-      SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      CHROME_URL: ${{ secrets.CHROME_URL }}
-      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
-  nexus_to_prime:
-    name: Nexus to Prime
-    uses: ./.github/workflows/single-transaction.yml
-    with:
-      bridge: Reactor
-      url: ${{ vars.REACTOR_URL }}
-      source_chain: Nexus
-      amount: 2
-      source_token: AP3X
-      destination_chain: Prime
-      destination_token: AP3X
-      notification: false
-    secrets:
-      SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      CHROME_URL: ${{ secrets.CHROME_URL }}
-      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
-  nexus_to_vector:
-    name: Nexus to Vector
-    uses: ./.github/workflows/single-transaction.yml
-    needs: nexus_to_prime
-    with:
-      bridge: Reactor
-      url: ${{ vars.REACTOR_URL }}
-      source_chain: Nexus
-      amount: 2
-      source_token: AP3X
-      destination_chain: Vector
-      destination_token: AP3X
-      notification: false
-    secrets:
-      SIGN_KEY: ${{ secrets.SIGN_KEY }}
-      CHROME_URL: ${{ secrets.CHROME_URL }}
-      CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
-  inputs_check:
-    name: Inputs Check
-    runs-on: ubuntu-latest
-    outputs:
-      notification: ${{ steps.notification_input_check.outputs.notification }}
-    steps:
-      - name: Notification Input Check
-        id: notification_input_check
-        run: |
-          if [[ "${{ inputs.notification }}" != "false" ]]; then
-            echo "notification=true" >> $GITHUB_OUTPUT
-          else
-            echo "notification=false" >> $GITHUB_OUTPUT
-          fi
-  notification:
-    name: Send notification
-    uses: ./.github/workflows/multiple-reactor-partner-transactions-notification.yml
-    needs: [prime_to_vector, prime_to_nexus, vector_to_prime, vector_to_nexus, nexus_to_prime, nexus_to_vector, inputs_check]
-    if: (!cancelled() && (needs.inputs_check.outputs.notification == 'true'))
-    with:
-      bridge: Reactor
-      tx_01_source_chain: Prime
-      tx_01_source_token: AP3X
-      tx_01_destination_chain: Vector
-      tx_01_destination_token: AP3X
-      tx_01_source_status: ${{ needs.prime_to_vector.outputs.source_status }}
-      tx_01_bridge_status: ${{ needs.prime_to_vector.outputs.bridge_status }}
-      tx_01_destination_status: ${{ needs.prime_to_vector.outputs.destination_status }}
-      tx_01_status: ${{ needs.prime_to_vector.outputs.bridging_status }}
-      tx_01_logs_artifact_id: ${{ needs.prime_to_vector.outputs.logs_artifact_id }}
-      tx_02_source_chain: Prime
-      tx_02_source_token: AP3X
-      tx_02_destination_chain: Nexus
-      tx_02_destination_token: AP3X
-      tx_02_source_status: ${{ needs.prime_to_nexus.outputs.source_status }}
-      tx_02_bridge_status: ${{ needs.prime_to_nexus.outputs.bridge_status }}
-      tx_02_destination_status: ${{ needs.prime_to_nexus.outputs.destination_status }}
-      tx_02_status: ${{ needs.prime_to_nexus.outputs.bridging_status }}
-      tx_02_logs_artifact_id: ${{ needs.prime_to_nexus.outputs.logs_artifact_id }}
-      tx_03_source_chain: Vector
-      tx_03_source_token: AP3X
-      tx_03_destination_chain: Prime
-      tx_03_destination_token: AP3X
-      tx_03_source_status: ${{ needs.vector_to_prime.outputs.source_status }}
-      tx_03_bridge_status: ${{ needs.vector_to_prime.outputs.bridge_status }}
-      tx_03_destination_status: ${{ needs.vector_to_prime.outputs.destination_status }}
-      tx_03_status: ${{ needs.vector_to_prime.outputs.bridging_status }}
-      tx_03_logs_artifact_id: ${{ needs.vector_to_prime.outputs.logs_artifact_id }}
-      tx_04_source_chain: Vector
-      tx_04_source_token: AP3X
-      tx_04_destination_chain: Nexus
-      tx_04_destination_token: AP3X
-      tx_04_source_status: ${{ needs.vector_to_nexus.outputs.source_status }}
-      tx_04_bridge_status: ${{ needs.vector_to_nexus.outputs.bridge_status }}
-      tx_04_destination_status: ${{ needs.vector_to_nexus.outputs.destination_status }}
-      tx_04_status: ${{ needs.vector_to_nexus.outputs.bridging_status }}
-      tx_04_logs_artifact_id: ${{ needs.vector_to_nexus.outputs.logs_artifact_id }}
-      tx_05_source_chain: Nexus
-      tx_05_source_token: AP3X
-      tx_05_destination_chain: Prime
-      tx_05_destination_token: AP3X
-      tx_05_source_status: ${{ needs.nexus_to_prime.outputs.source_status }}
-      tx_05_bridge_status: ${{ needs.nexus_to_prime.outputs.bridge_status }}
-      tx_05_destination_status: ${{ needs.nexus_to_prime.outputs.destination_status }}
-      tx_05_status: ${{ needs.nexus_to_prime.outputs.bridging_status }}
-      tx_05_logs_artifact_id: ${{ needs.nexus_to_prime.outputs.logs_artifact_id }}
-      tx_06_source_chain: Nexus
-      tx_06_source_token: AP3X
-      tx_06_destination_chain: Vector
-      tx_06_destination_token: AP3X
-      tx_06_source_status: ${{ needs.nexus_to_vector.outputs.source_status }}
-      tx_06_bridge_status: ${{ needs.nexus_to_vector.outputs.bridge_status }}
-      tx_06_destination_status: ${{ needs.nexus_to_vector.outputs.destination_status }}
-      tx_06_status: ${{ needs.nexus_to_vector.outputs.bridging_status }}
-      tx_06_logs_artifact_id: ${{ needs.nexus_to_vector.outputs.logs_artifact_id }}
-    secrets:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    secrets: inherit

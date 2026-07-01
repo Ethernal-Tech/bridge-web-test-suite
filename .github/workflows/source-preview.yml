@@ -1,0 +1,462 @@
+---
+name: Source Preview Transactions
+
+on:
+  workflow_call:
+    inputs:
+      bridge_name:
+        type: string
+        required: true
+      notification:
+        type: boolean
+        required: true
+
+    outputs:
+      transactions:
+        value: ${{ jobs.notification.outputs.transactions }}
+
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  preview_cap3x_to_prime_ap3x:
+    name: Preview(cAP3X) to Prime(AP3X)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: cAP3X
+      destination_chain: Prime
+      destination_token: AP3X
+      notification: false
+    secrets: inherit
+
+  preview_ada_to_vector_xada:
+    name: Preview(ADA) to Vector(xADA)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_cap3x_to_prime_ap3x
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: ADA
+      destination_chain: Vector
+      destination_token: xADA
+      notification: false
+    secrets: inherit
+
+  preview_mytesttoken_to_vector_mytesttoken:
+    name: Preview(myTestToken) to Vector(myTestToken)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_ada_to_vector_xada
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: myTestToken
+      destination_chain: Vector
+      destination_token: myTestToken
+      notification: false
+    secrets: inherit
+
+  preview_tokn2_to_vector_tokn2:
+    name: Preview(TokN2) to Vector(TokN2)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_mytesttoken_to_vector_mytesttoken
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: TokN2
+      destination_chain: Vector
+      destination_token: TokN2
+      notification: false
+    secrets: inherit
+
+  preview_tokn3_to_vector_tokn3:
+    name: Preview(TokN3) to Vector(TokN3)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokn2_to_vector_tokn2
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: TokN3
+      destination_chain: Vector
+      destination_token: TokN3
+      notification: false
+    secrets: inherit
+
+  preview_tokc1_to_vector_tokc1:
+    name: Preview(TokC1) to Vector(TokC1)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokn3_to_vector_tokn3
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: TokC1
+      destination_chain: Vector
+      destination_token: TokC1
+      notification: false
+    secrets: inherit
+
+  preview_tokc2_to_vector_tokc2:
+    name: Preview(TokC2) to Vector(TokC2)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokc1_to_vector_tokc1
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: TokC2
+      destination_chain: Vector
+      destination_token: TokC2
+      notification: false
+    secrets: inherit
+
+  preview_tokc3_to_vector_tokc3:
+    name: Preview(TokC3) to Vector(TokC3)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokc2_to_vector_tokc2
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: TokC3
+      destination_chain: Vector
+      destination_token: TokC3
+      notification: false
+    secrets: inherit
+
+  preview_tokv1_to_vector_tokv1:
+    name: Preview(TokV1) to Vector(TokV1)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokc3_to_vector_tokc3
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: TokV1
+      destination_chain: Vector
+      destination_token: TokV1
+      notification: false
+    secrets: inherit
+
+  preview_tokv2_to_vector_tokv2:
+    name: Preview(TokV2) to Vector(TokV2)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokv1_to_vector_tokv1
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: TokV2
+      destination_chain: Vector
+      destination_token: TokV2
+      notification: false
+    secrets: inherit
+
+  preview_tokv3_to_vector_tokv3:
+    name: Preview(TokV3) to Vector(TokV3)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokv2_to_vector_tokv2
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: TokV3
+      destination_chain: Vector
+      destination_token: TokV3
+      notification: false
+    secrets: inherit
+
+  preview_ada_to_nexus_xada:
+    name: Preview(ADA) to Nexus(xADA)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokv3_to_vector_tokv3
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: ADA
+      destination_chain: Nexus
+      destination_token: xADA
+      notification: false
+    secrets: inherit
+
+  preview_mytesttoken_to_nexus_mytesttoken:
+    name: Preview(myTestToken) to Nexus(myTestToken)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_ada_to_nexus_xada
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: myTestToken
+      destination_chain: Nexus
+      destination_token: myTestToken
+      notification: false
+    secrets: inherit
+
+  preview_tokn2_to_nexus_tokn2:
+    name: Preview(TokN2) to Nexus(TokN2)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_mytesttoken_to_nexus_mytesttoken
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: TokN2
+      destination_chain: Nexus
+      destination_token: TokN2
+      notification: false
+    secrets: inherit
+
+  preview_tokn3_to_nexus_tokn3:
+    name: Preview(TokN3) to Nexus(TokN3)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokn2_to_nexus_tokn2
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: TokN3
+      destination_chain: Nexus
+      destination_token: TokN3
+      notification: false
+    secrets: inherit
+
+  preview_tokc1_to_nexus_tokc1:
+    name: Preview(TokC1) to Nexus(TokC1)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokn3_to_nexus_tokn3
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: TokC1
+      destination_chain: Nexus
+      destination_token: TokC1
+      notification: false
+    secrets: inherit
+
+  preview_tokc2_to_nexus_tokc2:
+    name: Preview(TokC2) to Nexus(TokC2)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokc1_to_nexus_tokc1
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: TokC2
+      destination_chain: Nexus
+      destination_token: TokC2
+      notification: false
+    secrets: inherit
+
+  preview_tokc3_to_nexus_tokc3:
+    name: Preview(TokC3) to Nexus(TokC3)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokc2_to_nexus_tokc2
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: TokC3
+      destination_chain: Nexus
+      destination_token: TokC3
+      notification: false
+    secrets: inherit
+
+  preview_tokv1_to_nexus_tokv1:
+    name: Preview(TokV1) to Nexus(TokV1)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokc3_to_nexus_tokc3
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: TokV1
+      destination_chain: Nexus
+      destination_token: TokV1
+      notification: false
+    secrets: inherit
+
+  preview_tokv2_to_nexus_tokv2:
+    name: Preview(TokV2) to Nexus(TokV2)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokv1_to_nexus_tokv1
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: TokV2
+      destination_chain: Nexus
+      destination_token: TokV2
+      notification: false
+    secrets: inherit
+
+  preview_tokv3_to_nexus_tokv3:
+    name: Preview(TokV3) to Nexus(TokV3)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokv2_to_nexus_tokv2
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: TokV3
+      destination_chain: Nexus
+      destination_token: TokV3
+      notification: false
+    secrets: inherit
+
+  preview_cpol_to_polygon_cpol:
+    name: Preview(cPOL) to Polygon(cPOL)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_tokv3_to_nexus_tokv3
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: cPOL
+      destination_chain: Polygon
+      destination_token: cPOL
+      notification: false
+    secrets: inherit
+
+  preview_ceth_to_ethereum_ceth:
+    name: Preview(cETH) to Ethereum(cETH)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_cpol_to_polygon_cpol
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: cETH
+      destination_chain: Ethereum
+      destination_token: cETH
+      notification: false
+    secrets: inherit
+
+  preview_ckatanaeth_to_katana_ckatanaeth:
+    name: Preview(cKatanaETH) to Katana(cKatanaETH)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_ceth_to_ethereum_ceth
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: cKatanaETH
+      destination_chain: Katana
+      destination_token: cKatanaETH
+      notification: false
+    secrets: inherit
+
+  preview_csei_to_sei_csei:
+    name: Preview(cSEI) to Sei(cSEI)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_ckatanaeth_to_katana_ckatanaeth
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: cSEI
+      destination_chain: Sei
+      destination_token: cSEI
+      notification: false
+    secrets: inherit
+
+  preview_cscrolleth_to_scroll_cscrolleth:
+    name: Preview(cScrollETH) to Scroll(cScrollETH)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_csei_to_sei_csei
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: cScrollETH
+      destination_chain: Scroll
+      destination_token: cScrollETH
+      notification: false
+    secrets: inherit
+
+  preview_cunichaineth_to_unichain_cunichaineth:
+    name: Preview(cUnichainETH) to Unichain(cUnichainETH)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: preview_cscrolleth_to_scroll_cscrolleth
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: cUnichainETH
+      destination_chain: Unichain
+      destination_token: cUnichainETH
+      notification: false
+    secrets: inherit
+
+  notification:
+    name: Notification
+    uses: ./.github/workflows/notification.yml
+    if: (!cancelled() && inputs.notification)
+    needs:
+      - preview_cap3x_to_prime_ap3x
+      - preview_ada_to_vector_xada
+      - preview_mytesttoken_to_vector_mytesttoken
+      - preview_tokn2_to_vector_tokn2
+      - preview_tokn3_to_vector_tokn3
+      - preview_tokc1_to_vector_tokc1
+      - preview_tokc2_to_vector_tokc2
+      - preview_tokc3_to_vector_tokc3
+      - preview_tokv1_to_vector_tokv1
+      - preview_tokv2_to_vector_tokv2
+      - preview_tokv3_to_vector_tokv3
+      - preview_ada_to_nexus_xada
+      - preview_mytesttoken_to_nexus_mytesttoken
+      - preview_tokn2_to_nexus_tokn2
+      - preview_tokn3_to_nexus_tokn3
+      - preview_tokc1_to_nexus_tokc1
+      - preview_tokc2_to_nexus_tokc2
+      - preview_tokc3_to_nexus_tokc3
+      - preview_tokv1_to_nexus_tokv1
+      - preview_tokv2_to_nexus_tokv2
+      - preview_tokv3_to_nexus_tokv3
+      - preview_cpol_to_polygon_cpol
+      - preview_ceth_to_ethereum_ceth
+      - preview_ckatanaeth_to_katana_ckatanaeth
+      - preview_csei_to_sei_csei
+      - preview_cscrolleth_to_scroll_cscrolleth
+      - preview_cunichaineth_to_unichain_cunichaineth
+    with:
+      needs_json: ${{ toJSON(needs) }}
+      bridge_name: ${{ inputs.bridge_name }}

@@ -1,0 +1,76 @@
+---
+name: Source Prime Transactions
+
+on:
+  workflow_call:
+    inputs:
+      bridge_name:
+        type: string
+        required: true
+      notification:
+        type: boolean
+        required: true
+
+    outputs:
+      transactions:
+        value: ${{ jobs.notification.outputs.transactions }}
+
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  prime_ap3x_to_vector_ap3x:
+    name: Prime(AP3X) to Vector(AP3X)
+    uses: ./.github/workflows/single-transaction.yml
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Prime
+      amount: 6
+      source_token: AP3X
+      destination_chain: Vector
+      destination_token: AP3X
+      notification: false
+    secrets: inherit
+
+  prime_ap3x_to_nexus_ap3x:
+    name: Prime(AP3X) to Nexus(AP3X)
+    uses: ./.github/workflows/single-transaction.yml
+    needs: prime_ap3x_to_vector_ap3x
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Prime
+      amount: 6
+      source_token: AP3X
+      destination_chain: Nexus
+      destination_token: AP3X
+      notification: false
+    secrets: inherit
+
+  prime_ap3x_to_preview_cap3x:
+    name: Prime(AP3X) to Preview(cAP3X)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    needs: prime_ap3x_to_nexus_ap3x
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Prime
+      amount: 5
+      source_token: AP3X
+      destination_chain: Preview
+      destination_token: cAP3X
+      notification: false
+    secrets: inherit
+
+  notification:
+    name: Notification
+    uses: ./.github/workflows/notification.yml
+    if: (!cancelled() && inputs.notification)
+    needs:
+      - prime_ap3x_to_vector_ap3x
+      - prime_ap3x_to_nexus_ap3x
+      - prime_ap3x_to_preview_cap3x
+    with:
+      needs_json: ${{ toJSON(needs) }}
+      bridge_name: ${{ inputs.bridge_name }}

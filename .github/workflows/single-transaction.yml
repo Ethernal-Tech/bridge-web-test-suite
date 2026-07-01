@@ -1,118 +1,61 @@
 ---
 name: Single Transaction
+
 on:
   workflow_dispatch:
     inputs:
-      bridge:
-        required: true
-        description: Bridge
-        type: choice
-        options:
-          - Reactor
-          - Skyline
-
-      url:
-        required: true
-        description: URL
-        type: choice
-        options:
-          - https://reactor.testnet.apexfusion.org/
-          - https://skyline.testnet.ethernal.work/
-
-      source_chain:
-        required: true
-        description: Source chain
-        type: choice
-        options:
-          - Prime
-          - Vector
-          - Nexus
-          - Preview
-
-      source_token:
-        required: true
-        description: Source token
-        type: choice
-        options:
-          - AP3X
-          - ADA
-          - cAP3X
-          - xADA
-          - myTestToken
-
-      destination_chain:
-        required: true
-        description: Destination chain
-        type: choice
-        options:
-          - Prime
-          - Vector
-          - Nexus
-          - Preview
-
-      destination_token:
-        required: true
-        description: Destination token
-        type: choice
-        options:
-          - AP3X
-          - ADA
-          - cAP3X
-          - xADA
-          - myTestToken
-
-      amount:
-        required: true
-        description: Amount to send from Source to Destination
+      bridge_name:
         type: string
-
+        required: true
+        description: "Bridge"
+      source_chain:
+        type: string
+        required: true
+        description: "Source chain"
+      source_token:
+        type: string
+        required: true
+        description: "Source token"
+      destination_chain:
+        type: string
+        required: true
+        description: "Destination chain"
+      destination_token:
+        type: string
+        required: true
+        description: "Destination token"
+      amount:
+        type: string
+        required: true
+        description: "Amount to send from Source to Destination"
       notification:
-        required: false
-        description: Notification
         type: boolean
-        default: true
+        required: false
+        description: "Notification"
 
   workflow_call:
     inputs:
-      bridge:
-        required: true
-        description: Bridge
+      bridge_name:
         type: string
-
-      url:
         required: true
-        description: URL
-        type: string
-
       source_chain:
-        required: true
-        description: Source chain
         type: string
-
+        required: true
       source_token:
-        required: true
-        description: Source token
         type: string
-
+        required: true
       destination_chain:
-        required: true
-        description: Destination chain
         type: string
-
+        required: true
       destination_token:
-        required: true
-        description: Destination token
         type: string
-
+        required: true
       amount:
-        required: true
-        description: Amount to send from Source to Destination
         type: string
-
-      notification:
         required: true
-        description: Notification
+      notification:
         type: boolean
+        required: true
 
     outputs:
       bridging_status:
@@ -121,10 +64,8 @@ on:
     secrets:
       SIGN_KEY:
         required: true
-
       CHROME_URL:
         required: true
-
       CHROME_CONFIGS_URL:
         required: true
 
@@ -160,54 +101,59 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Set bridge URL
+        id: bridge_url
+        run: |
+          if [[ "${{ inputs.bridge_name }}" == "Skyline" ]]; then
+            echo "value=${{ vars.SKYLINE_URL }}" >> $GITHUB_OUTPUT
+          else
+            echo "value=${{ vars.REACTOR_URL }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Start bridging
-        run: python main.py ${{ inputs.bridge }} ${{ inputs.source_chain }} ${{ inputs.amount }} ${{ inputs.source_token }} ${{ inputs.destination_chain }}
+        run: python main.py ${{ inputs.bridge_name }} ${{ inputs.source_chain }} ${{ inputs.amount }} ${{ inputs.source_token }} ${{ inputs.destination_chain }}
         env:
           PYTHONUNBUFFERED: 1
           SIGN_KEY: ${{ secrets.SIGN_KEY }}
-          BRIDGE_URL: ${{ inputs.url }}
+          BRIDGE_URL: ${{ steps.bridge_url.outputs.value }}
           APEX_FUSION_FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
           CHROMEDRIVER_VERSION: ${{ vars.CHROMEDRIVER_VERSION }}
           CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
 
       - name: Archive status
-        if: (!cancelled())
         uses: actions/upload-artifact@v7.0.1
+        if: (!cancelled())
         with:
           name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_statuses
           path: statuses.json
           retention-days: 7
 
       - name: Archive logs
-        if: (!cancelled())
         id: logs-artifact-upload
         uses: actions/upload-artifact@v7.0.1
+        if: (!cancelled())
         with:
           name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_logs
           path: logs/*
           retention-days: 7
 
       - name: Generate statuses of the bridging process
-        if: (!cancelled())
         id: bridging_status
+        if: (!cancelled())
         run: |
           json=$(jq -c \
             --arg logs_artifact_id "${{ steps.logs-artifact-upload.outputs.artifact-id }}" \
-            '. + {logs_artifact_id: $logs_artifact_id}' \
+            --arg source_label "${{ inputs.source_chain }}(${{ inputs.source_token }})" \
+            --arg destination_label "${{ inputs.destination_chain }}(${{ inputs.destination_token }})" \
+            '. + {logs_artifact_id: $logs_artifact_id, source_label: $source_label, destination_label: $destination_label}' \
             statuses.json)
           echo "result=$json" >> $GITHUB_OUTPUT
 
   notification:
-    name: Send notification
-    uses: ./.github/workflows/single-notification.yml
+    name: Notification
+    uses: ./.github/workflows/notification.yml
+    if: (!cancelled() && inputs.notification)
     needs: bridging
-    if: ((success() || failure()) && inputs.notification)
     with:
-      bridge: ${{ inputs.bridge }}
-      source_chain: ${{ inputs.source_chain }}
-      source_token: ${{ inputs.source_token }}
-      destination_chain: ${{ inputs.destination_chain }}
-      destination_token: ${{ inputs.destination_token }}
-      bridging_status: ${{ needs.bridging.outputs.bridging_status }}
-    secrets:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      needs_json: ${{ toJSON(needs) }}
+      bridge_name: ${{ inputs.bridge_name }}

@@ -1,21 +1,23 @@
 ---
 name: Cardano Faucet
+
 on:
   schedule:
     - cron: '0 4 * * *'
+
   workflow_dispatch:
     inputs:
       chain:
-        required: true
-        description: Cardano Chain
         type: choice
+        required: true
+        description: "Cardano Chain"
         options:
           - preview-testnet
           - preprod-testnet
       addresses:
+        type: string
         required: true
         description: Cardano Addresses
-        type: string
         default: '["addr11","addr12","addr13"]'
 
 jobs:
@@ -25,14 +27,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6.0.2
+
       - name: Setup Python 3.9
         uses: actions/setup-python@v6.2.0
         with:
           python-version: '3.9'
           check-latest: true
           cache: 'pip'
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Set Chain Value
         run: |
           if [ "${{ github.event_name }}" == "schedule" ]; then
@@ -40,6 +45,7 @@ jobs:
           else
             echo "CHAIN=${{ inputs.chain }}" >> $GITHUB_ENV
           fi
+
       - name: Get Funds
         run: python ./toolbox/cardano-faucet.py $CHAIN
         env:

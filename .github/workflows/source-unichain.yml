@@ -1,0 +1,46 @@
+---
+name: Source Unichain Transactions
+
+on:
+  workflow_call:
+    inputs:
+      bridge_name:
+        type: string
+        required: true
+      notification:
+        type: boolean
+        required: true
+
+    outputs:
+      transactions:
+        value: ${{ jobs.notification.outputs.transactions }}
+
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  unichain_unichaineth_to_preview_unichaineth:
+    name: Unichain(UnichainETH) to Preview(UnichainETH)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Unichain
+      amount: 6
+      source_token: UnichainETH
+      destination_chain: Preview
+      destination_token: UnichainETH
+      notification: false
+    secrets: inherit
+
+  notification:
+    name: Notification
+    uses: ./.github/workflows/notification.yml
+    if: (!cancelled() && inputs.notification)
+    needs:
+      - unichain_unichaineth_to_preview_unichaineth
+    with:
+      needs_json: ${{ toJSON(needs) }}
+      bridge_name: ${{ inputs.bridge_name }}
