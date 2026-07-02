@@ -35,6 +35,17 @@ jobs:
         id: short_sha
         run: echo "value=`echo ${{ github.sha }} | cut -c1-7`" >> $GITHUB_OUTPUT
 
+      - name: Workflow duration
+        id: duration
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          start=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }} --jq '.run_started_at')
+          start_ts=$(date -d "$start" +%s)
+          end_ts=$(date +%s)
+          duration=$((end_ts - start_ts))
+          echo "value=$((duration / 60))m $((duration % 60))s" >> "$GITHUB_OUTPUT"
+
       - name: Build Slack payload
         env:
           TRANSACTIONS: ${{ steps.collect.outputs.transactions }}
@@ -43,6 +54,7 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           COMMIT_URL: https://github.com/${{ github.repository }}/tree/${{ github.sha }}
           SHORT_SHA: ${{ steps.short_sha.outputs.value }}
+          DURATION: ${{ steps.duration.outputs.value }}
         run: |
           jq -n \
             --arg bridge "$BRIDGE" \
@@ -51,6 +63,7 @@ jobs:
             --arg run_url "$RUN_URL" \
             --arg commit_url "$COMMIT_URL" \
             --arg short_sha "$SHORT_SHA" \
+            --arg duration "$DURATION" \
             '{
               blocks: ([
                 {type: "header", text: {type: "plain_text", text: ($bridge + " Tests")}},
@@ -76,7 +89,7 @@ jobs:
                 },
                 {
                   type: "context",
-                  elements: [{type: "mrkdwn", text: ("Commit: *<" + $commit_url + "|" + $short_sha + ">*")}]
+                  elements: [{type: "mrkdwn", text: ("Commit: *<" + $commit_url + "|" + $short_sha + ">* | Duration: *" + $duration + "*")}]
                 },
                 {type: "divider"}
               ] + [
