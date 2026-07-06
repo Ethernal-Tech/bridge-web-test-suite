@@ -21,17 +21,17 @@ permissions:
   security-events: write
 
 jobs:
-  scroll_scrolleth_to_preview_scrolleth:
-    name: Scroll(ScrollETH) to Preview(ScrollETH)
+  scroll_eth_to_preview_cscrolleth:
+    name: Scroll(ETH) to Preview(cScrollETH)
     uses: ./.github/workflows/single-transaction.yml
     if: ${{ inputs.bridge_name == 'Skyline' }}
     with:
       bridge_name: ${{ inputs.bridge_name }}
       source_chain: Scroll
-      amount: 6
-      source_token: ScrollETH
+      amount: 0.0005
+      source_token: ETH
       destination_chain: Preview
-      destination_token: ScrollETH
+      destination_token: cScrollETH
       notification: false
     secrets: inherit
 
@@ -40,7 +40,7 @@ jobs:
     uses: ./.github/workflows/notification.yml
     if: (!cancelled() && inputs.notification)
     needs:
-      - scroll_scrolleth_to_preview_scrolleth
+      - scroll_eth_to_preview_cscrolleth
     with:
       needs_json: ${{ toJSON(needs) }}
       bridge_name: ${{ inputs.bridge_name }}
