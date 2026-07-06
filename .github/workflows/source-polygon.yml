@@ -21,8 +21,8 @@ permissions:
   security-events: write
 
 jobs:
-  polygon_pol_to_preview_pol:
-    name: Polygon(POL) to Preview(POL)
+  polygon_pol_to_preview_cpol:
+    name: Polygon(POL) to Preview(cPOL)
     uses: ./.github/workflows/single-transaction.yml
     if: ${{ inputs.bridge_name == 'Skyline' }}
     with:
@@ -31,37 +31,37 @@ jobs:
       amount: 6
       source_token: POL
       destination_chain: Preview
-      destination_token: POL
+      destination_token: cPOL
       notification: false
     secrets: inherit
 
-  polygon_pap3x_to_nexus_pap3x:
-    name: Polygon(pAP3X) to Nexus(pAP3X)
+  polygon_pap3x_to_nexus_ap3x:
+    name: Polygon(pAP3X) to Nexus(AP3X)
     uses: ./.github/workflows/single-transaction.yml
     if: ${{ inputs.bridge_name == 'Skyline' }}
-    needs: polygon_pol_to_preview_pol
+    needs: polygon_pol_to_preview_cpol
     with:
       bridge_name: ${{ inputs.bridge_name }}
       source_chain: Polygon
       amount: 6
       source_token: pAP3X
       destination_chain: Nexus
-      destination_token: pAP3X
+      destination_token: AP3X
       notification: false
     secrets: inherit
 
-  polygon_pol_to_nexus_pol:
-    name: Polygon(POL) to Nexus(POL)
+  polygon_pol_to_nexus_xpol:
+    name: Polygon(POL) to Nexus(xPOL)
     uses: ./.github/workflows/single-transaction.yml
     if: ${{ inputs.bridge_name == 'Skyline' }}
-    needs: polygon_pap3x_to_nexus_pap3x
+    needs: polygon_pap3x_to_nexus_ap3x
     with:
       bridge_name: ${{ inputs.bridge_name }}
       source_chain: Polygon
       amount: 6
       source_token: POL
       destination_chain: Nexus
-      destination_token: POL
+      destination_token: xPOL
       notification: false
     secrets: inherit
 
@@ -70,9 +70,9 @@ jobs:
     uses: ./.github/workflows/notification.yml
     if: (!cancelled() && inputs.notification)
     needs:
-      - polygon_pol_to_preview_pol
-      - polygon_pap3x_to_nexus_pap3x
-      - polygon_pol_to_nexus_pol
+      - polygon_pol_to_preview_cpol
+      - polygon_pap3x_to_nexus_ap3x
+      - polygon_pol_to_nexus_xpol
     with:
       needs_json: ${{ toJSON(needs) }}
       bridge_name: ${{ inputs.bridge_name }}
