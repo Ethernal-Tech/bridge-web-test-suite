@@ -52,6 +52,13 @@ class Chrome(WebDriver):
 
                 remove("/tmp/bridge-web-test-suite.zip")
 
+                for lock_file in ("DevToolsActivePort", "SingletonLock", "SingletonSocket", "SingletonCookie"):
+                    lock_path = path.join("/tmp/bridge-web-test-suite", lock_file)
+                    if path.isdir(lock_path):
+                        rmtree(lock_path)
+                    elif path.lexists(lock_path):
+                        remove(lock_path)
+
                 self.__options.append("user-data-dir=/tmp/bridge-web-test-suite")
                 self.__options.append("profile-directory=Default")
 
