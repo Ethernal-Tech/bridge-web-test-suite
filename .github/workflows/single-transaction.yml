@@ -134,7 +134,10 @@ jobs:
         if: (!cancelled())
         with:
           name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_logs
-          path: logs/*
+          path: |
+            logs/bridge.log
+            logs/urllib3.log
+            logs/WDM.log
           retention-days: 7
 
       - name: Generate statuses of the bridging process
