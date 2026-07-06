@@ -28,7 +28,7 @@ jobs:
     with:
       bridge_name: ${{ inputs.bridge_name }}
       source_chain: Polygon
-      amount: 6
+      amount: 0.0005
       source_token: POL
       destination_chain: Preview
       destination_token: cPOL
@@ -43,7 +43,7 @@ jobs:
     with:
       bridge_name: ${{ inputs.bridge_name }}
       source_chain: Polygon
-      amount: 6
+      amount: 2
       source_token: pAP3X
       destination_chain: Nexus
       destination_token: AP3X
@@ -58,7 +58,7 @@ jobs:
     with:
       bridge_name: ${{ inputs.bridge_name }}
       source_chain: Polygon
-      amount: 6
+      amount: 0.0005
       source_token: POL
       destination_chain: Nexus
       destination_token: xPOL
