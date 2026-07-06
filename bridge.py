@@ -264,7 +264,11 @@ class Bridge:
             self.__destination_wallet.get_web_app_identifier()
         )
 
-        self.__reject_sentry()
+        try:
+            self.__reject_sentry()
+        except Exception:
+            # can't find sentry dialog
+            pass
 
         self.__connect_wallet_and_move_funds()
         self.__destination_address(self.__destination_wallet.get_receive_address())
