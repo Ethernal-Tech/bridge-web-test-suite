@@ -135,23 +135,27 @@ def main(
 
     chrome = Chrome()
 
-    bridge = Bridge(
-        driver=chrome,
-        bridge_name=bridge_name,
-        source_wallet=init_wallet(
+    try:
+
+        bridge = Bridge(
             driver=chrome,
-            subnetwork=source_subnetwork,
-            token_name=source_token
-        ),
-        destination_wallet=init_wallet(
-            driver=chrome,
-            subnetwork=destination_subnetwork
+            bridge_name=bridge_name,
+            source_wallet=init_wallet(
+                driver=chrome,
+                subnetwork=source_subnetwork,
+                token_name=source_token
+            ),
+            destination_wallet=init_wallet(
+                driver=chrome,
+                subnetwork=destination_subnetwork
+            )
         )
-    )
 
-    bridge.bridging(amount=amount)
+        bridge.bridging(amount=amount)
 
-    chrome.quit()
+    finally:
+
+        chrome.quit()
 
 
 if __name__ == '__main__':
