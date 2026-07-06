@@ -66,7 +66,13 @@ jobs:
             --arg duration "$DURATION" \
             '{
               blocks: ([
-                {type: "header", text: {type: "plain_text", text: ($bridge + " Tests")}},
+                {
+                  type: "header",
+                  text: {
+                    type: "plain_text",
+                    text: ($bridge + " Bridge | Source " + ($transactions[0].source_label | split("(")[0]))
+                  }
+                },
                 {
                   type: "actions",
                   elements: (
