@@ -5,8 +5,8 @@ from bridge import Bridge
 from toolbox.chrome import Chrome
 from toolbox.logger import logger
 from toolbox.utils import Network, retry
-from toolbox.utils import EternlApexFusionIdentifier, ApexFusionSubnetwork
-from toolbox.utils import EternlCardanoIdentifier, CardanoSubnetwork
+from toolbox.utils import EternlApexFusionIdentifier, EternlCardanoIdentifier
+from toolbox.utils import ApexFusionSubnetwork, CardanoSubnetwork, EthereumSubnetwork
 from wallets.eternl import Eternl
 from wallets.metamask import MetaMask
 
@@ -58,6 +58,60 @@ def init_wallet(
             driver=driver,
             sign_key=getenv('SIGN_KEY'),
             subnetwork=ApexFusionSubnetwork.nexus,
+            token_name=token_name
+        )
+
+    elif subnetwork == EthereumSubnetwork.polygon:
+
+        wallet = MetaMask(
+            driver=driver,
+            sign_key=getenv('SIGN_KEY'),
+            subnetwork=EthereumSubnetwork.polygon,
+            token_name=token_name
+        )
+
+    elif subnetwork == EthereumSubnetwork.ethereum:
+
+        wallet = MetaMask(
+            driver=driver,
+            sign_key=getenv('SIGN_KEY'),
+            subnetwork=EthereumSubnetwork.ethereum,
+            token_name=token_name
+        )
+
+    elif subnetwork == EthereumSubnetwork.katana:
+
+        wallet = MetaMask(
+            driver=driver,
+            sign_key=getenv('SIGN_KEY'),
+            subnetwork=EthereumSubnetwork.katana,
+            token_name=token_name
+        )
+
+    elif subnetwork == EthereumSubnetwork.sei:
+
+        wallet = MetaMask(
+            driver=driver,
+            sign_key=getenv('SIGN_KEY'),
+            subnetwork=EthereumSubnetwork.sei,
+            token_name=token_name
+        )
+
+    elif subnetwork == EthereumSubnetwork.scroll:
+
+        wallet = MetaMask(
+            driver=driver,
+            sign_key=getenv('SIGN_KEY'),
+            subnetwork=EthereumSubnetwork.scroll,
+            token_name=token_name
+        )
+
+    elif subnetwork == EthereumSubnetwork.unichain:
+
+        wallet = MetaMask(
+            driver=driver,
+            sign_key=getenv('SIGN_KEY'),
+            subnetwork=EthereumSubnetwork.unichain,
             token_name=token_name
         )
 

@@ -251,7 +251,9 @@ class Bridge:
 
     def bridging(self, amount: str) -> None:
 
-        if self.__source_wallet.get_subnetwork() != ApexFusionSubnetwork.nexus:
+        if self.__source_wallet.get_subnetwork() == ApexFusionSubnetwork.prime or \
+                self.__source_wallet.get_subnetwork() == ApexFusionSubnetwork.vector or \
+                self.__source_wallet.get_subnetwork() == CardanoSubnetwork.preview:
 
             logger.debug(f"Select the source wallet needed for the {self.__bridge_name} Bridge")
 
@@ -272,7 +274,9 @@ class Bridge:
         self.__source_wallet.sign_and_confirm_transaction()
 
         if self.__bridge_name == "Skyline" and \
-                self.__source_wallet.get_subnetwork() == ApexFusionSubnetwork.nexus and \
+                self.__source_wallet.get_subnetwork() != ApexFusionSubnetwork.prime and \
+                self.__source_wallet.get_subnetwork() != ApexFusionSubnetwork.vector and \
+                self.__source_wallet.get_subnetwork() != CardanoSubnetwork.preview and \
                 self.__source_wallet.get_token_name().lower() == "mytesttoken":
 
             # Second transaction confirm

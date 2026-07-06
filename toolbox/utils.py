@@ -33,6 +33,21 @@ class CardanoSubnetwork:
     preview: str = "preview"
 
 
+@dataclass(frozen=True)
+class EthereumSubnetwork:
+    polygon: str = "polygon"
+    ethereum: str = "ethereum"
+    katana: str = "katana"
+    sei: str = "sei"
+    scroll: str = "scroll"
+    unichain: str = "unichain"
+
+
+@dataclass(frozen=True)
+class SolanaSubnetwork:
+    solana: str = "solana"
+
+
 def retry(tries: int = 10, delay: int = 1, back_off: float = 1.5):
     def deco_retry(f):
         @wraps(f)
