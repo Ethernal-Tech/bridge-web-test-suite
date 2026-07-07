@@ -66,7 +66,7 @@ class Chrome(WebDriver):
 
             self.__chrome_options: Options = Options()
 
-            if bool(getenv("LOCAL_TEST")):
+            if getenv("LOCAL_TEST") == "True":
 
                 logger.debug("Downloading Chrome For Testing")
 
