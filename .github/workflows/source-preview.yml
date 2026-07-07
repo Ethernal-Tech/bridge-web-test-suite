@@ -38,7 +38,7 @@ jobs:
   preview_ada_to_vector_xada:
     name: Preview(ADA) to Vector(xADA)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: preview_cap3x_to_prime_ap3x
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -53,7 +53,7 @@ jobs:
   preview_mytesttoken_to_vector_mytesttoken:
     name: Preview(myTestToken) to Vector(myTestToken)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: preview_ada_to_vector_xada
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -68,7 +68,7 @@ jobs:
   preview_ada_to_nexus_xada:
     name: Preview(ADA) to Nexus(xADA)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: preview_mytesttoken_to_vector_mytesttoken
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -83,7 +83,7 @@ jobs:
   preview_mytesttoken_to_nexus_mytesttoken:
     name: Preview(myTestToken) to Nexus(myTestToken)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: preview_ada_to_nexus_xada
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -98,7 +98,7 @@ jobs:
   preview_cpol_to_polygon_pol:
     name: Preview(cPOL) to Polygon(POL)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: preview_mytesttoken_to_nexus_mytesttoken
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -113,7 +113,7 @@ jobs:
   preview_ceth_to_ethereum_eth:
     name: Preview(cETH) to Ethereum(ETH)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: preview_cpol_to_polygon_pol
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -128,7 +128,7 @@ jobs:
   preview_ckatanaeth_to_katana_katanaeth:
     name: Preview(cKatanaETH) to Katana(KatanaETH)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: preview_ceth_to_ethereum_eth
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -143,7 +143,7 @@ jobs:
   preview_csei_to_sei_sei:
     name: Preview(cSEI) to Sei(SEI)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: preview_ckatanaeth_to_katana_katanaeth
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -158,7 +158,7 @@ jobs:
   preview_cscrolleth_to_scroll_scrolleth:
     name: Preview(cScrollETH) to Scroll(ScrollETH)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: preview_csei_to_sei_sei
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -173,7 +173,7 @@ jobs:
   preview_cunichaineth_to_unichain_unichaineth:
     name: Preview(cUnichainETH) to Unichain(UnichainETH)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: preview_cscrolleth_to_scroll_scrolleth
     with:
       bridge_name: ${{ inputs.bridge_name }}

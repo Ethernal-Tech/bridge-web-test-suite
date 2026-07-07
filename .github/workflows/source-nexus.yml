@@ -37,6 +37,7 @@ jobs:
   nexus_ap3x_to_vector_ap3x:
     name: Nexus(AP3X) to Vector(AP3X)
     uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled())
     needs: nexus_ap3x_to_prime_ap3x
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -51,7 +52,7 @@ jobs:
   nexus_xada_to_preview_ada:
     name: Nexus(xADA) to Preview(ADA)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: nexus_ap3x_to_vector_ap3x
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -66,7 +67,7 @@ jobs:
   nexus_mytesttoken_to_preview_mytesttoken:
     name: Nexus(myTestToken) to Preview(myTestToken)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: nexus_xada_to_preview_ada
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -81,7 +82,7 @@ jobs:
   nexus_xada_to_vector_xada:
     name: Nexus(xADA) to Vector(xADA)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: nexus_mytesttoken_to_preview_mytesttoken
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -96,7 +97,7 @@ jobs:
   nexus_mytesttoken_to_vector_mytesttoken:
     name: Nexus(myTestToken) to Vector(myTestToken)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: nexus_xada_to_vector_xada
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -111,7 +112,7 @@ jobs:
   nexus_ap3x_to_polygon_pap3x:
     name: Nexus(AP3X) to Polygon(pAP3X)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: nexus_mytesttoken_to_vector_mytesttoken
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -126,7 +127,7 @@ jobs:
   nexus_xpol_to_polygon_pol:
     name: Nexus(xPOL) to Polygon(POL)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: nexus_ap3x_to_polygon_pap3x
     with:
       bridge_name: ${{ inputs.bridge_name }}

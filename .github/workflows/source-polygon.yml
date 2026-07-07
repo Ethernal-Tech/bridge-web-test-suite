@@ -38,7 +38,7 @@ jobs:
   polygon_pap3x_to_nexus_ap3x:
     name: Polygon(pAP3X) to Nexus(AP3X)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: polygon_pol_to_preview_cpol
     with:
       bridge_name: ${{ inputs.bridge_name }}
@@ -53,7 +53,7 @@ jobs:
   polygon_pol_to_nexus_xpol:
     name: Polygon(POL) to Nexus(xPOL)
     uses: ./.github/workflows/single-transaction.yml
-    if: ${{ inputs.bridge_name == 'Skyline' }}
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
     needs: polygon_pap3x_to_nexus_ap3x
     with:
       bridge_name: ${{ inputs.bridge_name }}

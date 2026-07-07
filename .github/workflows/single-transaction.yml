@@ -141,6 +141,9 @@ jobs:
         id: bridging_status
         if: (!cancelled())
         run: |
+          if [[ ! -f statuses.json ]]; then
+            echo '{"status":"failed","source":false,"bridge":false,"destination":false}' > statuses.json
+          fi
           json=$(jq -c \
             --arg logs_artifact_id "${{ steps.logs-artifact-upload.outputs.artifact-id }}" \
             --arg source_label "${{ inputs.source_chain }}(${{ inputs.source_token }})" \
