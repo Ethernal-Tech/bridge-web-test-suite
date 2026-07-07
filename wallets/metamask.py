@@ -11,7 +11,8 @@ class MetaMask:
             driver: Chrome,
             sign_key: str,
             subnetwork: str,
-            token_name: str
+            token_name: str,
+            need_unlock: bool
     ) -> None:
 
         self.__extension_url: str = "chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn"
@@ -21,13 +22,18 @@ class MetaMask:
         self.__sign_key: str = sign_key
         self.__subnetwork: str = subnetwork
         self.__token_name: str = token_name
+        self.__need_unlock: bool = need_unlock
         self.__receive_address: str = ""
         self.__opened_tabs: list[str] = self.__driver.window_handles
 
         self.__driver.switch_to.window(self.__driver.get_init_tab())
 
-        self.open_wallet()
-        self.__unlock()
+        # only for source wallet
+        if self.__need_unlock:
+
+            self.open_wallet()
+            self.__unlock()
+
         self.__set_receive_address()
 
     @retry()

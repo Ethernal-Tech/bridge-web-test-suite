@@ -14,7 +14,8 @@ from wallets.metamask import MetaMask
 def init_wallet(
         driver: Chrome,
         subnetwork: str,
-        token_name: str = "unknown"
+        token_name: str = "unknown",
+        need_unlock: bool = False
 ) -> Union[Eternl, MetaMask]:
 
     logger.debug(f"Initializing {subnetwork.capitalize()} wallet")
@@ -58,7 +59,8 @@ def init_wallet(
             driver=driver,
             sign_key=getenv('SIGN_KEY'),
             subnetwork=ApexFusionSubnetwork.nexus,
-            token_name=token_name
+            token_name=token_name,
+            need_unlock=need_unlock
         )
 
     elif subnetwork == EthereumSubnetwork.polygon:
@@ -67,7 +69,8 @@ def init_wallet(
             driver=driver,
             sign_key=getenv('SIGN_KEY'),
             subnetwork=EthereumSubnetwork.polygon,
-            token_name=token_name
+            token_name=token_name,
+            need_unlock=need_unlock
         )
 
     elif subnetwork == EthereumSubnetwork.ethereum:
@@ -76,7 +79,8 @@ def init_wallet(
             driver=driver,
             sign_key=getenv('SIGN_KEY'),
             subnetwork=EthereumSubnetwork.ethereum,
-            token_name=token_name
+            token_name=token_name,
+            need_unlock=need_unlock
         )
 
     elif subnetwork == EthereumSubnetwork.katana:
@@ -85,7 +89,8 @@ def init_wallet(
             driver=driver,
             sign_key=getenv('SIGN_KEY'),
             subnetwork=EthereumSubnetwork.katana,
-            token_name=token_name
+            token_name=token_name,
+            need_unlock=need_unlock
         )
 
     elif subnetwork == EthereumSubnetwork.sei:
@@ -94,7 +99,8 @@ def init_wallet(
             driver=driver,
             sign_key=getenv('SIGN_KEY'),
             subnetwork=EthereumSubnetwork.sei,
-            token_name=token_name
+            token_name=token_name,
+            need_unlock=need_unlock
         )
 
     elif subnetwork == EthereumSubnetwork.scroll:
@@ -103,7 +109,8 @@ def init_wallet(
             driver=driver,
             sign_key=getenv('SIGN_KEY'),
             subnetwork=EthereumSubnetwork.scroll,
-            token_name=token_name
+            token_name=token_name,
+            need_unlock=need_unlock
         )
 
     elif subnetwork == EthereumSubnetwork.unichain:
@@ -112,7 +119,8 @@ def init_wallet(
             driver=driver,
             sign_key=getenv('SIGN_KEY'),
             subnetwork=EthereumSubnetwork.unichain,
-            token_name=token_name
+            token_name=token_name,
+            need_unlock=need_unlock
         )
 
     else:
@@ -143,7 +151,8 @@ def main(
             source_wallet=init_wallet(
                 driver=chrome,
                 subnetwork=source_subnetwork,
-                token_name=source_token
+                token_name=source_token,
+                need_unlock=True
             ),
             destination_wallet=init_wallet(
                 driver=chrome,
