@@ -126,7 +126,7 @@ jobs:
         with:
           name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_statuses
           path: statuses.json
-          retention-days: 7
+          retention-days: 3
 
       - name: Archive logs
         id: logs-artifact-upload
@@ -134,11 +134,8 @@ jobs:
         if: (!cancelled())
         with:
           name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_logs
-          path: |
-            logs/bridge.log
-            logs/urllib3.log
-            logs/WDM.log
-          retention-days: 7
+          path: logs/*
+          retention-days: 3
 
       - name: Generate statuses of the bridging process
         id: bridging_status
