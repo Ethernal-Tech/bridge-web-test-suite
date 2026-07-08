@@ -14,8 +14,8 @@ from wallets.metamask import MetaMask
 def init_wallet(
         driver: Chrome,
         subnetwork: str,
-        token_name: str = "unknown",
-        need_unlock: bool = False
+        need_unlock: bool,
+        token_name: str = "unknown"
 ) -> Union[Eternl, MetaMask]:
 
     logger.debug(f"Initializing {subnetwork.capitalize()} wallet")
@@ -145,19 +145,24 @@ def main(
 
     try:
 
+        src_wlt: Union[Eternl, MetaMask] = init_wallet(
+            driver=chrome,
+            subnetwork=source_subnetwork,
+            need_unlock=True,
+            token_name=source_token
+        )
+
+        dest_wlt: Union[Eternl, MetaMask] = init_wallet(
+            driver=chrome,
+            subnetwork=destination_subnetwork,
+            need_unlock=True if type(src_wlt) is Eternl else False
+        )
+
         bridge = Bridge(
             driver=chrome,
             bridge_name=bridge_name,
-            source_wallet=init_wallet(
-                driver=chrome,
-                subnetwork=source_subnetwork,
-                token_name=source_token,
-                need_unlock=True
-            ),
-            destination_wallet=init_wallet(
-                driver=chrome,
-                subnetwork=destination_subnetwork
-            )
+            source_wallet=src_wlt,
+            destination_wallet=dest_wlt
         )
 
         bridge.bridging(amount=amount)
