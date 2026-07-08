@@ -3,7 +3,7 @@ from time import sleep
 from typing import Union
 from os import getenv, path
 from toolbox.chrome import Chrome
-from toolbox.logger import logger
+from toolbox.logger import logger, logs_dir_path
 from wallets.eternl import Eternl
 from wallets.metamask import MetaMask
 from selenium.common.exceptions import NoSuchElementException
@@ -348,6 +348,17 @@ class Bridge:
             ),
             indent=4
         )
+
+        try:
+
+            if self.__final_status != "success":
+
+                self.__driver.save_screenshot(path.join(logs_dir_path, "final_state.png"))
+                logger.debug("Screenshot of the final state saved successfully")
+
+        except Exception:
+
+            logger.debug("Failed to save screenshot of the final state")
 
         logger.info(
             "Bridging "
