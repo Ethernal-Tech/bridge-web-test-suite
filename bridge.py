@@ -316,7 +316,7 @@ class Bridge:
         )
 
         try:
-            self.__driver.save_screenshot(path.join(logs_dir_path, "final_status.png"))
+            self.__driver.save_screenshot(path.join(logs_dir_path, "statuses.png"))
             logger.debug("Screenshot of the final state saved successfully")
         except Exception:
             logger.debug("Failed to save screenshot of the final state")
