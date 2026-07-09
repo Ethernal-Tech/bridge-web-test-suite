@@ -103,6 +103,8 @@ jobs:
 
       - name: Install ffmpeg
         run: brew install ffmpeg
+        env:
+          HOMEBREW_NO_REQUIRE_TAP_TRUST: 1
 
       - name: Increase screen resolution
         run: |
@@ -110,6 +112,8 @@ jobs:
           displayplacer list
           SCREEN_ID=$(displayplacer list | grep "Persistent screen id:" | head -1 | awk '{print $NF}')
           displayplacer "id:${SCREEN_ID} res:1920x1080 hz:60 color_depth:8 scaling:on"
+        env:
+          HOMEBREW_NO_REQUIRE_TAP_TRUST: 1
 
       - name: Set bridge URL
         id: bridge_url
