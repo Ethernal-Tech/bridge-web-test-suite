@@ -111,7 +111,7 @@ jobs:
           brew install displayplacer
           DISPLAYPLACER_LIST=$(displayplacer list)
           SCREEN_ID=$(echo "$DISPLAYPLACER_LIST" | grep "Persistent screen id:" | head -1 | awk '{print $NF}')
-          SCREEN_OPTION_MODES=$(echo "$DISPLAYPLACER_LIST" | grep -E '1600x1200' | sed -E 's/^[[:space:]]*mode [0-9]+:[[:space:]]*//')
+          SCREEN_OPTION_MODES=$(echo "$DISPLAYPLACER_LIST" | grep -E '1920x1080' | sed -E 's/^[[:space:]]*mode [0-9]+:[[:space:]]*//')
           SCREEN_OPTION=$(echo "$SCREEN_OPTION_MODES" | grep 'scaling:on' | head -1)
           if [ -z "$SCREEN_OPTION" ]; then
             SCREEN_OPTION=$(echo "$SCREEN_OPTION_MODES" | head -1)
