@@ -22,13 +22,14 @@ class Chrome(WebDriver):
         try:
 
             # Set Chrome Options flags
-            self.__options: [str] = [
+            self.__options: list[str] = [
                 "--headless",
                 "--no-sandbox",
                 "--disable-gpu",
                 "--window-size=1920,1080",
                 "--disable-popup-blocking",
-                "--disable-features=DisableLoadExtensionCommandLineSwitch"
+                "--disable-features=DisableLoadExtensionCommandLineSwitch",
+                "--remote-allow-origins=*"
             ]
 
             # Pre-configured Chrome profile with ready-to-use Metamask wallet and Eternl wallet
@@ -52,6 +53,7 @@ class Chrome(WebDriver):
 
                 remove("/tmp/bridge-web-test-suite.zip")
 
+                # Remove lock files to avoid Chrome startup issues
                 for lock_file in ("DevToolsActivePort", "SingletonLock", "SingletonSocket", "SingletonCookie"):
                     lock_path = path.join("/tmp/bridge-web-test-suite", lock_file)
                     if path.isdir(lock_path):

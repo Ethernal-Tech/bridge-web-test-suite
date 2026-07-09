@@ -28,7 +28,6 @@ class MetaMask:
 
         self.__driver.switch_to.window(self.__driver.get_init_tab())
 
-        # only for source wallet
         if self.__need_unlock:
 
             self.open_wallet()
@@ -59,7 +58,7 @@ class MetaMask:
     @retry()
     def __set_receive_address(self) -> None:
 
-        logger.debug(f"Setting {self.__subnetwork.capitalize()} address")
+        logger.debug(f"Setting {self.__subnetwork} address")
 
         for i in range(10):
 
@@ -85,23 +84,20 @@ class MetaMask:
             )
 
             if len(self.__receive_address) > 0:
-
-                logger.info(f"{self.__subnetwork.capitalize()} address: {self.__receive_address}")
-
+                logger.info(f"{self.__subnetwork} address: {self.__receive_address}")
                 break
 
-            logger.error(f"{self.__subnetwork.capitalize()} address is unknown")
+            logger.error(f"{self.__subnetwork} address is unknown")
 
         else:
 
-            logger.critical(f"Failed to set {self.__subnetwork.capitalize()} address")
-
+            logger.critical(f"Failed to set {self.__subnetwork} address")
             raise ValueError
 
     @retry()
     def open_wallet(self) -> None:
 
-        logger.debug(f"Opening {self.__subnetwork.capitalize()} wallet at {self.__url}")
+        logger.debug(f"Opening {self.__subnetwork} wallet at {self.__url}")
 
         self.__driver.get(self.__url)
         sleep(5)
@@ -114,22 +110,19 @@ class MetaMask:
                 self.__driver.find_element_by_xpath(
                     '/html/body/div[1]/div/div/div/form/div/h1'
                 )
-
-                logger.debug(f"{self.__subnetwork.capitalize()} wallet url opened successfully")
-
+                logger.debug(f"{self.__subnetwork} wallet url opened successfully")
                 break
 
             except NoSuchElementException:
 
-                logger.error(f"{self.__subnetwork.capitalize()} wallet is not fully loaded")
+                logger.error(f"{self.__subnetwork} wallet is not fully loaded")
                 self.__driver.refresh()
                 sleep(5)
                 pass
 
         else:
 
-            logger.critical(f"Failed to load {self.__subnetwork.capitalize()} wallet")
-
+            logger.critical(f"Failed to load {self.__subnetwork} wallet")
             raise ValueError
 
     @retry()
@@ -138,8 +131,6 @@ class MetaMask:
         logger.debug("Opening transaction confirmation element in new Chrome tab")
 
         self.__driver.switch_to.new_window(type_hint="tab")
-        popup = list(set(self.__driver.window_handles) - set(self.__opened_tabs))[0]
-        self.__driver.switch_to.window(popup)
         self.__driver.get(self.__notification_url)
 
         sleep(5)

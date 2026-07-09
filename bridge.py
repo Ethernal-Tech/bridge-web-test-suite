@@ -21,7 +21,6 @@ class Bridge:
 
         self.__bridge_name: str = bridge_name.capitalize()
         self.__bridge_url: str = path.join(getenv("BRIDGE_URL"), "app") if self.__bridge_name == "Skyline" else getenv("BRIDGE_URL")
-        self.__apex_faucet_url: str = getenv("APEX_FUSION_FAUCET_URL")
         self.__driver: Chrome = driver
         self.__source_wallet: Union[Eternl, MetaMask] = source_wallet
         self.__destination_wallet: Union[Eternl, MetaMask] = destination_wallet
@@ -31,31 +30,6 @@ class Bridge:
         self.__is_bridge_succeeded: bool = False
         self.__is_destination_succeeded: bool = False
         self.__final_status: str = "Unknown"
-
-        # TODO: Add support for Cardano Preview Faucet
-        # if self.__source_wallet.get_subnetwork() != CardanoSubnetwork.preview:
-        #     self.__fund(self.__source_wallet.get_receive_address())
-
-    @retry()
-    def __fund(self, receiver_address: str) -> None:
-
-        logger.debug(f"Getting funds from {self.__apex_faucet_url}")
-
-        self.__driver.get(self.__apex_faucet_url)
-
-        sleep(1)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="address"]'
-        ).send_keys(receiver_address)
-
-        self.__driver.find_element_by_xpath(
-            '//*[@id="app"]/div/div/div[2]/main/div/div[2]/div/div/form/div[2]/button'
-        ).click()
-
-        sleep(1)
-
-        logger.debug(f"{receiver_address} has been funded")
 
     @retry()
     def __reject_sentry(self) -> None:
@@ -84,8 +58,8 @@ class Bridge:
 
         logger.debug(f"Setting the source chain to {source} and the destination chain to {destination}")
 
-        self.__driver.execute_script(f"window.localStorage.setItem('selected_chain', '{source}');")
-        self.__driver.execute_script(f"window.localStorage.setItem('destination_chain', '{destination}');")
+        self.__driver.execute_script(f"window.localStorage.setItem('selected_chain', '{source.lower()}');")
+        self.__driver.execute_script(f"window.localStorage.setItem('destination_chain', '{destination.lower()}');")
 
         sleep(1)
 
@@ -141,7 +115,7 @@ class Bridge:
 
         if self.__bridge_name == "Skyline":
 
-            logger.debug(f"Selecting source token as {self.__source_wallet.get_token_name().upper()}")
+            logger.debug(f"Selecting source token as {self.__source_wallet.get_token_name()}")
 
             self.__driver.find_element_by_xpath(
                 '//*[@id="src-tokens"]'
@@ -154,7 +128,7 @@ class Bridge:
                 f'//*[translate(text(), '
                 f'"ABCDEFGHIJKLMNOPQRSTUVWXYZ", '
                 f'"abcdefghijklmnopqrstuvwxyz") = '
-                f'"{self.__source_wallet.get_token_name()}"]'
+                f'"{self.__source_wallet.get_token_name().lower()}"]'
             ).click()
 
             logger.debug("Source token selected")
@@ -204,20 +178,14 @@ class Bridge:
                 status = self.__driver.find_element_by_xpath(xpath).get_attribute("d")
 
                 if status == self.__status_done:
-
                     logger.debug("Progress is done")
-
                     return True
 
             except NoSuchElementException:
-
                 pass
 
             tries -= 1
-
-            logger.debug("Progress is not done yet")
-            logger.debug(f"Remaining progress status tries: {tries}")
-
+            logger.debug(f"Progress is not done yet. Remaining progress status tries: {tries}")
             sleep(1)
 
         return False
@@ -254,9 +222,9 @@ class Bridge:
 
     def bridging(self, amount: str) -> None:
 
-        if self.__source_wallet.get_subnetwork() == ApexFusionSubnetwork.prime or \
-                self.__source_wallet.get_subnetwork() == ApexFusionSubnetwork.vector or \
-                self.__source_wallet.get_subnetwork() == CardanoSubnetwork.preview:
+        if self.__source_wallet.get_subnetwork().lower() == ApexFusionSubnetwork.prime or \
+                self.__source_wallet.get_subnetwork().lower() == ApexFusionSubnetwork.vector or \
+                self.__source_wallet.get_subnetwork().lower() == CardanoSubnetwork.preview:
 
             logger.debug(f"Select the source wallet needed for the {self.__bridge_name} Bridge")
 
@@ -281,9 +249,9 @@ class Bridge:
         self.__source_wallet.sign_and_confirm_transaction()
 
         if self.__bridge_name == "Skyline" and \
-                self.__source_wallet.get_subnetwork() != ApexFusionSubnetwork.prime and \
-                self.__source_wallet.get_subnetwork() != ApexFusionSubnetwork.vector and \
-                self.__source_wallet.get_subnetwork() != CardanoSubnetwork.preview and \
+                self.__source_wallet.get_subnetwork().lower() != ApexFusionSubnetwork.prime and \
+                self.__source_wallet.get_subnetwork().lower() != ApexFusionSubnetwork.vector and \
+                self.__source_wallet.get_subnetwork().lower() != CardanoSubnetwork.preview and \
                 self.__source_wallet.get_token_name().lower() == "mytesttoken":
 
             # Second transaction confirm
@@ -321,12 +289,10 @@ class Bridge:
                 logger.info(f"{turn[0].capitalize()} checks completed 🏁")
 
                 if self.__is_source_succeeded and self.__is_bridge_succeeded and self.__is_destination_succeeded:
-
                     self.__final_status = "success"
                     break
 
                 else:
-
                     self.__final_status = "failed"
 
         except Exception:
@@ -350,14 +316,9 @@ class Bridge:
         )
 
         try:
-
-            if self.__final_status != "success":
-
-                self.__driver.save_screenshot(path.join(logs_dir_path, "final_state.png"))
-                logger.debug("Screenshot of the final state saved successfully")
-
+            self.__driver.save_screenshot(path.join(logs_dir_path, "final_status.png"))
+            logger.debug("Screenshot of the final state saved successfully")
         except Exception:
-
             logger.debug("Failed to save screenshot of the final state")
 
         logger.info(

@@ -36,7 +36,7 @@ class Eternl:
     @retry()
     def __set_receive_address(self) -> None:
 
-        logger.debug(f"Setting {self.__subnetwork.capitalize()} address")
+        logger.debug(f"Setting {self.__subnetwork} address")
 
         for i in range(10):
 
@@ -57,24 +57,23 @@ class Eternl:
 
             if len(self.__receive_address) > 0 and '.' not in self.__receive_address:
 
-                logger.info(f"{self.__subnetwork.capitalize()} address: {self.__receive_address}")
+                logger.info(f"{self.__subnetwork} address: {self.__receive_address}")
 
                 break
 
-            logger.error(f"{self.__subnetwork.capitalize()} address is unknown")
+            logger.error(f"{self.__subnetwork} address is unknown")
 
             raise ValueError
 
         else:
 
-            logger.critical(f"Failed to set {self.__subnetwork.capitalize()} address")
-
+            logger.critical(f"Failed to set {self.__subnetwork} address")
             raise ValueError
 
     @retry()
     def open_wallet(self) -> None:
 
-        logger.debug(f"Opening {self.__subnetwork.capitalize()} wallet at {self.__url}")
+        logger.debug(f"Opening {self.__subnetwork} wallet at {self.__url}")
 
         self.__driver.get(self.__url)
         sleep(10)
@@ -89,21 +88,20 @@ class Eternl:
                     '/div[1]/div[1]/div/div[2]/div/div/button[7]'
                 )
 
-                logger.debug(f"{self.__subnetwork.capitalize()} wallet url opened successfully")
+                logger.debug(f"{self.__subnetwork} wallet url opened successfully")
 
                 break
 
             except NoSuchElementException:
 
-                logger.error(f"{self.__subnetwork.capitalize()} wallet is not fully loaded")
+                logger.error(f"{self.__subnetwork} wallet is not fully loaded")
                 self.__driver.refresh()
                 sleep(10)
                 pass
 
         else:
 
-            logger.critical(f"Failed to load {self.__subnetwork.capitalize()} wallet")
-
+            logger.critical(f"Failed to load {self.__subnetwork} wallet")
             raise ValueError
 
     @retry()
@@ -112,8 +110,6 @@ class Eternl:
         logger.debug("Opening Sign Tx element in new Chrome tab")
 
         self.__driver.switch_to.new_window(type_hint="tab")
-        popup = list(set(self.__driver.window_handles) - set(self.__opened_tabs))[0]
-        self.__driver.switch_to.window(popup)
         self.__driver.get(self.__sign_tx_url)
 
         logger.debug("The Sign Tx element opened successfully")

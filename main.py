@@ -4,9 +4,8 @@ from typing import Union
 from bridge import Bridge
 from toolbox.chrome import Chrome
 from toolbox.logger import logger
-from toolbox.utils import Network, retry
-from toolbox.utils import EternlApexFusionIdentifier, EternlCardanoIdentifier
-from toolbox.utils import ApexFusionSubnetwork, CardanoSubnetwork, EthereumSubnetwork
+from toolbox.recorder import ScreenRecorder
+from toolbox.utils import retry, ETERNL_NETWORKS, METAMASK_NETWORKS
 from wallets.eternl import Eternl
 from wallets.metamask import MetaMask
 
@@ -18,116 +17,38 @@ def init_wallet(
         token_name: str = "unknown"
 ) -> Union[Eternl, MetaMask]:
 
-    logger.debug(f"Initializing {subnetwork.capitalize()} wallet")
+    logger.debug(f"Initializing {subnetwork} wallet")
 
-    if subnetwork == ApexFusionSubnetwork.prime:
+    sn: str = subnetwork.lower()
 
-        wallet = Eternl(
-            driver=driver,
-            network=Network.apex,
-            subnetwork=ApexFusionSubnetwork.prime,
-            token_name=token_name,
-            connect=EternlApexFusionIdentifier.prime_testnet,
-            sign_key=getenv('SIGN_KEY'),
-        )
+    if sn in ETERNL_NETWORKS:
 
-    elif subnetwork == ApexFusionSubnetwork.vector:
+        network, connect = ETERNL_NETWORKS[sn]
 
         wallet = Eternl(
             driver=driver,
-            network=Network.apex,
-            subnetwork=ApexFusionSubnetwork.vector,
+            network=network,
+            subnetwork=subnetwork,
             token_name=token_name,
-            connect=EternlApexFusionIdentifier.vector_testnet,
+            connect=connect,
             sign_key=getenv('SIGN_KEY'),
         )
 
-    elif subnetwork == CardanoSubnetwork.preview:
-
-        wallet = Eternl(
-            driver=driver,
-            network=Network.cardano,
-            subnetwork=CardanoSubnetwork.preview,
-            token_name=token_name,
-            connect=EternlCardanoIdentifier.preview,
-            sign_key=getenv('SIGN_KEY'),
-        )
-
-    elif subnetwork == ApexFusionSubnetwork.nexus:
+    elif sn in METAMASK_NETWORKS:
 
         wallet = MetaMask(
             driver=driver,
             sign_key=getenv('SIGN_KEY'),
-            subnetwork=ApexFusionSubnetwork.nexus,
-            token_name=token_name,
-            need_unlock=need_unlock
-        )
-
-    elif subnetwork == EthereumSubnetwork.polygon:
-
-        wallet = MetaMask(
-            driver=driver,
-            sign_key=getenv('SIGN_KEY'),
-            subnetwork=EthereumSubnetwork.polygon,
-            token_name=token_name,
-            need_unlock=need_unlock
-        )
-
-    elif subnetwork == EthereumSubnetwork.ethereum:
-
-        wallet = MetaMask(
-            driver=driver,
-            sign_key=getenv('SIGN_KEY'),
-            subnetwork=EthereumSubnetwork.ethereum,
-            token_name=token_name,
-            need_unlock=need_unlock
-        )
-
-    elif subnetwork == EthereumSubnetwork.katana:
-
-        wallet = MetaMask(
-            driver=driver,
-            sign_key=getenv('SIGN_KEY'),
-            subnetwork=EthereumSubnetwork.katana,
-            token_name=token_name,
-            need_unlock=need_unlock
-        )
-
-    elif subnetwork == EthereumSubnetwork.sei:
-
-        wallet = MetaMask(
-            driver=driver,
-            sign_key=getenv('SIGN_KEY'),
-            subnetwork=EthereumSubnetwork.sei,
-            token_name=token_name,
-            need_unlock=need_unlock
-        )
-
-    elif subnetwork == EthereumSubnetwork.scroll:
-
-        wallet = MetaMask(
-            driver=driver,
-            sign_key=getenv('SIGN_KEY'),
-            subnetwork=EthereumSubnetwork.scroll,
-            token_name=token_name,
-            need_unlock=need_unlock
-        )
-
-    elif subnetwork == EthereumSubnetwork.unichain:
-
-        wallet = MetaMask(
-            driver=driver,
-            sign_key=getenv('SIGN_KEY'),
-            subnetwork=EthereumSubnetwork.unichain,
+            subnetwork=subnetwork,
             token_name=token_name,
             need_unlock=need_unlock
         )
 
     else:
 
-        raise Exception(f"Not supported chain {subnetwork.capitalize()}")
+        raise Exception(f"Not supported chain {subnetwork}")
 
-    logger.debug(f"{subnetwork.capitalize()} wallet initialized successfully")
+    logger.debug(f"{subnetwork} wallet initialized successfully")
 
     return wallet
 
@@ -142,6 +63,8 @@ def main(
 ) -> None:
 
     chrome = Chrome()
+    screen_recorder = ScreenRecorder(driver=chrome)
+    screen_recorder.start()
 
     try:
 
@@ -155,7 +78,7 @@ def main(
         dest_wlt: Union[Eternl, MetaMask] = init_wallet(
             driver=chrome,
             subnetwork=destination_subnetwork,
-            need_unlock=True if type(src_wlt) is Eternl else False
+            need_unlock=False if type(src_wlt) is MetaMask else True
         )
 
         bridge = Bridge(
@@ -169,33 +92,26 @@ def main(
 
     finally:
 
+        screen_recorder.stop()
         chrome.quit()
 
 
 if __name__ == '__main__':
     try:
 
-        bdg = argv[1]
-
-        ss = argv[2]
-        amt = argv[3]
-        st = argv[4]
-
-        ds = argv[5]
-
         logger.info("*" * 45)
-        logger.info(f"{bdg.capitalize()} Bridge")
+        logger.info(f"{argv[1]} Bridge")
         logger.info(f"{getenv('BRIDGE_URL')}")
-        logger.info(f"Source chain: {ss.capitalize()}")
-        logger.info(f"Destination chain: {ds.capitalize()}")
+        logger.info(f"Source chain: {argv[2]}")
+        logger.info(f"Destination chain: {argv[5]}")
         logger.info("*" * 45)
 
         main(
-            bridge_name=bdg.lower(),
-            source_subnetwork=ss.lower(),
-            source_token=st.lower(),
-            destination_subnetwork=ds.lower(),
-            amount=amt
+            bridge_name=argv[1],
+            source_subnetwork=argv[2],
+            source_token=argv[4],
+            destination_subnetwork=argv[5],
+            amount=argv[3]
         )
 
     except Exception as error:

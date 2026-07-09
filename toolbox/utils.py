@@ -1,51 +1,44 @@
+from enum import Enum
 from time import sleep
 from functools import wraps
-from dataclasses import dataclass
 from toolbox.logger import logger
 
 
-@dataclass(frozen=True)
-class Network:
-    apex: str = "apex"
-    cardano: str = "cardano"
+class Network(str, Enum):
+    apex = "apex"
+    cardano = "cardano"
 
 
-@dataclass(frozen=True)
-class EternlApexFusionIdentifier:
-    prime_testnet: str = "afpt"
-    vector_testnet: str = "afvt"
+class EternlApexFusionIdentifier(str, Enum):
+    prime_testnet = "afpt"
+    vector_testnet = "afvt"
 
 
-@dataclass(frozen=True)
-class ApexFusionSubnetwork:
-    prime: str = "prime"
-    vector: str = "vector"
-    nexus: str = "nexus"
+class ApexFusionSubnetwork(str, Enum):
+    prime = "prime"
+    vector = "vector"
+    nexus = "nexus"
 
 
-@dataclass(frozen=True)
-class EternlCardanoIdentifier:
-    preview: str = "preview"
+class EternlCardanoIdentifier(str, Enum):
+    preview = "preview"
 
 
-@dataclass(frozen=True)
-class CardanoSubnetwork:
-    preview: str = "preview"
+class CardanoSubnetwork(str, Enum):
+    preview = "preview"
 
 
-@dataclass(frozen=True)
-class EthereumSubnetwork:
-    polygon: str = "polygon"
-    ethereum: str = "ethereum"
-    katana: str = "katana"
-    sei: str = "sei"
-    scroll: str = "scroll"
-    unichain: str = "unichain"
+class EthereumSubnetwork(str, Enum):
+    polygon = "polygon"
+    ethereum = "ethereum"
+    katana = "katana"
+    sei = "sei"
+    scroll = "scroll"
+    unichain = "unichain"
 
 
-@dataclass(frozen=True)
-class SolanaSubnetwork:
-    solana: str = "solana"
+class SolanaSubnetwork(str, Enum):
+    solana = "solana"
 
 
 def retry(tries: int = 10, delay: int = 1, back_off: float = 1.5):
@@ -66,3 +59,21 @@ def retry(tries: int = 10, delay: int = 1, back_off: float = 1.5):
             return f(*args, **kwargs)
         return f_retry
     return deco_retry
+
+
+ETERNL_NETWORKS: dict[str, tuple[str, str]] = {
+    ApexFusionSubnetwork.prime: (Network.apex, EternlApexFusionIdentifier.prime_testnet),
+    ApexFusionSubnetwork.vector: (Network.apex, EternlApexFusionIdentifier.vector_testnet),
+    CardanoSubnetwork.preview: (Network.cardano, EternlCardanoIdentifier.preview),
+}
+
+
+METAMASK_NETWORKS: set[str] = {
+    ApexFusionSubnetwork.nexus,
+    EthereumSubnetwork.polygon,
+    EthereumSubnetwork.ethereum,
+    EthereumSubnetwork.katana,
+    EthereumSubnetwork.sei,
+    EthereumSubnetwork.scroll,
+    EthereumSubnetwork.unichain,
+}

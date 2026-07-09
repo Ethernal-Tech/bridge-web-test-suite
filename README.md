@@ -63,7 +63,6 @@ By addressing **all possible scenarios**, this tool provides a strong foundation
    CHROMEDRIVER_VERSION=''
    BRIDGE_URL=''
    SIGN_KEY=''
-   APEX_FUSION_FAUCET_URL=''
    PREVIEW_FAUCET_API_KEY=''
    PREPROD_FAUCET_API_KEY=''
    BRD_PROXY_USERNAME=''

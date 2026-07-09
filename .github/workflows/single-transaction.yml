@@ -116,7 +116,6 @@ jobs:
           PYTHONUNBUFFERED: 1
           SIGN_KEY: ${{ secrets.SIGN_KEY }}
           BRIDGE_URL: ${{ steps.bridge_url.outputs.value }}
-          APEX_FUSION_FAUCET_URL: ${{ vars.APEX_FUSION_FAUCET_URL }}
           CHROMEDRIVER_VERSION: ${{ vars.CHROMEDRIVER_VERSION }}
           CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
 

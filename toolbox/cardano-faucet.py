@@ -13,7 +13,7 @@ class CardanoFaucet:
     def __init__(
             self,
             receive_addresses: list[str]
-    ):
+    ) -> None:
 
         self.__receive_addresses = receive_addresses
 
