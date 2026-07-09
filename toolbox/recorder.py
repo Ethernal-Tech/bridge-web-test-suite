@@ -46,13 +46,13 @@ class ScreenRecorder:
 
             self.__stop_event.wait(self.__poll_interval_seconds)
 
-        self.__stop_active_capture()
+        self.__stop_capture()
 
     def __switch_target(self, handle: str) -> None:
 
         logger.debug(f"Switching recording to tab {handle}")
 
-        self.__stop_active_capture()
+        self.__stop_capture()
 
         try:
 
@@ -80,7 +80,7 @@ class ScreenRecorder:
             self.__active_target_id = handle
 
             self.__active_capture_thread = threading.Thread(
-                target=self.__capture_loop, 
+                target=self.__capture, 
                 args=(web_socket,), 
                 daemon=True
             )
@@ -94,7 +94,7 @@ class ScreenRecorder:
             # a failed switch must not raise and kill the thread, just retry on the next poll
             logger.debug(f"Failed to switch recording to tab {handle}: {e}")
 
-    def __stop_active_capture(self) -> None:
+    def __stop_capture(self) -> None:
 
         if self.__active_web_socket:
 
@@ -115,14 +115,14 @@ class ScreenRecorder:
         self.__active_capture_thread = None
         self.__active_target_id = None
 
-    def __capture_loop(self, web_socket: WebSocket) -> None:
+    def __capture(self, web_socket: WebSocket) -> None:
 
         while True:
 
             try:
                 data: str = web_socket.recv()
             except Exception as error:
-                # the connection is only ever closed deliberately from __stop_active_capture(),
+                # the connection is only ever closed deliberately from __stop_capture(),
                 # so this is the sole legitimate reason to end the loop
                 logger.debug(f"Screencast connection closed: {error}")
                 break
@@ -200,7 +200,7 @@ class ScreenRecorder:
         else:
             logger.debug("Recording encoded successfully")
 
-    def start(self) -> None:
+    def start_recording(self) -> None:
 
         makedirs(self.__frames_dir, exist_ok=True)
 
@@ -209,7 +209,7 @@ class ScreenRecorder:
 
         logger.debug("Screen recording started")
 
-    def stop(self) -> None:
+    def stop_recording(self) -> None:
 
         if not self.__watcher_thread:
             return

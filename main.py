@@ -64,7 +64,7 @@ def main(
 
     chrome = Chrome()
     screen_recorder = ScreenRecorder(driver=chrome)
-    screen_recorder.start()
+    screen_recorder.start_recording()
 
     try:
 
@@ -92,7 +92,7 @@ def main(
 
     finally:
 
-        screen_recorder.stop()
+        screen_recorder.stop_recording()
         chrome.quit()
 
 
