@@ -101,6 +101,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Install ffmpeg
+        run: brew install ffmpeg
+
       - name: Set bridge URL
         id: bridge_url
         run: |

@@ -2,7 +2,7 @@ import json
 import threading
 from time import time
 from requests import get
-from shutil import rmtree
+from shutil import rmtree, which
 from subprocess import run
 from typing import Optional
 from base64 import b64decode
@@ -202,6 +202,10 @@ class ScreenRecorder:
 
     def start_recording(self) -> None:
 
+        if not which("ffmpeg"):
+            logger.warning("ffmpeg not found")
+            return
+
         makedirs(self.__frames_dir, exist_ok=True)
 
         self.__watcher_thread = threading.Thread(target=self.__watch, daemon=True)
@@ -221,5 +225,7 @@ class ScreenRecorder:
 
         try:
             self.__encode_video()
+        except Exception as e:
+            logger.warning(f"Failed to encode recording: {e}")
         finally:
             rmtree(self.__frames_dir, ignore_errors=True)
