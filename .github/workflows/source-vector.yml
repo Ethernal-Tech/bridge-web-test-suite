@@ -1,0 +1,126 @@
+---
+name: Source Vector Transactions
+
+on:
+  workflow_call:
+    inputs:
+      bridge_name:
+        type: string
+        required: true
+      notification:
+        type: boolean
+        required: true
+
+    outputs:
+      transactions:
+        value: ${{ jobs.notification.outputs.transactions }}
+
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  vector_ap3x_to_prime_ap3x:
+    name: Vector(AP3X) to Prime(AP3X)
+    uses: ./.github/workflows/single-transaction.yml
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Vector
+      amount: 2
+      source_token: AP3X
+      destination_chain: Prime
+      destination_token: AP3X
+      notification: false
+    secrets: inherit
+
+  vector_ap3x_to_nexus_ap3x:
+    name: Vector(AP3X) to Nexus(AP3X)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled())
+    needs: vector_ap3x_to_prime_ap3x
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Vector
+      amount: 2
+      source_token: AP3X
+      destination_chain: Nexus
+      destination_token: AP3X
+      notification: false
+    secrets: inherit
+
+  vector_xada_to_preview_ada:
+    name: Vector(xADA) to Preview(ADA)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: vector_ap3x_to_nexus_ap3x
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Vector
+      amount: 5
+      source_token: xADA
+      destination_chain: Preview
+      destination_token: ADA
+      notification: false
+    secrets: inherit
+
+  vector_mytesttoken_to_preview_mytesttoken:
+    name: Vector(myTestToken) to Preview(myTestToken)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: vector_xada_to_preview_ada
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Vector
+      amount: 5
+      source_token: myTestToken
+      destination_chain: Preview
+      destination_token: myTestToken
+      notification: false
+    secrets: inherit
+
+  vector_xada_to_nexus_xada:
+    name: Vector(xADA) to Nexus(xADA)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: vector_mytesttoken_to_preview_mytesttoken
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Vector
+      amount: 5
+      source_token: xADA
+      destination_chain: Nexus
+      destination_token: xADA
+      notification: false
+    secrets: inherit
+
+  vector_mytesttoken_to_nexus_mytesttoken:
+    name: Vector(myTestToken) to Nexus(myTestToken)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: vector_xada_to_nexus_xada
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Vector
+      amount: 2
+      source_token: myTestToken
+      destination_chain: Nexus
+      destination_token: myTestToken
+      notification: false
+    secrets: inherit
+
+  notification:
+    name: Notification
+    uses: ./.github/workflows/notification.yml
+    if: (!cancelled() && inputs.notification)
+    needs:
+      - vector_ap3x_to_prime_ap3x
+      - vector_ap3x_to_nexus_ap3x
+      - vector_xada_to_preview_ada
+      - vector_mytesttoken_to_preview_mytesttoken
+      - vector_xada_to_nexus_xada
+      - vector_mytesttoken_to_nexus_mytesttoken
+    with:
+      needs_json: ${{ toJSON(needs) }}
+      bridge_name: ${{ inputs.bridge_name }}
+    secrets: inherit

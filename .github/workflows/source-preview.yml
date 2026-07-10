@@ -1,0 +1,207 @@
+---
+name: Source Preview Transactions
+
+on:
+  workflow_call:
+    inputs:
+      bridge_name:
+        type: string
+        required: true
+      notification:
+        type: boolean
+        required: true
+
+    outputs:
+      transactions:
+        value: ${{ jobs.notification.outputs.transactions }}
+
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  preview_cap3x_to_prime_ap3x:
+    name: Preview(cAP3X) to Prime(AP3X)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: cAP3X
+      destination_chain: Prime
+      destination_token: AP3X
+      notification: false
+    secrets: inherit
+
+  preview_ada_to_vector_xada:
+    name: Preview(ADA) to Vector(xADA)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: preview_cap3x_to_prime_ap3x
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: ADA
+      destination_chain: Vector
+      destination_token: xADA
+      notification: false
+    secrets: inherit
+
+  preview_mytesttoken_to_vector_mytesttoken:
+    name: Preview(myTestToken) to Vector(myTestToken)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: preview_ada_to_vector_xada
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: myTestToken
+      destination_chain: Vector
+      destination_token: myTestToken
+      notification: false
+    secrets: inherit
+
+  preview_ada_to_nexus_xada:
+    name: Preview(ADA) to Nexus(xADA)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: preview_mytesttoken_to_vector_mytesttoken
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 5
+      source_token: ADA
+      destination_chain: Nexus
+      destination_token: xADA
+      notification: false
+    secrets: inherit
+
+  preview_mytesttoken_to_nexus_mytesttoken:
+    name: Preview(myTestToken) to Nexus(myTestToken)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: preview_ada_to_nexus_xada
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 2
+      source_token: myTestToken
+      destination_chain: Nexus
+      destination_token: myTestToken
+      notification: false
+    secrets: inherit
+
+  preview_cpol_to_polygon_pol:
+    name: Preview(cPOL) to Polygon(POL)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: preview_mytesttoken_to_nexus_mytesttoken
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 0.0005
+      source_token: cPOL
+      destination_chain: Polygon
+      destination_token: POL
+      notification: false
+    secrets: inherit
+
+  preview_ceth_to_ethereum_eth:
+    name: Preview(cETH) to Ethereum(ETH)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: preview_cpol_to_polygon_pol
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 0.0005
+      source_token: cETH
+      destination_chain: Ethereum
+      destination_token: ETH
+      notification: false
+    secrets: inherit
+
+  preview_ckatanaeth_to_katana_katanaeth:
+    name: Preview(cKatanaETH) to Katana(KatanaETH)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: preview_ceth_to_ethereum_eth
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 0.0005
+      source_token: cKatanaETH
+      destination_chain: Katana
+      destination_token: KatanaETH
+      notification: false
+    secrets: inherit
+
+  preview_csei_to_sei_sei:
+    name: Preview(cSEI) to Sei(SEI)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: preview_ckatanaeth_to_katana_katanaeth
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 0.0005
+      source_token: cSEI
+      destination_chain: Sei
+      destination_token: SEI
+      notification: false
+    secrets: inherit
+
+  preview_cscrolleth_to_scroll_scrolleth:
+    name: Preview(cScrollETH) to Scroll(ScrollETH)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: preview_csei_to_sei_sei
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 0.0005
+      source_token: cScrollETH
+      destination_chain: Scroll
+      destination_token: ScrollETH
+      notification: false
+    secrets: inherit
+
+  preview_cunichaineth_to_unichain_unichaineth:
+    name: Preview(cUnichainETH) to Unichain(UnichainETH)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: preview_cscrolleth_to_scroll_scrolleth
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Preview
+      amount: 0.0005
+      source_token: cUnichainETH
+      destination_chain: Unichain
+      destination_token: UnichainETH
+      notification: false
+    secrets: inherit
+
+  notification:
+    name: Notification
+    uses: ./.github/workflows/notification.yml
+    if: (!cancelled() && inputs.notification)
+    needs:
+      - preview_cap3x_to_prime_ap3x
+      - preview_ada_to_vector_xada
+      - preview_mytesttoken_to_vector_mytesttoken
+      - preview_ada_to_nexus_xada
+      - preview_mytesttoken_to_nexus_mytesttoken
+      - preview_cpol_to_polygon_pol
+      - preview_ceth_to_ethereum_eth
+      - preview_ckatanaeth_to_katana_katanaeth
+      - preview_csei_to_sei_sei
+      - preview_cscrolleth_to_scroll_scrolleth
+      - preview_cunichaineth_to_unichain_unichaineth
+    with:
+      needs_json: ${{ toJSON(needs) }}
+      bridge_name: ${{ inputs.bridge_name }}
+    secrets: inherit

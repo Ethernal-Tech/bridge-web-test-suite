@@ -1,0 +1,111 @@
+name: Notification
+
+on:
+  workflow_call:
+    inputs:
+      needs_json:
+        type: string
+        required: true
+      bridge_name:
+        type: string
+        required: true
+
+    outputs:
+      transactions:
+        value: ${{ jobs.notification.outputs.transactions }}
+
+jobs:
+  notification:
+    name: Notification
+    runs-on: ubuntu-latest
+    outputs:
+      transactions: ${{ steps.collect.outputs.transactions }}
+    steps:
+      - name: Collect transactions
+        id: collect
+        env:
+          NEEDS_JSON: ${{ inputs.needs_json }}
+        run: |
+          transactions=$(echo "$NEEDS_JSON" | jq -c '[.[] | .outputs.bridging_status | select(type == "string" and . != "") | fromjson]')
+          all_success=$(echo "$transactions" | jq -r 'if length == 0 then "false" elif all(.status == "success") then "true" else "false" end')
+          echo "transactions=$transactions" >> "$GITHUB_OUTPUT"
+          echo "all_success=$all_success" >> "$GITHUB_OUTPUT"
+      
+      - name: Short SHA
+        id: short_sha
+        run: echo "value=`echo ${{ github.sha }} | cut -c1-7`" >> $GITHUB_OUTPUT
+
+      - name: Build Slack payload
+        env:
+          TRANSACTIONS: ${{ steps.collect.outputs.transactions }}
+          BRIDGE: ${{ inputs.bridge_name }}
+          ALL_SUCCESS: ${{ steps.collect.outputs.all_success }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_URL: https://github.com/${{ github.repository }}/tree/${{ github.sha }}
+          SHORT_SHA: ${{ steps.short_sha.outputs.value }}
+        run: |
+          jq -n \
+            --arg bridge "$BRIDGE" \
+            --argjson all_success "$ALL_SUCCESS" \
+            --argjson transactions "$TRANSACTIONS" \
+            --arg run_url "$RUN_URL" \
+            --arg commit_url "$COMMIT_URL" \
+            --arg short_sha "$SHORT_SHA" \
+            --arg duration "$DURATION" \
+            '{
+              blocks: ([
+                {
+                  type: "header",
+                  text: {
+                    type: "plain_text",
+                    text: ($bridge + " Bridge | Source " + ($transactions[0].source_label | split("(")[0]))
+                  }
+                },
+                {
+                  type: "actions",
+                  elements: (
+                    [
+                      {
+                        type: "button",
+                        text: {type: "plain_text", text: "Workflow Run"},
+                        style: (if $all_success then "primary" else "danger" end),
+                        url: $run_url
+                      }
+                    ] + [
+                      $transactions[] |
+                      {
+                        type: "button",
+                        text: {type: "plain_text", text: (.source_label + " " + .destination_label + " Logs")},
+                        url: ($run_url + "/artifacts/" + (.logs_artifact_id | tostring))
+                      }
+                    ]
+                  )
+                },
+                {
+                  type: "context",
+                  elements: [{type: "mrkdwn", text: ("Commit: *<" + $commit_url + "|" + $short_sha + ">*")}]
+                },
+                {type: "divider"}
+              ] + [
+                $transactions[] |
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: (
+                      (if .source then ":green:" else ":red:" end) + " *" + .source_label + "* " +
+                      (if .bridge then ":green:" else ":red:" end) + " *Bridge* " +
+                      (if .destination then ":green:" else ":red:" end) + " *" + .destination_label + "*"
+                    )
+                  }
+                }
+              ])
+            }' > payload.json
+
+      - name: Notify Slack
+        uses: slackapi/slack-github-action@v3
+        with:
+          payload-file-path: payload.json
+          payload-templated: true
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook

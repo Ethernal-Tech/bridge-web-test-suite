@@ -19,7 +19,7 @@ class Eternl:
         self.__extension_url: str = "chrome-extension://kmhcihpebfmpgmihbkipmjlmmioameka"
         self.__url: str = f"{self.__extension_url}/index.html#/{connect}/wallet/home"
         self.__sign_tx_url: str = f"{self.__extension_url}/app/signTx.html"
-        self.__utxo_list_url: str = f"{self.__extension_url}/index.html#/{connect}/wallet/utxo-list"
+        self.__receive_url: str = f"{self.__extension_url}/index.html#/{connect}/wallet/receive"
         self.__driver: Chrome = driver
         self.__network: str = network
         self.__subnetwork: str = subnetwork
@@ -36,48 +36,44 @@ class Eternl:
     @retry()
     def __set_receive_address(self) -> None:
 
-        logger.debug(f"Setting {self.__subnetwork.capitalize()} address")
+        logger.debug(f"Setting {self.__subnetwork} address")
 
         for i in range(10):
 
-            self.__driver.get(self.__utxo_list_url)
+            self.__driver.get(self.__receive_url)
 
-            sleep(1)
+            sleep(3)
 
-            try:
+            self.__driver.find_element_by_xpath(
+                '/html/body/div[1]/div[2]/div[1]/div'
+                '/div[2]/main/div/div/div/div/div/div[2]/div/div[1]/div/div/div[2]/div/div[2]/button'
+            ).click()
 
-                receive_address = self.__driver.find_element_by_xpath(
-                    '/html/body/div[1]/div[2]/div[1]/div'
-                    '/div[2]/main/div/div/div/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/div/div/div[1]'
-                )
+            sleep(2)
 
-            except NoSuchElementException:
+            self.__receive_address = self.__driver.find_element_by_xpath(
+                '/html/body/div[3]/div/div/div/div[2]/div/div[1]'
+            ).text
 
-                receive_address = self.__driver.find_element_by_xpath(
-                    '/html/body/div[1]/div[2]/div[1]/div'
-                    '/div[2]/main/div/div/div/div/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div[1]'
-                )
+            if len(self.__receive_address) > 0 and '.' not in self.__receive_address:
 
-            self.__receive_address = receive_address.text
-
-            if len(self.__receive_address) > 0:
-
-                logger.info(f"{self.__subnetwork.capitalize()} address: {self.__receive_address}")
+                logger.info(f"{self.__subnetwork} address: {self.__receive_address}")
 
                 break
 
-            logger.error(f"{self.__subnetwork.capitalize()} address is unknown")
+            logger.error(f"{self.__subnetwork} address is unknown")
+
+            raise ValueError
 
         else:
 
-            logger.critical(f"Failed to set {self.__subnetwork.capitalize()} address")
-
+            logger.critical(f"Failed to set {self.__subnetwork} address")
             raise ValueError
 
     @retry()
     def open_wallet(self) -> None:
 
-        logger.debug(f"Opening {self.__subnetwork.capitalize()} wallet at {self.__url}")
+        logger.debug(f"Opening {self.__subnetwork} wallet at {self.__url}")
 
         self.__driver.get(self.__url)
         sleep(10)
@@ -92,21 +88,20 @@ class Eternl:
                     '/div[1]/div[1]/div/div[2]/div/div/button[7]'
                 )
 
-                logger.debug(f"{self.__subnetwork.capitalize()} wallet url opened successfully")
+                logger.debug(f"{self.__subnetwork} wallet url opened successfully")
 
                 break
 
             except NoSuchElementException:
 
-                logger.error(f"{self.__subnetwork.capitalize()} wallet is not fully loaded")
+                logger.error(f"{self.__subnetwork} wallet is not fully loaded")
                 self.__driver.refresh()
                 sleep(10)
                 pass
 
         else:
 
-            logger.critical(f"Failed to load {self.__subnetwork.capitalize()} wallet")
-
+            logger.critical(f"Failed to load {self.__subnetwork} wallet")
             raise ValueError
 
     @retry()
@@ -115,8 +110,6 @@ class Eternl:
         logger.debug("Opening Sign Tx element in new Chrome tab")
 
         self.__driver.switch_to.new_window(type_hint="tab")
-        popup = list(set(self.__driver.window_handles) - set(self.__opened_tabs))[0]
-        self.__driver.switch_to.window(popup)
         self.__driver.get(self.__sign_tx_url)
 
         logger.debug("The Sign Tx element opened successfully")
