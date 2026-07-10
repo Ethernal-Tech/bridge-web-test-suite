@@ -3,7 +3,8 @@ name: Multiple Reactor Transactions
 
 on:
   schedule:
-    - cron: "30 4,11 * * *"
+    - cron: "30 4,9 * * *" # currently run at ~8:30 and ~13:30
+      timezone: "Europe/Belgrade"
 
   workflow_dispatch:
     inputs:
