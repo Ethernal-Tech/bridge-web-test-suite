@@ -155,26 +155,27 @@ jobs:
       notification: false
     secrets: inherit
 
-  preview_cscrolleth_to_scroll_scrolleth:
-    name: Preview(cScrollETH) to Scroll(ScrollETH)
-    uses: ./.github/workflows/single-transaction.yml
-    if: (!cancelled() && inputs.bridge_name == 'Skyline')
-    needs: preview_csei_to_sei_sei
-    with:
-      bridge_name: ${{ inputs.bridge_name }}
-      source_chain: Preview
-      amount: 0.0005
-      source_token: cScrollETH
-      destination_chain: Scroll
-      destination_token: ScrollETH
-      notification: false
-    secrets: inherit
+  # preview_cscrolleth_to_scroll_scrolleth:
+  #   name: Preview(cScrollETH) to Scroll(ScrollETH)
+  #   uses: ./.github/workflows/single-transaction.yml
+  #   if: (!cancelled() && inputs.bridge_name == 'Skyline')
+  #   needs: preview_csei_to_sei_sei
+  #   with:
+  #     bridge_name: ${{ inputs.bridge_name }}
+  #     source_chain: Preview
+  #     amount: 0.0005
+  #     source_token: cScrollETH
+  #     destination_chain: Scroll
+  #     destination_token: ScrollETH
+  #     notification: false
+  #   secrets: inherit
 
   preview_cunichaineth_to_unichain_unichaineth:
     name: Preview(cUnichainETH) to Unichain(UnichainETH)
     uses: ./.github/workflows/single-transaction.yml
     if: (!cancelled() && inputs.bridge_name == 'Skyline')
-    needs: preview_cscrolleth_to_scroll_scrolleth
+    needs: preview_csei_to_sei_sei # temporary: was preview_cscrolleth_to_scroll_scrolleth
+    # needs: preview_cscrolleth_to_scroll_scrolleth
     with:
       bridge_name: ${{ inputs.bridge_name }}
       source_chain: Preview
@@ -199,7 +200,7 @@ jobs:
       - preview_ceth_to_ethereum_eth
       - preview_ckatanaeth_to_katana_katanaeth
       - preview_csei_to_sei_sei
-      - preview_cscrolleth_to_scroll_scrolleth
+      # - preview_cscrolleth_to_scroll_scrolleth
       - preview_cunichaineth_to_unichain_unichaineth
     with:
       needs_json: ${{ toJSON(needs) }}

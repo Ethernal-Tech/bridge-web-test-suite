@@ -83,13 +83,13 @@ jobs:
       notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
     secrets: inherit
 
-  source_scroll:
-    name: Source Scroll
-    uses: ./.github/workflows/source-scroll.yml
-    with:
-      bridge_name: Skyline
-      notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
-    secrets: inherit
+  # source_scroll:
+  #   name: Source Scroll
+  #   uses: ./.github/workflows/source-scroll.yml
+  #   with:
+  #     bridge_name: Skyline
+  #     notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
+  #   secrets: inherit
 
   source_unichain:
     name: Source Unichain
