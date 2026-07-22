@@ -91,10 +91,10 @@ jobs:
   #     notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
   #   secrets: inherit
 
-  source_unichain:
-    name: Source Unichain
-    uses: ./.github/workflows/source-unichain.yml
-    with:
-      bridge_name: Skyline
-      notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
-    secrets: inherit
+  # source_unichain:
+  #   name: Source Unichain
+  #   uses: ./.github/workflows/source-unichain.yml
+  #   with:
+  #     bridge_name: Skyline
+  #     notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
+  #   secrets: inherit
