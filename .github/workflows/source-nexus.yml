@@ -7,13 +7,10 @@ on:
       bridge_name:
         type: string
         required: true
-      notification:
-        type: boolean
-        required: true
 
     outputs:
       transactions:
-        value: ${{ jobs.notification.outputs.transactions }}
+        value: ${{ jobs.collect.outputs.transactions }}
 
 permissions:
   id-token: write
@@ -139,10 +136,10 @@ jobs:
       notification: false
     secrets: inherit
 
-  notification:
-    name: Notification
-    uses: ./.github/workflows/notification.yml
-    if: (!cancelled() && inputs.notification)
+  collect:
+    name: Collect
+    uses: ./.github/workflows/collect-transactions.yml
+    if: (!cancelled())
     needs:
       - nexus_ap3x_to_prime_ap3x
       - nexus_ap3x_to_vector_ap3x
@@ -154,5 +151,4 @@ jobs:
       - nexus_xpol_to_polygon_pol
     with:
       needs_json: ${{ toJSON(needs) }}
-      bridge_name: ${{ inputs.bridge_name }}
-    secrets: inherit
+      source_chain: Nexus

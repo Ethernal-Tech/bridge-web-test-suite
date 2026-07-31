@@ -1,0 +1,147 @@
+name: Notification Summary
+
+on:
+  workflow_call:
+    inputs:
+      needs_json:
+        type: string
+        required: true
+      bridge_name:
+        type: string
+        required: true
+
+jobs:
+  notify:
+    name: Notify Slack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Slack payload
+        env:
+          NEEDS_JSON: ${{ inputs.needs_json }}
+          BRIDGE: ${{ inputs.bridge_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          jq -n \
+            --argjson needs "$NEEDS_JSON" \
+            --arg bridge "$BRIDGE" \
+            --arg run_url "$RUN_URL" \
+            '
+            (
+              $needs | to_entries | map(
+                (.key | sub("^source_"; "")) as $slug |
+                (.value.outputs.transactions // "[]") as $tx_raw |
+                ($tx_raw | (try fromjson catch [])) as $tx |
+                {slug: $slug, tx: $tx}
+              )
+            ) as $per_source |
+            ([$per_source[] | .tx[]]) as $all_tx |
+            (
+              $per_source | map(
+                ((.tx[0].source_chain // ((.slug[0:1] | ascii_upcase) + .slug[1:]))) as $name |
+                (.tx | length) as $total |
+                ([.tx[] | select(.status == "success")] | length) as $ok |
+                {
+                  name: $name,
+                  total: $total,
+                  ok: $ok,
+                  all_ok: ($total > 0 and $ok == $total)
+                }
+              )
+            ) as $sources |
+            ([$all_tx[] | select(.status == "success")]) as $success_tx |
+            ([$all_tx[] | select(.status != "success")]) as $failed_tx |
+            {
+              success_text: (
+                $success_tx | map("`" + .source_label + " → " + .destination_label + "`") | join(" ")
+              ),
+              failed_text: (
+                $failed_tx | map(
+                  (.source_label + " → " + .destination_label) as $label |
+                  (if .logs_artifact_id then
+                    ("`<" + $run_url + "/artifacts/" + (.logs_artifact_id | tostring) + "|" + $label + ">`")
+                  else ("`" + $label + "`") end)
+                ) | join(" ")
+              )
+            } as $lines |
+            {
+              blocks: (
+                [
+                  {
+                    type: "header",
+                    text: {
+                      type: "plain_text",
+                      text: ($bridge + " Bridge Web Tests"),
+                      emoji: true
+                    }
+                  },
+                  {
+                    type: "actions",
+                    elements: [
+                      {
+                        type: "button",
+                        text: {type: "plain_text", text: "Workflow Run"},
+                        style: "primary",
+                        url: $run_url
+                      }
+                    ]
+                  },
+                  {
+                    type: "container",
+                    title: {type: "plain_text", text: "More Details..."},
+                    is_collapsible: true,
+                    default_collapsed: true,
+                    child_blocks: (
+                      (
+                        if ($success_tx | length) > 0 then [
+                          {
+                            type: "callout",
+                            background_color: "green",
+                            child_blocks: [
+                              {
+                                type: "section",
+                                text: {type: "mrkdwn", text: $lines.success_text}
+                              }
+                            ]
+                          }
+                        ] else [] end
+                      ) + (
+                        if ($failed_tx | length) > 0 then [
+                          {
+                            type: "callout",
+                            background_color: "orange",
+                            child_blocks: [
+                              {
+                                type: "section",
+                                text: {type: "mrkdwn", text: $lines.failed_text}
+                              }
+                            ]
+                          }
+                        ] else [] end
+                      )
+                    )
+                  },
+                  {
+                    type: "section",
+                    fields: (
+                      $sources | map({
+                        type: "mrkdwn",
+                        text: (
+                          (if .all_ok then ":green:" else ":red:" end) + " *" +
+                          "(" + (.ok | tostring) + "/" + (.total | tostring) + ") " +
+                          .name + "*"
+                        )
+                      })
+                    )
+                  }
+                ]
+              )
+            }
+            ' > payload.json
+
+      - name: Notify Slack
+        uses: slackapi/slack-github-action@v3
+        with:
+          payload-file-path: payload.json
+          payload-templated: true
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook

@@ -1,0 +1,54 @@
+name: Collect Transactions
+
+on:
+  workflow_call:
+    inputs:
+      needs_json:
+        type: string
+        required: true
+      source_chain:
+        type: string
+        required: true
+
+    outputs:
+      transactions:
+        value: ${{ jobs.collect.outputs.transactions }}
+
+jobs:
+  collect:
+    name: Collect
+    runs-on: ubuntu-latest
+    outputs:
+      transactions: ${{ steps.collect.outputs.transactions }}
+    steps:
+      - name: Collect transactions
+        id: collect
+        env:
+          NEEDS_JSON: ${{ inputs.needs_json }}
+          SOURCE_CHAIN: ${{ inputs.source_chain }}
+        run: |
+          transactions=$(echo "$NEEDS_JSON" | jq -c \
+            --arg source_chain "$SOURCE_CHAIN" \
+            '
+            [
+              to_entries[] |
+              (.value.outputs.bridging_status // "") as $bs |
+              if ($bs | type) == "string" and $bs != ""
+              then ($bs | fromjson)
+              else (
+                (.key | split("_to_")) as $parts |
+                {
+                  status: "failed",
+                  source: false,
+                  bridge: false,
+                  destination: false,
+                  logs_artifact_id: null,
+                  source_chain: $source_chain,
+                  source_label: (($parts[0] // .key) | gsub("_"; " ")),
+                  destination_label: (($parts[1] // (.value.result // "failed")) | gsub("_"; " "))
+                }
+              )
+              end
+            ]
+          ')
+          echo "transactions=$transactions" >> "$GITHUB_OUTPUT"
