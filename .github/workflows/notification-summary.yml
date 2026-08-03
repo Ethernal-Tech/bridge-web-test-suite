@@ -61,7 +61,8 @@ jobs:
                     ("`<" + $run_url + "/artifacts/" + (.logs_artifact_id | tostring) + "|" + $label + ">`")
                   else ("`" + $label + "`") end)
                 ) | join(" ")
-              )
+              ),
+              button_style: (if ($failed_tx | length) == 0 then "primary" else "danger" end)
             } as $lines |
             {
               blocks: (
@@ -80,7 +81,7 @@ jobs:
                       {
                         type: "button",
                         text: {type: "plain_text", text: "Workflow Run"},
-                        style: "primary",
+                        style: $lines.button_style,
                         url: $run_url
                       }
                     ]
