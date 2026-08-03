@@ -114,7 +114,7 @@ class Eternl:
 
         logger.debug("The Sign Tx element opened successfully")
 
-        sleep(5)
+        sleep(10)
 
         logger.debug(f"Inserting Sign Key for {self.__subnetwork} wallet")
 
