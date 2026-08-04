@@ -71,8 +71,7 @@ jobs:
                     type: "header",
                     text: {
                       type: "plain_text",
-                      text: ($bridge + " Bridge Web Tests"),
-                      emoji: true
+                      text: ($bridge + " Bridge Web Tests")
                     }
                   },
                   {
