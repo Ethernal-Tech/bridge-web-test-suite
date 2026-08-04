@@ -68,12 +68,12 @@ class Bridge:
         logger.debug(f"Reloading the {self.__bridge_name} Bridge")
 
         self.__driver.refresh()
-        sleep(60)
+        sleep(10)
 
         logger.debug(f"{self.__bridge_name} Bridge reloaded successfully")
 
     @retry(tries=5)
-    def __connect_wallet_and_move_funds(self) -> None:
+    def __connect_wallet(self) -> None:
 
         logger.debug(
             f"Connecting {self.__source_wallet.get_subnetwork()} wallet "
@@ -86,16 +86,26 @@ class Bridge:
         self.__driver.find_element_by_xpath(
             '//*[@id="bridge-connect"]'
         ).click()
-
+        
         sleep(3)
 
+        logger.debug(f"{self.__source_wallet.get_subnetwork()} wallet connected successfully")
+
+    @retry(tries=5)
+    def __move_funds(self) -> None:
+
         logger.debug(f"Moving funds to {self.__destination_wallet.get_subnetwork()}")
+
+        # Scroll to the bottom of the page
+        self.__driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
         self.__driver.find_element_by_xpath(
             '//*[@id="move-funds"]'
         ).click()
 
         sleep(1)
+
+        logger.debug(f"{self.__destination_wallet.get_subnetwork()} ready to receive funds")
 
     @retry()
     def __destination_address(self, destination_address: str) -> None:
@@ -241,7 +251,8 @@ class Bridge:
             # can't find sentry dialog
             pass
 
-        self.__connect_wallet_and_move_funds()
+        self.__connect_wallet()
+        self.__move_funds()
         self.__destination_address(self.__destination_wallet.get_receive_address())
         self.__select_token()
         self.__amount_to_send(amount)

@@ -30,15 +30,13 @@ def init_wallet(
             network=network,
             subnetwork=subnetwork,
             token_name=token_name,
-            connect=connect,
-            sign_key=getenv('SIGN_KEY'),
+            connect=connect
         )
 
     elif sn in METAMASK_NETWORKS:
 
         wallet = MetaMask(
             driver=driver,
-            sign_key=getenv('SIGN_KEY'),
             subnetwork=subnetwork,
             token_name=token_name,
             need_unlock=need_unlock

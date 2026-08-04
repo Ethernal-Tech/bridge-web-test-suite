@@ -77,3 +77,17 @@ METAMASK_NETWORKS: set[str] = {
     EthereumSubnetwork.scroll,
     EthereumSubnetwork.unichain,
 }
+
+
+RECEIVE_ADDRESSES: dict[str] = {
+    ApexFusionSubnetwork.prime: "PRIME_RECEIVE_ADDRESS",
+    ApexFusionSubnetwork.vector: "VECTOR_RECEIVE_ADDRESS",
+    CardanoSubnetwork.preview: "PREVIEW_RECEIVE_ADDRESS",
+    ApexFusionSubnetwork.nexus: "NEXUS_RECEIVE_ADDRESS",
+    EthereumSubnetwork.polygon: "POLYGON_RECEIVE_ADDRESS",
+    EthereumSubnetwork.ethereum: "ETHEREUM_RECEIVE_ADDRESS",
+    EthereumSubnetwork.katana: "KATANA_RECEIVE_ADDRESS",
+    EthereumSubnetwork.sei: "SEI_RECEIVE_ADDRESS",
+    EthereumSubnetwork.scroll: "SCROLL_RECEIVE_ADDRESS",
+    EthereumSubnetwork.unichain: "UNICHAIN_RECEIVE_ADDRESS"
+}

@@ -1,7 +1,8 @@
+from os import getenv
 from time import sleep
 from toolbox.chrome import Chrome
 from toolbox.logger import logger
-from toolbox.utils import retry
+from toolbox.utils import retry, RECEIVE_ADDRESSES
 from selenium.common.exceptions import NoSuchElementException
 
 
@@ -9,7 +10,6 @@ class MetaMask:
     def __init__(
             self,
             driver: Chrome,
-            sign_key: str,
             subnetwork: str,
             token_name: str,
             need_unlock: bool
@@ -19,7 +19,7 @@ class MetaMask:
         self.__url: str = f"{self.__extension_url}/home.html"
         self.__notification_url: str = f"{self.__extension_url}/notification.html"
         self.__driver: Chrome = driver
-        self.__sign_key: str = sign_key
+        self.__sign_key: str = getenv('SIGN_KEY')
         self.__subnetwork: str = subnetwork
         self.__token_name: str = token_name
         self.__need_unlock: bool = need_unlock
@@ -33,7 +33,8 @@ class MetaMask:
             self.open_wallet()
             self.__unlock()
 
-        self.__set_receive_address()
+        # self.__set_receive_address()
+        self.__set_receive_address_from_env()
 
     @retry()
     def __unlock(self) -> None:
@@ -93,6 +94,11 @@ class MetaMask:
 
             logger.critical(f"Failed to set {self.__subnetwork} address")
             raise ValueError
+
+    def __set_receive_address_from_env(self) -> None:
+
+        self.__receive_address = getenv(RECEIVE_ADDRESSES[self.__subnetwork.lower()])
+        logger.info(f"{self.__subnetwork} address: {self.__receive_address}")
 
     @retry()
     def open_wallet(self) -> None:

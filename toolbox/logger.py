@@ -7,7 +7,7 @@ logs_dir_path = path.join(path.dirname(path.abspath(__file__)), "..", "logs")
 makedirs(name=logs_dir_path, exist_ok=True)
 
 # Formatters
-file_formatter = logging.Formatter("%(asctime)s %(funcName)-10s [%(levelname)s] %(message)s")
+file_formatter = logging.Formatter("%(asctime)s %(funcName)s [%(levelname)s] %(message)s")
 console_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 
 # Root logger
