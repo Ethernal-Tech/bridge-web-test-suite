@@ -105,7 +105,8 @@ jobs:
                             ]
                           }
                         ] else [] end
-                      ) + (
+                      ) as $success_block |
+                      (
                         if ($failed_tx | length) > 0 then [
                           {
                             type: "callout",
@@ -118,6 +119,13 @@ jobs:
                             ]
                           }
                         ] else [] end
+                      ) as $failed_block |
+                      (
+                        $success_block + (
+                          if ($success_block | length) > 0 and ($failed_block | length) > 0 then
+                            [{type: "divider"}]
+                          else [] end
+                        ) + $failed_block
                       )
                     )
                   },
