@@ -33,28 +33,21 @@ jobs:
             [
               to_entries[] |
               select(.value.result != "skipped") |
-              (.key | split("_to_")) as $parts |
-              {
-                source_label: (($parts[0] // .key) | gsub("_"; " ")),
-                destination_label: (($parts[1] // (.value.result // "failed")) | gsub("_"; " "))
-              } as $labels |
               (.value.outputs.bridging_status // "") as $bs |
               if ($bs | type) == "string" and $bs != ""
-              then (
-                ($bs | fromjson) + $labels + {
-                  logs_artifact_id: .value.outputs.logs_artifact_id,
-                  source_chain: $source_chain
-                }
-              )
+              then ($bs | fromjson)
               else (
+                (.key | split("_to_")) as $parts |
                 {
                   status: "failed",
                   source: false,
                   bridge: false,
                   destination: false,
                   logs_artifact_id: null,
-                  source_chain: $source_chain
-                } + $labels
+                  source_chain: $source_chain,
+                  source_label: (($parts[0] // .key) | gsub("_"; " ")),
+                  destination_label: (($parts[1] // (.value.result // "failed")) | gsub("_"; " "))
+                }
               )
               end
             ]

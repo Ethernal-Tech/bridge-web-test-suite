@@ -86,7 +86,7 @@ class Bridge:
         self.__driver.find_element_by_xpath(
             '//*[@id="bridge-connect"]'
         ).click()
-        
+
         sleep(3)
 
         logger.debug(f"{self.__source_wallet.get_subnetwork()} wallet connected successfully")
