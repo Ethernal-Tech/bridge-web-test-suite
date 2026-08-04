@@ -1,3 +1,5 @@
+from json import loads
+from os import getenv
 from enum import Enum
 from time import sleep
 from functools import wraps
@@ -79,15 +81,6 @@ METAMASK_NETWORKS: set[str] = {
 }
 
 
-RECEIVE_ADDRESSES: dict[str] = {
-    ApexFusionSubnetwork.prime: "PRIME_RECEIVE_ADDRESS",
-    ApexFusionSubnetwork.vector: "VECTOR_RECEIVE_ADDRESS",
-    CardanoSubnetwork.preview: "PREVIEW_RECEIVE_ADDRESS",
-    ApexFusionSubnetwork.nexus: "NEXUS_RECEIVE_ADDRESS",
-    EthereumSubnetwork.polygon: "POLYGON_RECEIVE_ADDRESS",
-    EthereumSubnetwork.ethereum: "ETHEREUM_RECEIVE_ADDRESS",
-    EthereumSubnetwork.katana: "KATANA_RECEIVE_ADDRESS",
-    EthereumSubnetwork.sei: "SEI_RECEIVE_ADDRESS",
-    EthereumSubnetwork.scroll: "SCROLL_RECEIVE_ADDRESS",
-    EthereumSubnetwork.unichain: "UNICHAIN_RECEIVE_ADDRESS"
-}
+def get_receive_address(subnetwork: str) -> str:
+    receive_addresses: dict[str, str] = loads(getenv("RECEIVE_ADDRESSES", "{}"))
+    return receive_addresses[subnetwork.lower()]

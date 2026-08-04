@@ -138,6 +138,7 @@ jobs:
           BRIDGE_URL: ${{ steps.bridge_url.outputs.value }}
           CHROMEDRIVER_VERSION: ${{ vars.CHROMEDRIVER_VERSION }}
           CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
+          RECEIVE_ADDRESSES: ${{ vars.RECEIVE_ADDRESSES }}
 
       - name: Archive logs
         id: logs-artifact-upload

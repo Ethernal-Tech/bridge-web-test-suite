@@ -2,7 +2,7 @@ from os import getenv
 from time import sleep
 from toolbox.chrome import Chrome
 from toolbox.logger import logger
-from toolbox.utils import Network, retry, RECEIVE_ADDRESSES
+from toolbox.utils import Network, retry, get_receive_address
 from selenium.common.exceptions import NoSuchElementException
 
 
@@ -74,7 +74,7 @@ class Eternl:
 
     def __set_receive_address_from_env(self) -> None:
 
-        self.__receive_address = getenv(RECEIVE_ADDRESSES[self.__subnetwork.lower()])
+        self.__receive_address = get_receive_address(self.__subnetwork)
         logger.info(f"{self.__subnetwork} address: {self.__receive_address}")
 
     @retry()
