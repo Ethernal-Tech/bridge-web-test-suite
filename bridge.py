@@ -112,7 +112,6 @@ class Bridge:
         logger.debug(
             f"{self.__source_wallet.get_subnetwork()} wallet is connected correctly"
         )
-
         return True
 
     @retry(tries=5)
@@ -303,7 +302,7 @@ class Bridge:
             if self.__check_connected_wallet():
                 break
             self.__disconnect_wallet()
-            logger.info(f"Retrying to connect {self.__source_wallet.get_subnetwork()} wallet to the {self.__bridge_name} Bridge")
+            logger.debug(f"Retrying to connect {self.__source_wallet.get_subnetwork()} wallet to the {self.__bridge_name} Bridge")
 
         else:
 
