@@ -138,14 +138,7 @@ jobs:
           BRIDGE_URL: ${{ steps.bridge_url.outputs.value }}
           CHROMEDRIVER_VERSION: ${{ vars.CHROMEDRIVER_VERSION }}
           CHROME_CONFIGS_URL: ${{ secrets.CHROME_CONFIGS_URL }}
-
-      - name: Archive status
-        uses: actions/upload-artifact@v7.0.1
-        if: (!cancelled())
-        with:
-          name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_statuses
-          path: statuses.json
-          retention-days: 3
+          RECEIVE_ADDRESSES: ${{ vars.RECEIVE_ADDRESSES }}
 
       - name: Archive logs
         id: logs-artifact-upload
@@ -153,7 +146,9 @@ jobs:
         if: always()
         with:
           name: ${{ inputs.source_chain }}_${{ inputs.source_token }}_to_${{ inputs.destination_chain }}_${{ inputs.destination_token }}_logs
-          path: logs/*
+          path: |
+            logs/*
+            statuses.json
           retention-days: 3
 
       - name: Generate statuses of the bridging process
@@ -165,9 +160,10 @@ jobs:
           fi
           json=$(jq -c \
             --arg logs_artifact_id "${{ steps.logs-artifact-upload.outputs.artifact-id }}" \
-            --arg source_label "${{ inputs.source_chain }}(${{ inputs.source_token }})" \
-            --arg destination_label "${{ inputs.destination_chain }}(${{ inputs.destination_token }})" \
-            '. + {logs_artifact_id: $logs_artifact_id, source_label: $source_label, destination_label: $destination_label}' \
+            --arg source_chain "${{ inputs.source_chain }}" \
+            --arg source_label "${{ inputs.source_chain }} (${{ inputs.source_token }})" \
+            --arg destination_label "${{ inputs.destination_chain }} (${{ inputs.destination_token }})" \
+            '. + {logs_artifact_id: $logs_artifact_id, source_chain: $source_chain, source_label: $source_label, destination_label: $destination_label}' \
             statuses.json)
           echo "result=$json" >> $GITHUB_OUTPUT
 

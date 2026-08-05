@@ -1,9 +1,9 @@
 from sys import argv
-from os import getenv
+from os import getenv, path
 from typing import Union
 from bridge import Bridge
 from toolbox.chrome import Chrome
-from toolbox.logger import logger
+from toolbox.logger import logger, logs_dir_path
 from toolbox.recorder import ScreenRecorder
 from toolbox.utils import retry, ETERNL_NETWORKS, METAMASK_NETWORKS
 from wallets.eternl import Eternl
@@ -30,15 +30,13 @@ def init_wallet(
             network=network,
             subnetwork=subnetwork,
             token_name=token_name,
-            connect=connect,
-            sign_key=getenv('SIGN_KEY'),
+            connect=connect
         )
 
     elif sn in METAMASK_NETWORKS:
 
         wallet = MetaMask(
             driver=driver,
-            sign_key=getenv('SIGN_KEY'),
             subnetwork=subnetwork,
             token_name=token_name,
             need_unlock=need_unlock
@@ -91,6 +89,12 @@ def main(
         bridge.bridging(amount=amount)
 
     finally:
+
+        try:
+            chrome.save_screenshot(path.join(logs_dir_path, "statuses.png"))
+            logger.debug("Screenshot of the final state saved successfully")
+        except Exception:
+            logger.debug("Failed to save screenshot of the final state")
 
         screen_recorder.stop_recording()
         chrome.quit()

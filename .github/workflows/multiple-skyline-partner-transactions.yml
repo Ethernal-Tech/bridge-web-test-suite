@@ -24,7 +24,6 @@ jobs:
     uses: ./.github/workflows/source-prime.yml
     with:
       bridge_name: Skyline
-      notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
     secrets: inherit
 
   source_preview:
@@ -32,7 +31,6 @@ jobs:
     uses: ./.github/workflows/source-preview.yml
     with:
       bridge_name: Skyline
-      notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
     secrets: inherit
 
   source_vector:
@@ -40,7 +38,6 @@ jobs:
     uses: ./.github/workflows/source-vector.yml
     with:
       bridge_name: Skyline
-      notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
     secrets: inherit
 
   source_nexus:
@@ -48,7 +45,6 @@ jobs:
     uses: ./.github/workflows/source-nexus.yml
     with:
       bridge_name: Skyline
-      notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
     secrets: inherit
 
   source_polygon:
@@ -56,7 +52,6 @@ jobs:
     uses: ./.github/workflows/source-polygon.yml
     with:
       bridge_name: Skyline
-      notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
     secrets: inherit
 
   source_ethereum:
@@ -64,7 +59,6 @@ jobs:
     uses: ./.github/workflows/source-ethereum.yml
     with:
       bridge_name: Skyline
-      notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
     secrets: inherit
 
   source_katana:
@@ -72,7 +66,6 @@ jobs:
     uses: ./.github/workflows/source-katana.yml
     with:
       bridge_name: Skyline
-      notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
     secrets: inherit
 
   source_sei:
@@ -80,7 +73,6 @@ jobs:
     uses: ./.github/workflows/source-sei.yml
     with:
       bridge_name: Skyline
-      notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
     secrets: inherit
 
   # source_scroll:
@@ -88,7 +80,6 @@ jobs:
   #   uses: ./.github/workflows/source-scroll.yml
   #   with:
   #     bridge_name: Skyline
-  #     notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
   #   secrets: inherit
 
   source_unichain:
@@ -96,5 +87,24 @@ jobs:
     uses: ./.github/workflows/source-unichain.yml
     with:
       bridge_name: Skyline
-      notification: ${{ github.event_name == 'schedule' || inputs.notification != false }}
+    secrets: inherit
+
+  notification:
+    name: Notification
+    if: (!cancelled() && (github.event_name == 'schedule' || inputs.notification != false))
+    uses: ./.github/workflows/notification-summary.yml
+    needs:
+      - source_prime
+      - source_preview
+      - source_vector
+      - source_nexus
+      - source_polygon
+      - source_ethereum
+      - source_katana
+      - source_sei
+      # - source_scroll
+      - source_unichain
+    with:
+      needs_json: ${{ toJSON(needs) }}
+      bridge_name: Skyline
     secrets: inherit

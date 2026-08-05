@@ -7,13 +7,10 @@ on:
       bridge_name:
         type: string
         required: true
-      notification:
-        type: boolean
-        required: true
 
     outputs:
       transactions:
-        value: ${{ jobs.notification.outputs.transactions }}
+        value: ${{ jobs.collect.outputs.transactions }}
 
 permissions:
   id-token: write
@@ -64,15 +61,14 @@ jobs:
       notification: false
     secrets: inherit
 
-  notification:
-    name: Notification
-    if: (!cancelled() && inputs.notification)
-    uses: ./.github/workflows/notification.yml
+  collect:
+    name: Collect
+    if: (!cancelled())
+    uses: ./.github/workflows/collect-transactions.yml
     needs:
       - prime_ap3x_to_vector_ap3x
       - prime_ap3x_to_nexus_ap3x
       - prime_ap3x_to_preview_cap3x
     with:
       needs_json: ${{ toJSON(needs) }}
-      bridge_name: ${{ inputs.bridge_name }}
-    secrets: inherit
+      source_chain: Prime

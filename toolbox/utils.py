@@ -1,3 +1,5 @@
+from json import loads
+from os import getenv
 from enum import Enum
 from time import sleep
 from functools import wraps
@@ -77,3 +79,8 @@ METAMASK_NETWORKS: set[str] = {
     EthereumSubnetwork.scroll,
     EthereumSubnetwork.unichain,
 }
+
+
+def get_receive_address(subnetwork: str) -> str:
+    receive_addresses: dict[str, str] = loads(getenv("RECEIVE_ADDRESSES", "{}"))
+    return receive_addresses[subnetwork.lower()]

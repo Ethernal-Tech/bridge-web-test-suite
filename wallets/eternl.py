@@ -1,7 +1,8 @@
+from os import getenv
 from time import sleep
 from toolbox.chrome import Chrome
 from toolbox.logger import logger
-from toolbox.utils import Network, retry
+from toolbox.utils import Network, retry, get_receive_address
 from selenium.common.exceptions import NoSuchElementException
 
 
@@ -12,8 +13,7 @@ class Eternl:
             network: str,
             subnetwork: str,
             token_name: str,
-            connect: str,
-            sign_key: str
+            connect: str
     ) -> None:
 
         self.__extension_url: str = "chrome-extension://kmhcihpebfmpgmihbkipmjlmmioameka"
@@ -24,14 +24,16 @@ class Eternl:
         self.__network: str = network
         self.__subnetwork: str = subnetwork
         self.__token_name: str = token_name
-        self.__sign_key: str = sign_key
+        self.__sign_key: str = getenv('SIGN_KEY')
         self.__receive_address: str = ""
         self.__opened_tabs: list[str] = self.__driver.window_handles
 
         self.__driver.switch_to.window(self.__driver.get_init_tab())
 
-        self.open_wallet()
-        self.__set_receive_address()
+        # self.open_wallet()
+        # self.__set_receive_address()
+
+        self.__set_receive_address_from_env()
 
     @retry()
     def __set_receive_address(self) -> None:
@@ -69,6 +71,11 @@ class Eternl:
 
             logger.critical(f"Failed to set {self.__subnetwork} address")
             raise ValueError
+
+    def __set_receive_address_from_env(self) -> None:
+
+        self.__receive_address = get_receive_address(self.__subnetwork)
+        logger.info(f"{self.__subnetwork} address: {self.__receive_address}")
 
     @retry()
     def open_wallet(self) -> None:
@@ -114,7 +121,7 @@ class Eternl:
 
         logger.debug("The Sign Tx element opened successfully")
 
-        sleep(5)
+        sleep(10)
 
         logger.debug(f"Inserting Sign Key for {self.__subnetwork} wallet")
 

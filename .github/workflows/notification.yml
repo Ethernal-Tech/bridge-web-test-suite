@@ -10,34 +10,29 @@ on:
         type: string
         required: true
 
-    outputs:
-      transactions:
-        value: ${{ jobs.notification.outputs.transactions }}
-
 jobs:
-  notification:
-    name: Notification
+  notify:
+    name: Notify Slack
+    if: (!cancelled())
     runs-on: ubuntu-latest
-    outputs:
-      transactions: ${{ steps.collect.outputs.transactions }}
     steps:
       - name: Collect transactions
         id: collect
         env:
           NEEDS_JSON: ${{ inputs.needs_json }}
         run: |
-          transactions=$(echo "$NEEDS_JSON" | jq -c '[.[] | .outputs.bridging_status | select(type == "string" and . != "") | fromjson]')
-          all_success=$(echo "$transactions" | jq -r 'if length == 0 then "false" elif all(.status == "success") then "true" else "false" end')
-          echo "transactions=$transactions" >> "$GITHUB_OUTPUT"
+          transaction=$(echo "$NEEDS_JSON" | jq -c '.bridging.outputs.bridging_status | fromjson')
+          all_success=$(echo "$transaction" | jq -r 'if .status == "success" then "true" else "false" end')
+          echo "transaction=$transaction" >> "$GITHUB_OUTPUT"
           echo "all_success=$all_success" >> "$GITHUB_OUTPUT"
-      
+
       - name: Short SHA
         id: short_sha
         run: echo "value=`echo ${{ github.sha }} | cut -c1-7`" >> $GITHUB_OUTPUT
 
       - name: Build Slack payload
         env:
-          TRANSACTIONS: ${{ steps.collect.outputs.transactions }}
+          TRANSACTION: ${{ steps.collect.outputs.transaction }}
           BRIDGE: ${{ inputs.bridge_name }}
           ALL_SUCCESS: ${{ steps.collect.outputs.all_success }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -47,18 +42,18 @@ jobs:
           jq -n \
             --arg bridge "$BRIDGE" \
             --argjson all_success "$ALL_SUCCESS" \
-            --argjson transactions "$TRANSACTIONS" \
+            --argjson tx "$TRANSACTION" \
             --arg run_url "$RUN_URL" \
             --arg commit_url "$COMMIT_URL" \
             --arg short_sha "$SHORT_SHA" \
-            --arg duration "$DURATION" \
-            '{
+            '
+            {
               blocks: ([
                 {
                   type: "header",
                   text: {
                     type: "plain_text",
-                    text: ($bridge + " Bridge | Source " + ($transactions[0].source_label | split("(")[0]))
+                    text: ($bridge + " Bridge Web Test")
                   }
                 },
                 {
@@ -72,11 +67,10 @@ jobs:
                         url: $run_url
                       }
                     ] + [
-                      $transactions[] |
                       {
                         type: "button",
-                        text: {type: "plain_text", text: (.source_label + " " + .destination_label + " Logs")},
-                        url: ($run_url + "/artifacts/" + (.logs_artifact_id | tostring))
+                        text: {type: "plain_text", text: "Logs"},
+                        url: ($run_url + "/artifacts/" + ($tx.logs_artifact_id | tostring))
                       }
                     ]
                   )
@@ -85,17 +79,15 @@ jobs:
                   type: "context",
                   elements: [{type: "mrkdwn", text: ("Commit: *<" + $commit_url + "|" + $short_sha + ">*")}]
                 },
-                {type: "divider"}
-              ] + [
-                $transactions[] |
+                {type: "divider"},
                 {
                   type: "section",
                   text: {
                     type: "mrkdwn",
                     text: (
-                      (if .source then ":green:" else ":red:" end) + " *" + .source_label + "* " +
-                      (if .bridge then ":green:" else ":red:" end) + " *Bridge* " +
-                      (if .destination then ":green:" else ":red:" end) + " *" + .destination_label + "*"
+                      (if $tx.source then ":green:" else ":red:" end) + " *" + $tx.source_label + "* " +
+                      (if $tx.bridge then ":green:" else ":red:" end) + " *Bridge* " +
+                      (if $tx.destination then ":green:" else ":red:" end) + " *" + $tx.destination_label + "*"
                     )
                   }
                 }
