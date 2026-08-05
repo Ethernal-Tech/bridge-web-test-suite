@@ -32,14 +32,14 @@ class Bridge:
         self.__final_status: str = "Unknown"
 
     @retry()
-    def __reject_sentry(self) -> None:
+    def __sentry(self, accept: bool) -> None:
 
         if self.__bridge_name == "Skyline":
 
-            logger.debug("Closing sentry dialog")
+            logger.debug(f"Accepting sentry dialog: {accept}")
 
             self.__driver.find_element_by_xpath(
-                '//*[@id="root"]/div[1]/div[4]/div[4]/div/button[2]'
+                f'//*[@id="root"]/div[1]/div[4]/div[4]/div/button[{"1" if accept else "2"}]'
             ).click()
 
             sleep(3)
@@ -90,6 +90,52 @@ class Bridge:
         sleep(3)
 
         logger.debug(f"{self.__source_wallet.get_subnetwork()} wallet connected successfully")
+
+    @retry(tries=5)
+    def __check_connected_wallet(self) -> bool:
+
+        logger.debug(f"Checking if the {self.__source_wallet.get_subnetwork()} wallet is connected correctly")
+
+        connected_wallet = self.__driver.find_element_by_xpath(
+            '//*[@id="basic-button"]'
+        ).text.lower()
+
+        receive_address = self.__source_wallet.get_receive_address().lower()
+
+        if connected_wallet != f"{receive_address[:7]}...{receive_address[-5:]}":
+
+            logger.debug(
+                f"{self.__source_wallet.get_subnetwork()} wallet is not connected correctly"
+            )
+            return False
+
+        logger.debug(
+            f"{self.__source_wallet.get_subnetwork()} wallet is connected correctly"
+        )
+
+        return True
+
+    @retry(tries=5)
+    def __disconnect_wallet(self) -> None:
+
+        logger.debug(
+            f"Disconnecting {self.__source_wallet.get_subnetwork()} wallet "
+            f"from the {self.__bridge_name} Bridge"
+        )
+
+        self.__driver.find_element_by_xpath(
+            '//*[@id="basic-button"]'
+        ).click()
+
+        sleep(1)
+
+        self.__driver.find_element_by_xpath(
+            '//*[@id="basic-menu"]/div[3]/ul/li'
+        ).click()
+
+        sleep(3)
+
+        logger.debug(f"{self.__source_wallet.get_subnetwork()} wallet disconnected successfully")
 
     @retry(tries=5)
     def __move_funds(self) -> None:
@@ -246,12 +292,26 @@ class Bridge:
         )
 
         try:
-            self.__reject_sentry()
+            self.__sentry(getenv("SENTRY_ACCEPT", "False") == "True")
         except Exception:
             # can't find sentry dialog
             pass
 
-        self.__connect_wallet()
+        for _ in range(5):
+
+            self.__connect_wallet()
+            if self.__check_connected_wallet():
+                break
+            self.__disconnect_wallet()
+            logger.info(f"Retrying to connect {self.__source_wallet.get_subnetwork()} wallet to the {self.__bridge_name} Bridge")
+
+        else:
+
+            logger.critical(
+                f"{self.__source_wallet.get_subnetwork()} wallet cannot be connected to the {self.__bridge_name} Bridge"
+            )
+            raise
+
         self.__move_funds()
         self.__destination_address(self.__destination_wallet.get_receive_address())
         self.__select_token()
