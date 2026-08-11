@@ -54,7 +54,7 @@ By addressing **all possible scenarios**, this tool provides a strong foundation
 
 2. Open `environment.env` and set environment variables:
 
-   ```
+   ```env
    SENTRY_ACCEPT=True
    CHROME_CONFIGS_URL=''
    CHROME_VERSION=''
