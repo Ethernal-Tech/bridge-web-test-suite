@@ -8,7 +8,7 @@
 ![Metamask Wallet Supported](https://img.shields.io/badge/MetaMask%20Wallet-13.0.1-4285f4?logo=Ethereum&logoColor=white)
 ![Eternl Wallet Supported](https://img.shields.io/badge/Eternl%20Wallet-2.0.11.2-4285f4?logo=Cardano&logoColor=white)
 ![macOS Support](https://img.shields.io/badge/macOS-tested-4ccf50?logo=macos&logoColor=white)
-![Ubuntu Support](https://img.shields.io/badge/Ubuntu-not%20tested-ee0000?logo=ubuntu&logoColor=white)
+![Ubuntu Support](https://img.shields.io/badge/Ubuntu-tested-4ccf50?logo=ubuntu&logoColor=white)
 ![Windows Support](https://img.shields.io/badge/Windows-not%20tested-ee0000?logo=windows&logoColor=white)
 ![Cardano Preview Faucet](https://github.com/Ethernal-Tech/bridge-web-test-suite/actions/workflows/cardano-faucet.yml/badge.svg)
 ![Multiple Reactor Partner Transactions](https://github.com/Ethernal-Tech/bridge-web-test-suite/actions/workflows/multiple-reactor-partner-transactions.yml/badge.svg)
@@ -54,10 +54,10 @@ By addressing **all possible scenarios**, this tool provides a strong foundation
 
 2. Open `environment.env` and set environment variables:
 
-   ```
-   LOCAL_TEST=False
+   ```env
+   SENTRY_ACCEPT=True
    CHROME_CONFIGS_URL=''
-   CHROME_URL=''
+   CHROME_VERSION=''
    CHROMEDRIVER_VERSION=''
    BRIDGE_URL=''
    SIGN_KEY=''
@@ -65,7 +65,7 @@ By addressing **all possible scenarios**, this tool provides a strong foundation
    PREPROD_FAUCET_API_KEY=''
    BRD_PROXY_USERNAME=''
    BRD_PROXY_PASSWORD=''
-   CARDANO_TESTNET_WALLETS=''
+   RECEIVE_ADDRESSES='{"prime":"","vector":"","preview":"","nexus":"","polygon":"","ethereum":"","katana":"","sei":"","scroll":"","unichain":""}'
    ```
 
 ## Supported Chains
@@ -81,7 +81,7 @@ The entry point is `main.py`, invoked via `dotenv` to load environment variables
 dotenv -f environment.env run -- python main.py <Bridge> <SourceChain> <Amount> <SourceToken> <DestinationChain>
 ```
 
-> Note: there is no destination-token argument — the destination token is only used for labeling in the GitHub Actions workflows.
+> Note: there is no destination-token argument - the destination token is only used for labeling in the GitHub Actions workflows.
 
 ### Reactor
 

@@ -40,7 +40,7 @@ class Eternl:
 
         logger.debug(f"Setting {self.__subnetwork} address")
 
-        for i in range(10):
+        for _ in range(10):
 
             self.__driver.get(self.__receive_url)
 
@@ -85,7 +85,7 @@ class Eternl:
         self.__driver.get(self.__url)
         sleep(10)
 
-        for i in range(10):
+        for _ in range(10):
 
             try:
 

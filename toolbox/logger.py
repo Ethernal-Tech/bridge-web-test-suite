@@ -24,7 +24,7 @@ file_handler.setFormatter(file_formatter)
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(console_formatter)
-console_handler.addFilter(type("", (logging.Filter,), {"filter": lambda s, r: r.levelno == logging.INFO})())
+console_handler.addFilter(lambda record: record.levelno == logging.INFO)
 
 # Add handlers to the root loger
 logger.addHandler(file_handler)
