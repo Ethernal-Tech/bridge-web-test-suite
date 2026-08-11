@@ -97,8 +97,7 @@ jobs:
           if [ "${{ runner.os }}" == "macOS" ]; then
             brew install ffmpeg
           else
-            sudo apt-get update -y
-            sudo apt-get install -y ffmpeg
+            sudo apt install -y ffmpeg
           fi
         env:
           HOMEBREW_NO_REQUIRE_TAP_TRUST: 1
