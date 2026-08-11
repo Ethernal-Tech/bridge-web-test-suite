@@ -64,9 +64,9 @@ def retry(tries: int = 10, delay: int = 1, back_off: float = 1.5):
 
 
 ETERNL_NETWORKS: dict[str, tuple[str, str]] = {
-    ApexFusionSubnetwork.prime: (Network.apex, EternlApexFusionIdentifier.prime_testnet),
-    ApexFusionSubnetwork.vector: (Network.apex, EternlApexFusionIdentifier.vector_testnet),
-    CardanoSubnetwork.preview: (Network.cardano, EternlCardanoIdentifier.preview),
+    ApexFusionSubnetwork.prime: (Network.apex, EternlApexFusionIdentifier.prime_testnet.value),
+    ApexFusionSubnetwork.vector: (Network.apex, EternlApexFusionIdentifier.vector_testnet.value),
+    CardanoSubnetwork.preview: (Network.cardano, EternlCardanoIdentifier.preview.value),
 }
 
 

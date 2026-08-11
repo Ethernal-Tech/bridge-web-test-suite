@@ -1,8 +1,10 @@
+import os
 from time import sleep
+from pathlib import Path
 from requests import get
 from zipfile import ZipFile
-from subprocess import run, DEVNULL
-from os import getenv, path, remove, listdir
+from xattr import removexattr
+from platform import system, machine
 from shutil import copyfileobj, rmtree, move
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebElement
@@ -34,32 +36,32 @@ class Chrome(WebDriver):
 
             # Pre-configured Chrome profile with ready-to-use Metamask wallet and Eternl wallet
             # Also, Reactor Bridge and Skyline Bridge permissions already setup
-            if getenv("CHROME_CONFIGS_URL"):
+            if os.getenv("CHROME_CONFIGS_URL"):
 
                 logger.debug("Downloading Chrome Configs")
 
-                config = get(getenv("CHROME_CONFIGS_URL"), stream=True)
+                config = get(os.getenv("CHROME_CONFIGS_URL"), stream=True)
                 with open("/tmp/bridge-web-test-suite.zip", "wb") as f:
                     copyfileobj(config.raw, f)
 
                 logger.debug("The Chrome Configs downloaded successfully")
                 logger.debug("Extracting the Chrome Configs")
 
-                if path.exists("/tmp/bridge-web-test-suite"):
+                if os.path.exists("/tmp/bridge-web-test-suite"):
                     rmtree("/tmp/bridge-web-test-suite")
 
                 with ZipFile("/tmp/bridge-web-test-suite.zip", "r") as z:
                     z.extractall("/tmp/")
 
-                remove("/tmp/bridge-web-test-suite.zip")
+                os.remove("/tmp/bridge-web-test-suite.zip")
 
                 # Remove lock files to avoid Chrome startup issues
                 for lock_file in ("DevToolsActivePort", "SingletonLock", "SingletonSocket", "SingletonCookie"):
-                    lock_path = path.join("/tmp/bridge-web-test-suite", lock_file)
-                    if path.isdir(lock_path):
+                    lock_path = os.path.join("/tmp/bridge-web-test-suite", lock_file)
+                    if os.path.isdir(lock_path):
                         rmtree(lock_path)
-                    elif path.lexists(lock_path):
-                        remove(lock_path)
+                    elif os.path.lexists(lock_path):
+                        os.remove(lock_path)
 
                 self.__options.append("user-data-dir=/tmp/bridge-web-test-suite")
                 self.__options.append("profile-directory=Default")
@@ -68,68 +70,91 @@ class Chrome(WebDriver):
 
             self.__chrome_options: Options = Options()
 
-            if getenv("LOCAL_TEST") == "True":
+            os_name: str = system()
+            logger.debug(f"Operating system: {os_name}")
 
-                logger.debug("Downloading Chrome For Testing")
+            if os_name == "Darwin":
+                platform: str = "mac-arm64" if machine() == "arm64" else "mac-x64"
+            elif os_name == "Linux":
+                platform: str = "linux64"
+            else:
+                raise RuntimeError(f"Unsupported operating system: {os_name}")
 
-                app = get(getenv("CHROME_URL"), stream=True)
-                with open("chrome.zip", "wb") as f:
-                    copyfileobj(app.raw, f)
+            logger.debug(f"Platform: {platform}")
 
-                logger.debug("The Chrome For Testing downloaded successfully")
-                logger.debug("Extracting the Chrome For Testing")
+            logger.debug("Downloading Chrome For Testing")
 
-                chrome_path: str = path.join(path.dirname(path.abspath(__file__)), "chrome")
+            desired_chrome_version: str = os.getenv("CHROME_VERSION")
 
-                if path.exists(chrome_path):
-                    rmtree(chrome_path)
+            chrome_versions: dict = get(
+                "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+            ).json()
 
-                with ZipFile("chrome.zip", "r") as z:
-                    z.extractall("chrome_tmp")
+            for v in chrome_versions["versions"]:
+                if v["version"] == desired_chrome_version:
+                    for d in v["downloads"]["chrome"]:
+                        if d["platform"] == platform:
+                            chrome_url: str = d["url"]
+                            break
+                    break
 
-                for directory in listdir("chrome_tmp"):
-                    move(path.join("chrome_tmp", directory), chrome_path)
+            app = get(chrome_url, stream=True)
 
-                logger.debug("Fix permission for the Chrome For Testing")
+            with open("chrome.zip", "wb") as f:
+                copyfileobj(app.raw, f)
 
-                run(
-                    args=[
-                        "sudo",
-                        "-S",
-                        "xattr",
-                        "-r",
-                        "-d",
-                        "com.apple.quarantine",
-                        path.join(chrome_path, "Google Chrome for Testing.app")
-                    ],
-                    check=True,
-                    input=getenv("SUDO").encode(),
-                    stderr=DEVNULL
-                )
+            logger.debug("The Chrome For Testing downloaded successfully")
 
-                run(
-                    args=[
-                        "sudo",
-                        "-S",
-                        "chmod",
-                        "-R",
-                        "+x",
-                        path.join(chrome_path, "Google Chrome for Testing.app")
-                    ],
-                    check=True,
-                    input=getenv("SUDO").encode(),
-                    stderr=DEVNULL
-                )
+            logger.debug("Extracting the Chrome For Testing")
 
-                rmtree("chrome_tmp")
-                remove("chrome.zip")
+            chrome_path: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "chrome")
 
-                self.__chrome_options.binary_location = path.join(
+            if os.path.exists(chrome_path):
+                rmtree(chrome_path)
+
+            with ZipFile("chrome.zip", "r") as z:
+                z.extractall("chrome_tmp")
+
+            for directory in os.listdir("chrome_tmp"):
+                move(os.path.join("chrome_tmp", directory), chrome_path)
+
+            logger.debug("Fix permission for the Chrome For Testing")
+
+            if os_name == "Darwin":
+
+                app_path = os.path.join(chrome_path, "Google Chrome for Testing.app")
+
+                for target in [app_path, *Path(app_path).rglob("*")]:
+
+                    try:
+                        removexattr(str(target), "com.apple.quarantine")
+                    except OSError:
+                        pass
+
+                    os.chmod(target, 0o755)
+
+                self.__chrome_options.binary_location = os.path.join(
                     chrome_path,
                     "Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
                 )
 
-                logger.debug("The Chrome For Testing extracted successfully")
+            elif os_name == "Linux":
+
+                for target in Path(chrome_path).rglob("*"):
+                    os.chmod(target, 0o755)
+
+                self.__chrome_options.binary_location = os.path.join(
+                    chrome_path, 
+                    "chrome"
+                )
+
+            else:
+                raise RuntimeError(f"Unsupported operating system: {os_name}")
+
+            rmtree("chrome_tmp")
+            os.remove("chrome.zip")
+
+            logger.debug("The Chrome For Testing extracted successfully")
 
             for arg in self.__options:
 
@@ -137,16 +162,16 @@ class Chrome(WebDriver):
                 logger.debug(f"{arg} added to Chrome Options")
 
             # Add extensions
-            self.__extensions_dir_path: str = path.join(path.dirname(path.abspath(__file__)), "extensions")
-            self.__chrome_options.add_extension(path.join(self.__extensions_dir_path, "MetaMask.crx"))
-            self.__chrome_options.add_extension(path.join(self.__extensions_dir_path, "Eternl.crx"))
+            self.__extensions_dir_path: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extensions")
+            self.__chrome_options.add_extension(os.path.join(self.__extensions_dir_path, "MetaMask.crx"))
+            self.__chrome_options.add_extension(os.path.join(self.__extensions_dir_path, "Eternl.crx"))
 
             self.__chrome_services: Service = Service()
 
             logger.debug("Installing Chrome Driver")
 
             self.__chrome_services.path = ChromeDriverManager(
-                driver_version=getenv("CHROMEDRIVER_VERSION")
+                driver_version=os.getenv("CHROMEDRIVER_VERSION")
             ).install()
 
             logger.debug(f"Chrome Driver v{self.__chrome_services.path.split('/')[-3]} installed successfully")

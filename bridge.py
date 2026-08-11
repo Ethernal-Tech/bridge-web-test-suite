@@ -15,12 +15,13 @@ class Bridge:
             self,
             driver: Chrome,
             bridge_name: str,
+            bridge_url: str,
             source_wallet: Union[Eternl, MetaMask],
             destination_wallet: Union[Eternl, MetaMask]
     ) -> None:
 
         self.__bridge_name: str = bridge_name.capitalize()
-        self.__bridge_url: str = path.join(getenv("BRIDGE_URL"), "app") if self.__bridge_name == "Skyline" else getenv("BRIDGE_URL")
+        self.__bridge_url: str = path.join(bridge_url, "app") if self.__bridge_name == "Skyline" else bridge_url
         self.__driver: Chrome = driver
         self.__source_wallet: Union[Eternl, MetaMask] = source_wallet
         self.__destination_wallet: Union[Eternl, MetaMask] = destination_wallet

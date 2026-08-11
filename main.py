@@ -54,6 +54,7 @@ def init_wallet(
 @retry(tries=5)
 def main(
         bridge_name: str,
+        bridge_url: str,
         source_subnetwork: str,
         source_token: str,
         destination_subnetwork: str,
@@ -82,6 +83,7 @@ def main(
         bridge = Bridge(
             driver=chrome,
             bridge_name=bridge_name,
+            bridge_url=bridge_url,
             source_wallet=src_wlt,
             destination_wallet=dest_wlt
         )
@@ -103,15 +105,23 @@ def main(
 if __name__ == '__main__':
     try:
 
+        if argv[1] == 'Skyline':
+            default_bridge_url = getenv('SKYLINE_BRIDGE_URL')
+        else:
+            default_bridge_url = getenv('REACTOR_BRIDGE_URL')
+
+        bridge_url: str = getenv('BRIDGE_URL') or default_bridge_url
+
         logger.info("*" * 45)
         logger.info(f"{argv[1]} Bridge")
-        logger.info(f"{getenv('BRIDGE_URL')}")
+        logger.info(f"{bridge_url}")
         logger.info(f"Source chain: {argv[2]}")
         logger.info(f"Destination chain: {argv[5]}")
         logger.info("*" * 45)
 
         main(
             bridge_name=argv[1],
+            bridge_url=bridge_url,
             source_subnetwork=argv[2],
             source_token=argv[4],
             destination_subnetwork=argv[5],

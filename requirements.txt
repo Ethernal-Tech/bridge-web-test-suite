@@ -4,3 +4,4 @@ python-dotenv==1.0.1
 webdriver-manager==4.0.2
 requests==2.32.4
 websocket-client==1.8.0
+xattr==1.3.0

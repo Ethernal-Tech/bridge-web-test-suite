@@ -77,7 +77,7 @@ permissions:
 jobs:
   bridging:
     name: "${{ inputs.source_chain }} ${{ inputs.source_token }} to ${{ inputs.destination_chain }} ${{ inputs.destination_token }}"
-    runs-on: macos-26
+    runs-on: ${{ vars.RUNNER_OS }}
     outputs:
       bridging_status: ${{ steps.bridging_status.outputs.result }}
     steps:
