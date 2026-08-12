@@ -5,9 +5,10 @@ from bridge import Bridge
 from toolbox.chrome import Chrome
 from toolbox.logger import logger, logs_dir_path
 from toolbox.recorder import ScreenRecorder
-from toolbox.utils import retry, ETERNL_NETWORKS, METAMASK_NETWORKS
+from toolbox.utils import retry, ETERNL_NETWORKS, METAMASK_NETWORKS, PHANTOM_NETWORKS
 from wallets.eternl import Eternl
 from wallets.metamask import MetaMask
+from wallets.phantom import Phantom
 
 
 def init_wallet(
@@ -15,7 +16,7 @@ def init_wallet(
         subnetwork: str,
         need_unlock: bool,
         token_name: str = "unknown"
-) -> Union[Eternl, MetaMask]:
+) -> Union[Eternl, MetaMask, Phantom]:
 
     logger.debug(f"Initializing {subnetwork} wallet")
 
@@ -36,6 +37,15 @@ def init_wallet(
     elif sn in METAMASK_NETWORKS:
 
         wallet = MetaMask(
+            driver=driver,
+            subnetwork=subnetwork,
+            token_name=token_name,
+            need_unlock=need_unlock
+        )
+
+    elif sn in PHANTOM_NETWORKS:
+
+        wallet = Phantom(
             driver=driver,
             subnetwork=subnetwork,
             token_name=token_name,
@@ -67,14 +77,14 @@ def main(
 
     try:
 
-        src_wlt: Union[Eternl, MetaMask] = init_wallet(
+        src_wlt: Union[Eternl, MetaMask, Phantom] = init_wallet(
             driver=chrome,
             subnetwork=source_subnetwork,
             need_unlock=True,
             token_name=source_token
         )
 
-        dest_wlt: Union[Eternl, MetaMask] = init_wallet(
+        dest_wlt: Union[Eternl, MetaMask, Phantom] = init_wallet(
             driver=chrome,
             subnetwork=destination_subnetwork,
             need_unlock=False if type(src_wlt) is MetaMask else True

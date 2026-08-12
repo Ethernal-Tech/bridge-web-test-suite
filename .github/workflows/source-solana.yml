@@ -1,0 +1,59 @@
+---
+name: Source Solana Transactions
+
+on:
+  workflow_call:
+    inputs:
+      bridge_name:
+        type: string
+        required: true
+
+    outputs:
+      transactions:
+        value: ${{ jobs.collect.outputs.transactions }}
+
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  solana_sap3x_to_vector_ap3x:
+    name: Solana(sAP3X) to Vector(AP3X)
+    uses: ./.github/workflows/single-transaction.yml
+    if: ${{ inputs.bridge_name == 'Skyline' }}
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Solana
+      amount: 2
+      source_token: sAP3X
+      destination_chain: Vector
+      destination_token: AP3X
+      notification: false
+    secrets: inherit
+
+  solana_wsol_to_vector_asol:
+    name: Solana(wSOL) to Vector(aSOL)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: solana_sap3x_to_vector_ap3x
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Solana
+      amount: 0.0005
+      source_token: wSOL
+      destination_chain: Vector
+      destination_token: aSOL
+      notification: false
+    secrets: inherit
+
+  collect:
+    name: Collect
+    uses: ./.github/workflows/collect-transactions.yml
+    if: (!cancelled())
+    needs:
+      - solana_sap3x_to_vector_ap3x
+      - solana_wsol_to_vector_asol
+    with:
+      needs_json: ${{ toJSON(needs) }}
+      source_chain: Solana

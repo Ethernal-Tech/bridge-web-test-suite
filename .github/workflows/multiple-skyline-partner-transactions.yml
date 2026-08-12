@@ -89,6 +89,13 @@ jobs:
       bridge_name: Skyline
     secrets: inherit
 
+  source_solana:
+    name: Source Solana
+    uses: ./.github/workflows/source-solana.yml
+    with:
+      bridge_name: Skyline
+    secrets: inherit
+
   notification:
     name: Notification
     if: (!cancelled() && (github.event_name == 'schedule' || inputs.notification != false))
@@ -104,6 +111,7 @@ jobs:
       - source_sei
       # - source_scroll
       - source_unichain
+      - source_solana
     with:
       needs_json: ${{ toJSON(needs) }}
       bridge_name: Skyline
