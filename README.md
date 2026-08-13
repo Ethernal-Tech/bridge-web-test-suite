@@ -3,10 +3,12 @@
 </p>
 
 ![Python Version](https://img.shields.io/badge/Python-3.9.x-4285f4?logo=python&logoColor=white)
-![Google Chrome For Testnet Version](https://img.shields.io/badge/Google%20Chrome%20For%20Testing-150.0.7871.46-4285f4?logo=GoogleChrome&logoColor=white)
+![Chrome Version](https://img.shields.io/badge/Chrome-150.0.7871.46-4285f4?logo=GoogleChrome&logoColor=white)
+![Chrome Driver Version](https://img.shields.io/badge/Chrome%20Driver-150.0.7871.46-4285f4?logo=GoogleChrome&logoColor=white)
 ![Selenium](https://img.shields.io/badge/Selenium-4.25.0-4285f4?logo=selenium&logoColor=white)
 ![Metamask Wallet Supported](https://img.shields.io/badge/MetaMask%20Wallet-13.0.1-4285f4?logo=Ethereum&logoColor=white)
 ![Eternl Wallet Supported](https://img.shields.io/badge/Eternl%20Wallet-2.0.11.2-4285f4?logo=Cardano&logoColor=white)
+![Phantom Wallet Supported](https://img.shields.io/badge/Phantom%20Wallet-26.19.0-4285f4?logo=Solana&logoColor=white)
 ![macOS Support](https://img.shields.io/badge/macOS-tested-4ccf50?logo=macos&logoColor=white)
 ![Ubuntu Support](https://img.shields.io/badge/Ubuntu-tested-4ccf50?logo=ubuntu&logoColor=white)
 ![Windows Support](https://img.shields.io/badge/Windows-not%20tested-ee0000?logo=windows&logoColor=white)
@@ -18,7 +20,7 @@
 An automated testing suite for the **Reactor Bridge** and **Skyline Bridge** websites, 
 developed with **Selenium** and utilizing Chrome, 
 is designed to thoroughly test every interaction and feature, 
-including support for **MetaMask** and **Eternl** wallets. 
+including support for **MetaMask**, **Eternl**, and **Phantom** wallets. 
 This tool mimics user behavior and checks responses to guarantee optimal performance and reliability. 
 By addressing **all possible scenarios**, this tool provides a strong foundation for identifying and fixing potential issues in the website's functionality and user interface.
 
@@ -65,13 +67,14 @@ By addressing **all possible scenarios**, this tool provides a strong foundation
    PREPROD_FAUCET_API_KEY=''
    BRD_PROXY_USERNAME=''
    BRD_PROXY_PASSWORD=''
-   RECEIVE_ADDRESSES='{"prime":"","vector":"","preview":"","nexus":"","polygon":"","ethereum":"","katana":"","sei":"","scroll":"","unichain":""}'
+   RECEIVE_ADDRESSES='{"prime":"","vector":"","preview":"","nexus":"","polygon":"","ethereum":"","katana":"","sei":"","scroll":"","unichain":"","solana":""}'
    ```
 
 ## Supported Chains
 
 - **Cardano-based (Eternl wallet):** Prime, Vector, Preview
 - **EVM-based (MetaMask wallet):** Nexus, Polygon, Ethereum, Katana, Sei, Scroll, Unichain
+- **Solana (Phantom wallet):** Solana
 
 ## Usage Examples
 

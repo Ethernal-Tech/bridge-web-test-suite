@@ -81,6 +81,10 @@ METAMASK_NETWORKS: set[str] = {
 }
 
 
+PHANTOM_NETWORKS: set[str] = {
+    SolanaSubnetwork.solana
+}
+
 def get_receive_address(subnetwork: str) -> str:
     receive_addresses: dict[str, str] = loads(getenv("RECEIVE_ADDRESSES", "{}"))
     return receive_addresses[subnetwork.lower()]

@@ -165,6 +165,7 @@ class Chrome(WebDriver):
             self.__extensions_dir_path: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extensions")
             self.__chrome_options.add_extension(os.path.join(self.__extensions_dir_path, "MetaMask.crx"))
             self.__chrome_options.add_extension(os.path.join(self.__extensions_dir_path, "Eternl.crx"))
+            self.__chrome_options.add_extension(os.path.join(self.__extensions_dir_path, "Phantom.crx"))
 
             self.__chrome_services: Service = Service()
 

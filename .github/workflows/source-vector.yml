@@ -106,6 +106,36 @@ jobs:
       notification: false
     secrets: inherit
 
+  vector_ap3x_to_solana_sap3x:
+    name: Vector(AP3X) to Solana(sAP3X)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: vector_mytesttoken_to_nexus_mytesttoken
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Vector
+      amount: 2
+      source_token: AP3X
+      destination_chain: Solana
+      destination_token: sAP3X
+      notification: false
+    secrets: inherit
+
+  vector_asol_to_solana_wsol:
+    name: Vector(aSOL) to Solana(wSOL)
+    uses: ./.github/workflows/single-transaction.yml
+    if: (!cancelled() && inputs.bridge_name == 'Skyline')
+    needs: vector_ap3x_to_solana_sap3x
+    with:
+      bridge_name: ${{ inputs.bridge_name }}
+      source_chain: Vector
+      amount: 0.0005
+      source_token: aSOL
+      destination_chain: Solana
+      destination_token: wSOL
+      notification: false
+    secrets: inherit
+
   collect:
     name: Collect
     uses: ./.github/workflows/collect-transactions.yml
@@ -117,6 +147,8 @@ jobs:
       - vector_mytesttoken_to_preview_mytesttoken
       - vector_xada_to_nexus_xada
       - vector_mytesttoken_to_nexus_mytesttoken
+      - vector_ap3x_to_solana_sap3x
+      - vector_asol_to_solana_wsol
     with:
       needs_json: ${{ toJSON(needs) }}
       source_chain: Vector
