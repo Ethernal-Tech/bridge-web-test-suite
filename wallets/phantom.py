@@ -162,18 +162,45 @@ class Phantom:
                 web_socket,
                 call_id,
                 """
-                (function() {
-                    const el = document.evaluate(
-                        '//*[@id="root"]/div[1]/div[1]/div/div[2]/button[2]',
-                        document,
-                        null,
-                        XPathResult.FIRST_ORDERED_NODE_TYPE,
-                        null
-                    ).singleNodeValue;
+                (async function() {
+                    function byXpath(xpath) {
+                        return document.evaluate(
+                            xpath,
+                            document,
+                            null,
+                            XPathResult.FIRST_ORDERED_NODE_TYPE,
+                            null
+                        ).singleNodeValue;
+                    }
 
-                    if (!el) return false;
+                    const primary = byXpath('//*[@id="root"]/div[1]/div[1]/div/div[2]/button[2]');
 
-                    el.click();
+                    if (primary) {
+                        primary.click();
+                        return true;
+                    }
+
+                    const fallbackButton = byXpath('//*[@id="root"]/div[1]/div[1]/div/div[2]/div/button');
+
+                    if (!fallbackButton) return false;
+
+                    fallbackButton.click();
+
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+
+                    const fallbackInput = byXpath('//*[@id="root"]/div[1]/div[1]/div/div[2]/button');
+
+                    if (!fallbackInput) return false;
+
+                    fallbackInput.click();
+
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+
+                    const finalButton = byXpath('//*[@id="root"]/div[1]/div[1]/div/div[2]/div[2]/p');
+
+                    if (!finalButton) return false;
+
+                    finalButton.click();
                     return true;
                 })();
                 """

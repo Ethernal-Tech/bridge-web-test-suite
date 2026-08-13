@@ -36,34 +36,51 @@ class ScreenRecorder:
         while not self.__stop_event.is_set():
 
             try:
-                handle = self.__driver.current_window_handle
+                target = self.__find_active_target()
             except Exception as error:
-                logger.debug(f"Could not read active window handle: {error}")
-                handle = None
+                logger.debug(f"Could not determine active target: {error}")
+                target = None
 
-            if handle and handle != self.__active_target_id:
-                self.__switch_target(handle)
+            if target and target["id"] != self.__active_target_id:
+                self.__switch_target(target)
 
             self.__stop_event.wait(self.__poll_interval_seconds)
 
         self.__stop_capture()
 
-    def __switch_target(self, handle: str) -> None:
+    def __find_active_target(self) -> Optional[dict]:
 
-        logger.debug(f"Switching recording to tab {handle}")
+        debugger_address: str = self.__driver.capabilities["goog:chromeOptions"]["debuggerAddress"]
+        targets: dict = get(f"http://{debugger_address}/json").json()
+
+        # Wallet extension popups (e.g. Phantom's transaction approval window) are opened
+        # by the extension itself, not by this driver's session, so they never become the
+        # current_window_handle and would otherwise never get recorded. Prioritize any such
+        # popup while it's open, over whatever tab the driver session is currently focused on.
+        popup = next(
+            (
+                t for t in targets
+                if t.get("type") == "page"
+                and t.get("url", "").startswith("chrome-extension://")
+                and t.get("url", "").endswith("/notification.html")
+            ),
+            None
+        )
+
+        if popup:
+            return popup
+
+        handle: str = self.__driver.current_window_handle
+
+        return next((t for t in targets if t["id"] == handle), None)
+
+    def __switch_target(self, target: dict) -> None:
+
+        logger.debug(f"Switching recording to tab {target['id']}")
 
         self.__stop_capture()
 
         try:
-
-            debugger_address = self.__driver.capabilities["goog:chromeOptions"]["debuggerAddress"]
-
-            targets = get(f"http://{debugger_address}/json").json()
-            target = next((t for t in targets if t["id"] == handle), None)
-
-            if not target:
-                logger.debug(f"No CDP target found for window handle {handle}")
-                return
 
             web_socket = create_connection(target["webSocketDebuggerUrl"])
             web_socket.send(json.dumps({
@@ -77,22 +94,22 @@ class ScreenRecorder:
             }))
 
             self.__active_web_socket = web_socket
-            self.__active_target_id = handle
+            self.__active_target_id = target["id"]
 
             self.__active_capture_thread = threading.Thread(
-                target=self.__capture, 
-                args=(web_socket,), 
+                target=self.__capture,
+                args=(web_socket,),
                 daemon=True
             )
 
             self.__active_capture_thread.start()
 
-            logger.debug(f"Recording switched to tab {handle} ({target.get('url')})")
+            logger.debug(f"Recording switched to tab {target['id']} ({target.get('url')})")
 
         except Exception as e:
             # broad on purpose: this runs on every poll from the watcher thread,
             # a failed switch must not raise and kill the thread, just retry on the next poll
-            logger.debug(f"Failed to switch recording to tab {handle}: {e}")
+            logger.debug(f"Failed to switch recording to tab {target['id']}: {e}")
 
     def __stop_capture(self) -> None:
 
