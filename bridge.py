@@ -28,6 +28,7 @@ class Bridge:
         self.__status_done: str = "M20 6 9 17l-5-5" if self.__bridge_name == "Skyline" else \
             "M10.1042 16.9856L5.47772 12.3802L7.02501 10.8123L10.1042 13.8964L17.0119 " \
             "7.00977L18.559 8.55185L10.1042 16.9856Z"
+        self.__tx_id: str = "Unknown"
         self.__is_source_succeeded: bool = False
         self.__is_bridge_succeeded: bool = False
         self.__is_destination_succeeded: bool = False
@@ -251,6 +252,29 @@ class Bridge:
 
         sleep(5)
 
+    @retry(tries=5)
+    def __get_tx_id(self) -> str:
+
+        logger.debug("Getting transaction ID")
+
+        tx_id: str = self.__driver.find_element_by_xpath(
+            '//link[@rel="canonical"]'
+        ).get_attribute("href").rsplit("/", 1)[1]
+
+        try:
+
+            # check if tx_id is a number
+            int(tx_id)
+
+            logger.info(f"Transaction ID: {tx_id}")
+
+            return tx_id
+
+        except ValueError:
+
+            logger.debug("Transaction ID not found")
+            raise
+
     @retry()
     def __progress(self, xpath: str, tries: int) -> bool:
 
@@ -359,6 +383,16 @@ class Bridge:
             # Second transaction confirm
             self.__source_wallet.sign_and_confirm_transaction()
 
+        if self.__bridge_name == "Skyline":
+
+            # wait for the transaction to be processed and the tx_id to be available
+            sleep(5)
+
+            try:
+                self.__tx_id = self.__get_tx_id()
+            except Exception:
+                pass
+
         logger.info(f"Start bridging {amount} {self.__source_wallet.get_token_name()}")
 
         try:
@@ -404,6 +438,7 @@ class Bridge:
 
         dump(
             obj={
+                "tx_id": self.__tx_id,
                 "status": self.__final_status,
                 "source": self.__is_source_succeeded,
                 "bridge": self.__is_bridge_succeeded,
