@@ -187,15 +187,20 @@ class Bridge:
 
             sleep(1)
 
-            self.__driver.find_element_by_xpath(
-                '//*[@id="search-tokens"]'
-            ).send_keys(self.__source_wallet.get_token_name().lower())
+            try:
 
-            sleep(1)
+                self.__driver.find_element_by_xpath(
+                    '//*[@id="search-tokens"]'
+                ).send_keys(self.__source_wallet.get_token_name().lower())
 
-            self.__driver.find_element_by_xpath(
-                '/html/body/div[2]/div[2]/div[5]/div/ul/li[1]/button'
-            ).click()
+                sleep(1)
+
+                self.__driver.find_element_by_xpath(
+                    '/html/body/div[2]/div[2]/div[5]/div/ul/li[1]/button'
+                ).click()
+
+            except NoSuchElementException:
+                pass
 
             logger.debug("Source token selected")
 
@@ -211,7 +216,7 @@ class Bridge:
 
             else:
 
-                raise ValueError
+                raise ValueError("Source token selected is not the expected one")
 
             sleep(1)
 
