@@ -99,17 +99,17 @@ class Bridge:
 
         logger.debug(f"Checking if the {self.__source_wallet.get_subnetwork()} wallet is connected correctly")
 
-        connected_wallet = self.__driver.find_element_by_xpath(
+        connected_wallet: str = self.__driver.find_element_by_xpath(
             '//*[@id="basic-button"]'
         ).text.lower()
 
-        receive_address = self.__source_wallet.get_receive_address().lower()
-        receive_address_short = f"{receive_address[:7]}...{receive_address[-5:]}"
+        receive_address: str = self.__source_wallet.get_receive_address().lower()
+        receive_address_short: str = f"{receive_address[:7]}...{receive_address[-5:]}"
 
         if connected_wallet != receive_address_short:
 
             logger.debug(
-                f"{self.__source_wallet.get_subnetwork()} wallet is not connected correctly."
+                f"{self.__source_wallet.get_subnetwork()} wallet is not connected correctly"
             )
 
             logger.debug(f"Connected wallet address: {connected_wallet}")
@@ -207,7 +207,7 @@ class Bridge:
 
             logger.debug("Re-check selected source token")
 
-            check_selected_token = self.__driver.find_element_by_xpath(
+            check_selected_token: str = self.__driver.find_element_by_xpath(
                 '//*[@id="src-tokens"]/span[1]/span/span[1]'
             ).text.lower()
 
