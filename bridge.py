@@ -21,12 +21,14 @@ class Bridge:
     ) -> None:
 
         self.__bridge_name: str = bridge_name.capitalize()
-        self.__bridge_url: str = path.join(bridge_url, "app") if self.__bridge_name == "Skyline" else bridge_url
+        self.__bridge_url: str = path.join(bridge_url, "bridge-app") if self.__bridge_name == "Skyline" else bridge_url
         self.__driver: Chrome = driver
         self.__source_wallet: Union[Eternl, MetaMask] = source_wallet
         self.__destination_wallet: Union[Eternl, MetaMask] = destination_wallet
-        self.__status_done: str = "M10.1042 16.9856L5.47772 12.3802L7.02501 10.8123L10.1042 13.8964L17.0119 " \
-                                  "7.00977L18.559 8.55185L10.1042 16.9856Z"
+        self.__status_done: str = "M20 6 9 17l-5-5" if self.__bridge_name == "Skyline" else \
+            "M10.1042 16.9856L5.47772 12.3802L7.02501 10.8123L10.1042 13.8964L17.0119 " \
+            "7.00977L18.559 8.55185L10.1042 16.9856Z"
+        self.__tx_id: str = "Unknown"
         self.__is_source_succeeded: bool = False
         self.__is_bridge_succeeded: bool = False
         self.__is_destination_succeeded: bool = False
@@ -40,7 +42,7 @@ class Bridge:
             logger.debug(f"Accepting sentry dialog: {accept}")
 
             self.__driver.find_element_by_xpath(
-                f'//*[@id="root"]/div[1]/div[4]/div[4]/div/button[{"1" if accept else "2"}]'
+                f'/html/body/div[2]/div/div/button[{"1" if accept else "2"}]'
             ).click()
 
             sleep(3)
@@ -97,17 +99,22 @@ class Bridge:
 
         logger.debug(f"Checking if the {self.__source_wallet.get_subnetwork()} wallet is connected correctly")
 
-        connected_wallet = self.__driver.find_element_by_xpath(
+        connected_wallet: str = self.__driver.find_element_by_xpath(
             '//*[@id="basic-button"]'
         ).text.lower()
 
-        receive_address = self.__source_wallet.get_receive_address().lower()
+        receive_address: str = self.__source_wallet.get_receive_address().lower()
+        receive_address_short: str = f"{receive_address[:7]}...{receive_address[-5:]}"
 
-        if connected_wallet != f"{receive_address[:7]}...{receive_address[-5:]}":
+        if connected_wallet != receive_address_short:
 
             logger.debug(
                 f"{self.__source_wallet.get_subnetwork()} wallet is not connected correctly"
             )
+
+            logger.debug(f"Connected wallet address: {connected_wallet}")
+            logger.debug(f"Receive wallet address: {receive_address_short}")
+
             return False
 
         logger.debug(
@@ -129,9 +136,11 @@ class Bridge:
 
         sleep(1)
 
-        self.__driver.find_element_by_xpath(
-            '//*[@id="basic-menu"]/div[3]/ul/li'
-        ).click()
+        if self.__bridge_name != "Skyline":
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="basic-menu"]/div[3]/ul/li'
+            ).click()
 
         sleep(3)
 
@@ -171,7 +180,7 @@ class Bridge:
 
         if self.__bridge_name == "Skyline":
 
-            logger.debug(f"Selecting source token as {self.__source_wallet.get_token_name()}")
+            logger.debug(f"Search source token: {self.__source_wallet.get_token_name()}")
 
             self.__driver.find_element_by_xpath(
                 '//*[@id="src-tokens"]'
@@ -179,15 +188,36 @@ class Bridge:
 
             sleep(1)
 
-            self.__driver.find_element_by_xpath(
-                f'//*[starts-with(@id, "menu")]'
-                f'//*[translate(text(), '
-                f'"ABCDEFGHIJKLMNOPQRSTUVWXYZ", '
-                f'"abcdefghijklmnopqrstuvwxyz") = '
-                f'"{self.__source_wallet.get_token_name().lower()}"]'
-            ).click()
+            try:
+
+                self.__driver.find_element_by_xpath(
+                    '//*[@id="search-tokens"]'
+                ).send_keys(self.__source_wallet.get_token_name().lower())
+
+                sleep(1)
+
+                self.__driver.find_element_by_xpath(
+                    '/html/body/div[2]/div[2]/div[5]/div/ul/li[1]/button'
+                ).click()
+
+            except NoSuchElementException:
+                pass
 
             logger.debug("Source token selected")
+
+            logger.debug("Re-check selected source token")
+
+            check_selected_token: str = self.__driver.find_element_by_xpath(
+                '//*[@id="src-tokens"]/span[1]/span/span[1]'
+            ).text.lower()
+
+            if check_selected_token == self.__source_wallet.get_token_name().lower():
+
+                logger.debug("Source token selected successfully")
+
+            else:
+
+                raise ValueError("Source token selected is not the expected one")
 
             sleep(1)
 
@@ -222,6 +252,29 @@ class Bridge:
 
         sleep(5)
 
+    @retry(tries=5)
+    def __get_tx_id(self) -> str:
+
+        logger.debug("Getting transaction ID")
+
+        tx_id: str = self.__driver.find_element_by_xpath(
+            '//link[@rel="canonical"]'
+        ).get_attribute("href").rsplit("/", 1)[1]
+
+        try:
+
+            # check if tx_id is a number
+            int(tx_id)
+
+            logger.info(f"Transaction ID: {tx_id}")
+
+            return tx_id
+
+        except ValueError:
+
+            logger.debug("Transaction ID not found")
+            raise
+
     @retry()
     def __progress(self, xpath: str, tries: int) -> bool:
 
@@ -251,7 +304,7 @@ class Bridge:
         logger.debug("Checking status on source")
 
         return self.__progress(
-            '//*[@id="src-status"]/div/div[2]'
+            f'//*[@id="src-status"]/{"span" if self.__bridge_name == "Skyline" else "div/div[2]"}'
             '//*[local-name()="svg"]//*[local-name()="path"]',
             tries
         )
@@ -261,7 +314,7 @@ class Bridge:
         logger.debug("Checking status on bridge")
 
         return self.__progress(
-            '//*[@id="bridge-status"]/div/div[2]'
+            f'//*[@id="bridge-status"]/{"span" if self.__bridge_name == "Skyline" else "div/div[2]"}'
             '//*[local-name()="svg"]//*[local-name()="path"]',
             tries
         )
@@ -271,7 +324,7 @@ class Bridge:
         logger.debug("Checking status on destination")
 
         return self.__progress(
-            '//*[@id="dest-status"]/div/div[2]'
+            f'//*[@id="dest-status"]/{"span" if self.__bridge_name == "Skyline" else "div/div[2]"}'
             '//*[local-name()="svg"]//*[local-name()="path"]',
             tries
         )
@@ -312,7 +365,9 @@ class Bridge:
             )
             raise
 
-        self.__move_funds()
+        if self.__bridge_name != "Skyline":
+            self.__move_funds()
+
         self.__destination_address(self.__destination_wallet.get_receive_address())
         self.__select_token()
         self.__amount_to_send(amount)
@@ -327,6 +382,16 @@ class Bridge:
 
             # Second transaction confirm
             self.__source_wallet.sign_and_confirm_transaction()
+
+        if self.__bridge_name == "Skyline":
+
+            # wait for the transaction to be processed and the tx_id to be available
+            sleep(5)
+
+            try:
+                self.__tx_id = self.__get_tx_id()
+            except Exception:
+                pass
 
         logger.info(f"Start bridging {amount} {self.__source_wallet.get_token_name()}")
 
@@ -373,6 +438,7 @@ class Bridge:
 
         dump(
             obj={
+                "tx_id": self.__tx_id,
                 "status": self.__final_status,
                 "source": self.__is_source_succeeded,
                 "bridge": self.__is_bridge_succeeded,

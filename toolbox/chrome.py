@@ -188,7 +188,7 @@ class Chrome(WebDriver):
             self.__init_tab: str = self.current_window_handle
 
             # Wait to chrome to open all startup tabs
-            sleep(5)
+            sleep(10)
 
             logger.debug(
                 f"Chrome v{self.capabilities['browserVersion']} "
