@@ -252,7 +252,7 @@ class Bridge:
 
         sleep(5)
 
-    @retry(tries=5)
+    @retry(tries=120, delay=1, backoff=1)
     def __get_tx_id(self) -> str:
 
         logger.debug("Getting transaction ID")
