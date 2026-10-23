@@ -28,6 +28,7 @@ class Bridge:
         self.__status_done: str = "M20 6 9 17l-5-5" if self.__bridge_name == "Skyline" else \
             "M10.1042 16.9856L5.47772 12.3802L7.02501 10.8123L10.1042 13.8964L17.0119 " \
             "7.00977L18.559 8.55185L10.1042 16.9856Z"
+        self.__aborted: bool = False
         self.__tx_id: str = "Unknown"
         self.__is_source_succeeded: bool = False
         self.__is_bridge_succeeded: bool = False
@@ -250,7 +251,14 @@ class Bridge:
             '//*[@id="bridge-tx"]'
         ).click()
 
-        sleep(5)
+        sleep(1)
+
+    @retry(tries=10, delay=1, back_off=1)
+    def __check_toast_notification(self) -> str:
+
+        return self.__driver.find_element_by_xpath(
+            '//li[@data-sonner-toast]//div[@data-title]'
+        ).text
 
     @retry(tries=120, delay=1, back_off=1)
     def __get_tx_id(self) -> str:
@@ -372,69 +380,91 @@ class Bridge:
         self.__select_token()
         self.__amount_to_send(amount)
         self.__send_tx()
-        self.__source_wallet.sign_and_confirm_transaction()
 
-        if self.__bridge_name == "Skyline" and \
-                self.__source_wallet.get_subnetwork().lower() != ApexFusionSubnetwork.prime and \
-                self.__source_wallet.get_subnetwork().lower() != ApexFusionSubnetwork.vector and \
-                self.__source_wallet.get_subnetwork().lower() != CardanoSubnetwork.preview and \
-                self.__source_wallet.get_token_name().lower() == "mytesttoken":
+        logger.debug(f"Checking toast notification after pressing 'Move Funds'")
+        try:
+            # check errors after "move funds"
+            move_funds_msg = self.__check_toast_notification()
+            logger.critical(f"Failed to start bridging. Reason: {move_funds_msg}")
+            self.__aborted = True
+        except Exception:
+            pass
 
-            # Second transaction confirm
+        if not self.__aborted:
+
             self.__source_wallet.sign_and_confirm_transaction()
 
-        if self.__bridge_name == "Skyline":
+            if self.__bridge_name == "Skyline" and \
+                    self.__source_wallet.get_subnetwork().lower() != ApexFusionSubnetwork.prime and \
+                    self.__source_wallet.get_subnetwork().lower() != ApexFusionSubnetwork.vector and \
+                    self.__source_wallet.get_subnetwork().lower() != CardanoSubnetwork.preview and \
+                    self.__source_wallet.get_token_name().lower() == "mytesttoken":
 
-            # wait for the transaction to be processed and the tx_id to be available
-            sleep(5)
+                # second transaction confirm
+                self.__source_wallet.sign_and_confirm_transaction()
 
+            logger.debug(f"Checking toast notification after sign transaction")
             try:
-                self.__tx_id = self.__get_tx_id()
+                # check errors after sign transaction
+                sing_transaction_msg = self.__check_toast_notification()
+                logger.critical(f"Failed to start bridging. Reason: {sing_transaction_msg}")
+                self.__check_toast_notification()
+                self.__aborted = True
             except Exception:
                 pass
 
-        logger.info(f"Start bridging {amount} {self.__source_wallet.get_token_name()}")
+            if not self.__aborted:
 
-        try:
+                # wait for the transaction to be processed and the tx_id to be available
+                sleep(5)
 
-            for turn in [["initial", 1800], ["final", 10]]:
+                try:
+                    self.__tx_id = self.__get_tx_id()
+                except Exception:
+                    pass
 
-                logger.info(f"{turn[0].capitalize()} checks ⚙️")
+                logger.info(f"Start bridging {amount} {self.__source_wallet.get_token_name()}")
 
-                self.__is_source_succeeded = self.__progress_source(turn[1])
+                try:
 
-                logger.info(
-                    f"{self.__source_wallet.get_subnetwork().capitalize()} "
-                    f"{'✅' if self.__is_source_succeeded else '❌'}"
-                )
+                    for turn in [["initial", 1800], ["final", 10]]:
 
-                self.__is_bridge_succeeded = self.__progress_bridge(turn[1])
+                        logger.info(f"{turn[0].capitalize()} checks ⚙️")
 
-                logger.info(
-                    f"Bridge "
-                    f"{'✅' if self.__is_bridge_succeeded else '❌'}"
-                )
+                        self.__is_source_succeeded = self.__progress_source(turn[1])
 
-                self.__is_destination_succeeded: bool = self.__progress_destination(turn[1])
+                        logger.info(
+                            f"{self.__source_wallet.get_subnetwork().capitalize()} "
+                            f"{'✅' if self.__is_source_succeeded else '❌'}"
+                        )
 
-                logger.info(
-                    f"{self.__destination_wallet.get_subnetwork().capitalize()} "
-                    f"{'✅' if self.__is_destination_succeeded else '❌'}"
-                )
+                        self.__is_bridge_succeeded = self.__progress_bridge(turn[1])
 
-                logger.info(f"{turn[0].capitalize()} checks completed 🏁")
+                        logger.info(
+                            f"Bridge "
+                            f"{'✅' if self.__is_bridge_succeeded else '❌'}"
+                        )
 
-                if self.__is_source_succeeded and self.__is_bridge_succeeded and self.__is_destination_succeeded:
-                    self.__final_status = "success"
-                    break
+                        self.__is_destination_succeeded: bool = self.__progress_destination(turn[1])
 
-                else:
-                    self.__final_status = "failed"
+                        logger.info(
+                            f"{self.__destination_wallet.get_subnetwork().capitalize()} "
+                            f"{'✅' if self.__is_destination_succeeded else '❌'}"
+                        )
 
-        except Exception:
-            # the progress status may occasionally fail to be detected,
-            # but the implementation makes refreshing the page to retry checking the status impossible
-            pass
+                        logger.info(f"{turn[0].capitalize()} checks completed 🏁")
+
+                        if self.__is_source_succeeded and self.__is_bridge_succeeded and self.__is_destination_succeeded:
+                            self.__final_status = "success"
+                            break
+
+                        else:
+                            self.__final_status = "failed"
+
+                except Exception:
+                    # the progress status may occasionally fail to be detected,
+                    # but the implementation makes refreshing the page to retry checking the status impossible
+                    pass
 
         dump(
             obj={
