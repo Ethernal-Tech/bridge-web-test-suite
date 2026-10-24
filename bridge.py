@@ -408,7 +408,6 @@ class Bridge:
                 # check errors after sign transaction
                 sing_transaction_msg = self.__check_toast_notification()
                 logger.critical(f"Failed to start bridging. Reason: {sing_transaction_msg}")
-                self.__check_toast_notification()
                 self.__aborted = True
             except Exception:
                 pass
