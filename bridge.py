@@ -253,40 +253,52 @@ class Bridge:
 
         sleep(1)
 
-    @retry(tries=10, delay=1, back_off=1)
     def __check_toast_notification(self) -> str:
 
-        return self.__driver.find_element_by_xpath(
-            '//li[@data-sonner-toast]//div[@data-title]'
-        ).text
+        for _ in range(10):
 
-    @retry(tries=120, delay=1, back_off=1)
-    def __get_tx_id(self) -> str:
+            try:
+
+                msg = self.__driver.find_element_by_xpath(
+                    '//li[@data-sonner-toast]//div[@data-title]'
+                ).text
+
+                self.__aborted = True
+
+                return msg
+
+            except Exception:
+                sleep(1)
+
+        return ""
+
+    def __get_tx_id(self) -> None:
 
         logger.debug("Getting transaction ID")
 
-        tx_id: str = self.__driver.find_element_by_xpath(
-            '//link[@rel="canonical"]'
-        ).get_attribute("href").rsplit("/", 1)[1]
+        for _ in range(120):
 
-        try:
+            try:
 
-            # check if tx_id is a number
-            int(tx_id)
+                tx_id: str = self.__driver.current_url.rsplit("/", 1)[1]
 
-            logger.info(f"Transaction ID: {tx_id}")
+                # check if tx_id is a number
+                int(tx_id)
 
-            return tx_id
+                self.__tx_id = tx_id
+                break
 
-        except ValueError:
+            except Exception:
+                sleep(1)
 
-            logger.debug("Transaction ID not found")
-            raise
+        logger.info(f"Transaction ID: {self.__tx_id}")
 
     @retry()
     def __progress(self, xpath: str, tries: int) -> bool:
 
         logger.debug("Getting progress status every 1sec")
+
+        start: int = tries
 
         while tries > 0:
 
@@ -295,14 +307,17 @@ class Bridge:
                 status = self.__driver.find_element_by_xpath(xpath).get_attribute("d")
 
                 if status == self.__status_done:
-                    logger.debug("Progress is done")
+                    logger.debug(f"Progress is done in {start - tries} tries")
                     return True
 
             except NoSuchElementException:
                 pass
 
             tries -= 1
-            logger.debug(f"Progress is not done yet. Remaining progress status tries: {tries}")
+
+            if tries % 100 == 0:
+                logger.debug(f"Progress is not done yet. Remaining progress status tries: {tries}")
+
             sleep(1)
 
         return False
@@ -382,13 +397,12 @@ class Bridge:
         self.__send_tx()
 
         logger.debug(f"Checking toast notification after pressing 'Move Funds'")
-        try:
-            # check errors after "move funds"
-            move_funds_msg = self.__check_toast_notification()
+
+        # check errors after "move funds"
+        move_funds_msg = self.__check_toast_notification()
+
+        if move_funds_msg != "":
             logger.critical(f"Failed to start bridging. Reason: {move_funds_msg}")
-            self.__aborted = True
-        except Exception:
-            pass
 
         if not self.__aborted:
 
@@ -404,66 +418,64 @@ class Bridge:
                 self.__source_wallet.sign_and_confirm_transaction()
 
             logger.debug(f"Checking toast notification after sign transaction")
-            try:
-                # check errors after sign transaction
-                sing_transaction_msg = self.__check_toast_notification()
+
+            # check errors after sign transaction
+            sing_transaction_msg = self.__check_toast_notification()
+
+            if sing_transaction_msg != "":
                 logger.critical(f"Failed to start bridging. Reason: {sing_transaction_msg}")
-                self.__aborted = True
-            except Exception:
-                pass
 
             if not self.__aborted:
 
                 # wait for the transaction to be processed and the tx_id to be available
                 sleep(5)
 
-                try:
-                    self.__tx_id = self.__get_tx_id()
-                except Exception:
-                    pass
+                self.__get_tx_id()
 
-                logger.info(f"Start bridging {amount} {self.__source_wallet.get_token_name()}")
+                if self.__tx_id != "Unknown":
 
-                try:
+                    logger.info(f"Start bridging {amount} {self.__source_wallet.get_token_name()}")
 
-                    for turn in [["initial", 1800], ["final", 10]]:
+                    try:
 
-                        logger.info(f"{turn[0].capitalize()} checks ⚙️")
+                        for turn in [["initial", 1800], ["final", 10]]:
 
-                        self.__is_source_succeeded = self.__progress_source(turn[1])
+                            logger.info(f"{turn[0].capitalize()} checks ⚙️")
 
-                        logger.info(
-                            f"{self.__source_wallet.get_subnetwork().capitalize()} "
-                            f"{'✅' if self.__is_source_succeeded else '❌'}"
-                        )
+                            self.__is_source_succeeded = self.__progress_source(turn[1])
 
-                        self.__is_bridge_succeeded = self.__progress_bridge(turn[1])
+                            logger.info(
+                                f"{self.__source_wallet.get_subnetwork().capitalize()} "
+                                f"{'✅' if self.__is_source_succeeded else '❌'}"
+                            )
 
-                        logger.info(
-                            f"Bridge "
-                            f"{'✅' if self.__is_bridge_succeeded else '❌'}"
-                        )
+                            self.__is_bridge_succeeded = self.__progress_bridge(turn[1])
 
-                        self.__is_destination_succeeded: bool = self.__progress_destination(turn[1])
+                            logger.info(
+                                f"Bridge "
+                                f"{'✅' if self.__is_bridge_succeeded else '❌'}"
+                            )
 
-                        logger.info(
-                            f"{self.__destination_wallet.get_subnetwork().capitalize()} "
-                            f"{'✅' if self.__is_destination_succeeded else '❌'}"
-                        )
+                            self.__is_destination_succeeded: bool = self.__progress_destination(turn[1])
 
-                        logger.info(f"{turn[0].capitalize()} checks completed 🏁")
+                            logger.info(
+                                f"{self.__destination_wallet.get_subnetwork().capitalize()} "
+                                f"{'✅' if self.__is_destination_succeeded else '❌'}"
+                            )
 
-                        if self.__is_source_succeeded and self.__is_bridge_succeeded and self.__is_destination_succeeded:
-                            self.__final_status = "success"
-                            break
+                            logger.info(f"{turn[0].capitalize()} checks completed 🏁")
 
-                        else:
-                            self.__final_status = "failed"
+                            if self.__is_source_succeeded and self.__is_bridge_succeeded and self.__is_destination_succeeded:
+                                self.__final_status = "success"
+                                break
 
-                except Exception:
-                    # the progress status may occasionally fail to be detected,
-                    # but the implementation makes refreshing the page to retry checking the status impossible
-                    pass
+                            else:
+                                self.__final_status = "failed"
+
+                    except Exception:
+                        # the progress status may occasionally fail to be detected,
+                        # but the implementation makes refreshing the page to retry checking the status impossible
+                        pass
 
         dump(
             obj={
