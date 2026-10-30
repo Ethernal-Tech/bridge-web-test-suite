@@ -1,5 +1,9 @@
 import os
+import json
+import struct
 from time import sleep
+from base64 import b64encode
+from hashlib import sha256
 from pathlib import Path
 from requests import get
 from zipfile import ZipFile
@@ -163,9 +167,18 @@ class Chrome(WebDriver):
 
             # Add extensions
             self.__extensions_dir_path: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "extensions")
-            self.__chrome_options.add_extension(os.path.join(self.__extensions_dir_path, "MetaMask.crx"))
-            self.__chrome_options.add_extension(os.path.join(self.__extensions_dir_path, "Eternl.crx"))
-            self.__chrome_options.add_extension(os.path.join(self.__extensions_dir_path, "Phantom.crx"))
+
+            extension_paths: list[str] = []
+
+            for crx in ("MetaMask.crx", "Eternl.crx", "Phantom.crx"):
+
+                crx_path: str = os.path.join(self.__extensions_dir_path, crx)
+                extension_paths.append(self.__unpack_crx(crx_path, "/tmp/bridge-web-test-suite-extensions"))
+
+            # Chrome honors only the last --load-extension switch, so all paths go into a single comma-separated one
+            load_extension_arg: str = f"--load-extension={','.join(extension_paths)}"
+            self.__chrome_options.add_argument(load_extension_arg)
+            logger.debug(f"{load_extension_arg} added to Chrome Options")
 
             self.__chrome_services: Service = Service()
 
@@ -203,6 +216,76 @@ class Chrome(WebDriver):
             logger.critical(e, exc_info=True)
 
             raise
+
+    @staticmethod
+    def __protobuf_fields(data: bytes):
+
+        # Minimal protobuf reader for the CRX3 header (only length-delimited fields are used there)
+        def varint(i: int) -> tuple[int, int]:
+
+            result = shift = 0
+
+            while True:
+                byte = data[i]
+                i += 1
+                result |= (byte & 0x7f) << shift
+                shift += 7
+                if not byte & 0x80:
+                    return result, i
+
+        i = 0
+
+        while i < len(data):
+            tag, i = varint(i)
+            length, i = varint(i)
+            yield tag >> 3, data[i:i + length]
+            i += length
+
+    def __unpack_crx(self, crx_path: str, target_dir: str) -> str:
+
+        # Unpack a CRX3 file and add its public key to manifest.json,
+        # so the unpacked extension keeps the same ID as the packed one
+        with open(crx_path, "rb") as f:
+            data = f.read()
+
+        if data[:4] != b"Cr24" or struct.unpack("<I", data[4:8])[0] != 3:
+            raise ValueError(f"{crx_path} is not a CRX3 file")
+
+        header_size: int = struct.unpack("<I", data[8:12])[0]
+        header: bytes = data[12:12 + header_size]
+
+        public_keys: list[bytes] = []
+        crx_id: bytes = b""
+
+        for field, value in self.__protobuf_fields(header):
+            if field in (2, 3):  # sha256_with_rsa, sha256_with_ecdsa
+                public_keys.append(dict(self.__protobuf_fields(value))[1])
+            elif field == 10000:  # signed_header_data
+                crx_id = dict(self.__protobuf_fields(value))[1]
+
+        public_key: bytes = next(k for k in public_keys if sha256(k).digest()[:16] == crx_id)
+
+        extension_path: str = os.path.join(target_dir, Path(crx_path).stem)
+
+        if os.path.exists(extension_path):
+            rmtree(extension_path)
+
+        with ZipFile(crx_path, "r") as z:
+            z.extractall(extension_path)
+
+        manifest_path: str = os.path.join(extension_path, "manifest.json")
+
+        with open(manifest_path, "r", encoding="utf-8-sig") as f:
+            manifest: dict = json.load(f)
+
+        manifest["key"] = b64encode(public_key).decode()
+
+        with open(manifest_path, "w", encoding="utf-8") as f:
+            json.dump(manifest, f, indent=2)
+
+        logger.debug(f"{Path(crx_path).name} unpacked to {extension_path}")
+
+        return extension_path
 
     def get_init_tab(self) -> str:
 

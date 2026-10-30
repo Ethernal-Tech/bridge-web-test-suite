@@ -77,6 +77,46 @@ class Eternl:
         self.__receive_address = get_receive_address(self.__subnetwork)
         logger.info(f"{self.__subnetwork} address: {self.__receive_address}")
 
+    def accept_tos(self) -> None:
+
+        logger.debug("Finding ToS dialog")
+
+        self.__driver.get(self.__url)
+        sleep(10)
+
+        try:
+
+            # check if ToS dialog exist
+            self.__driver.find_element_by_xpath('//*[@id="modal-accept-terms"]')
+            logger.debug("ToS dialog found")
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="tos-privacy"]/input'
+            ).click()
+
+            sleep(1)
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="immediate-execution"]/input'
+            ).click()
+
+            sleep(1)
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="responsibility"]/input'
+            ).click()
+
+            sleep(1)
+
+            self.__driver.find_element_by_xpath(
+                '//*[@id="modal-accept-terms"]/div/div/div[2]/div[2]/div[3]/div[2]/button'
+            ).click()
+
+            logger.debug("ToC dialog closed")
+
+        except Exception:
+            pass
+
     @retry()
     def open_wallet(self) -> None:
 
@@ -91,8 +131,7 @@ class Eternl:
 
                 # Checking if the page is fully loaded
                 self.__driver.find_element_by_xpath(
-                    '/html/body/div[1]/div[2]/div[1]/div'
-                    '/div[1]/div[1]/div/div[2]/div/div/button[7]'
+                    '/html/body/div[1]/div[2]/div[1]/div/div[1]/div[1]/div/div[2]/div/div/button[7]'
                 )
 
                 logger.debug(f"{self.__subnetwork} wallet url opened successfully")

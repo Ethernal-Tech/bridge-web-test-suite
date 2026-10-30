@@ -360,6 +360,7 @@ class Bridge:
 
             logger.debug(f"Select the source wallet needed for the {self.__bridge_name} Bridge")
 
+            self.__source_wallet.accept_tos()
             self.__source_wallet.open_wallet()
 
         self.__open_bridge_app(

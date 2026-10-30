@@ -100,6 +100,9 @@ class MetaMask:
         self.__receive_address = get_receive_address(self.__subnetwork)
         logger.info(f"{self.__subnetwork} address: {self.__receive_address}")
 
+    def accept_tos(self) -> None:
+        pass
+
     @retry()
     def open_wallet(self) -> None:
 
