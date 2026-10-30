@@ -7,7 +7,7 @@
 ![Chrome Driver Version](https://img.shields.io/badge/Chrome%20Driver-150.0.7871.46-4285f4?logo=GoogleChrome&logoColor=white)
 ![Selenium](https://img.shields.io/badge/Selenium-4.25.0-4285f4?logo=selenium&logoColor=white)
 ![Metamask Wallet Supported](https://img.shields.io/badge/MetaMask%20Wallet-13.0.1-4285f4?logo=Ethereum&logoColor=white)
-![Eternl Wallet Supported](https://img.shields.io/badge/Eternl%20Wallet-2.0.11.2-4285f4?logo=Cardano&logoColor=white)
+![Eternl Wallet Supported](https://img.shields.io/badge/Eternl%20Wallet-2.2.6.1-4285f4?logo=Cardano&logoColor=white)
 ![Phantom Wallet Supported](https://img.shields.io/badge/Phantom%20Wallet-26.19.0-4285f4?logo=Solana&logoColor=white)
 ![macOS Support](https://img.shields.io/badge/macOS-tested-4ccf50?logo=macos&logoColor=white)
 ![Ubuntu Support](https://img.shields.io/badge/Ubuntu-tested-4ccf50?logo=ubuntu&logoColor=white)
